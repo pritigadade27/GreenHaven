@@ -1,0 +1,82 @@
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-shrink: 0;
+}
+
+.logo__mark {
+  width: 44px;
+  height: 44px;
+  transition: transform var(--dur-slow) var(--ease-spring);
+}
+
+.logo:hover .logo__mark {
+  transform: rotate(-8deg) scale(1.06);
+}
+
+.logo__text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+}
+
+.logo__name {
+  font-family: var(--font-script);
+  font-size: 2rem;
+  line-height: 1;
+  color: var(--color-primary);
+  transition: color var(--dur-base) var(--ease-out);
+}
+
+.logo__tagline {
+  margin-top: 2px;
+  font-family: var(--font-body);
+  font-size: 0.5rem;
+  font-weight: var(--fw-medium);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-green);
+  white-space: nowrap;
+}
+
+/* On a burgundy surface — footer, dark overlays. */
+.logo--light .logo__name {
+  color: var(--color-text-on-dark);
+}
+.logo--light .logo__tagline {
+  color: var(--color-card);
+}
+
+.logo--compact .logo__text {
+  display: none;
+}
+
+/* The navbar shrinks the lockup once the page is scrolled. */
+.navbar--scrolled .logo__mark {
+  width: 38px;
+  height: 38px;
+}
+.navbar--scrolled .logo__name {
+  font-size: 1.7rem;
+}
+.navbar--scrolled .logo__tagline {
+  opacity: 0;
+  height: 0;
+  margin-top: 0;
+  overflow: hidden;
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+
+@media (max-width: 575px) {
+  .logo__tagline {
+    display: none;
+  }
+  .logo__name {
+    font-size: 1.75rem;
+  }
+  .logo__mark {
+    width: 38px;
+    height: 38px;
+  }
+}

@@ -1,0 +1,408 @@
+/* No page banner here — the navbar is fixed, so the search bar needs to clear
+   it itself and then start immediately. */
+.shop.section {
+  padding-top: calc(var(--navbar-height) + var(--space-lg));
+}
+
+.shop__layout {
+  display: grid;
+  /* The sidebar is allowed to breathe a little on very wide screens rather
+     than pinning to one width while the grid takes everything else. */
+  grid-template-columns: clamp(232px, 18vw, 300px) minmax(0, 1fr);
+  align-items: start;
+  gap: var(--space-2xl);
+}
+
+/* ================================================================ filters */
+
+.shop__filters {
+  position: sticky;
+  top: calc(var(--navbar-height-scrolled) + var(--space-lg));
+  /* A sticky column taller than the screen simply clips its own bottom, which put the Care level and Light filters permanently out of reach. */
+  max-height: calc(100vh - var(--navbar-height-scrolled) - var(--space-2xl));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--space-lg);
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.shop__filters::-webkit-scrollbar {
+  width: 6px;
+}
+.shop__filters::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+  border-radius: var(--radius-pill);
+}
+
+.shop__filters-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: var(--space-md);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.shop__filters-head h2 {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  font-weight: var(--fw-semibold);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.shop__filters-head h2 span {
+  display: grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  padding-inline: 5px;
+  border-radius: var(--radius-pill);
+  background: var(--color-accent);
+  color: var(--color-white);
+  font-size: 0.625rem;
+}
+
+.shop__filters-head button {
+  color: var(--color-secondary);
+  font-size: var(--fs-xs);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.filter-group {
+  padding-block: var(--space-lg);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.filter-group:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.filter-group h3 {
+  margin-bottom: var(--space-sm);
+  font-family: var(--font-body);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-green);
+}
+
+.filter-group > ul {
+  display: grid;
+  gap: 2px;
+}
+
+.filter-group > ul button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 7px var(--space-sm);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  font-size: var(--fs-sm);
+  text-align: left;
+  transition: var(--transition-base);
+}
+
+.filter-group > ul button em {
+  color: var(--color-text-light);
+  font-style: normal;
+  font-size: var(--fs-xs);
+}
+
+.filter-group > ul button:hover {
+  background: var(--color-card-soft);
+}
+
+.filter-group > ul button.is-active {
+  background: var(--color-primary);
+  color: var(--color-white);
+}
+
+.filter-group > ul button.is-active em {
+  color: var(--color-card);
+}
+
+/* range */
+
+.filter-group input[type='range'] {
+  width: 100%;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+}
+
+.filter-range {
+  display: flex;
+  justify-content: space-between;
+  margin-top: var(--space-xs);
+  font-size: var(--fs-xs);
+  color: var(--color-text-muted);
+}
+
+.filter-range strong {
+  color: var(--color-primary);
+  font-size: var(--fs-sm);
+}
+
+/* checkbox */
+
+.filter-check {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  cursor: pointer;
+  font-size: var(--fs-sm);
+}
+
+.filter-check input {
+  width: 17px;
+  height: 17px;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+}
+
+/* pills */
+
+.filter-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2xs);
+}
+
+.filter-pills button {
+  /* .filter-group > ul button sets width:100% for the category list — these
+     are pills, so opt back out of it. */
+  width: auto;
+  padding: 5px var(--space-sm);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-xs);
+  color: var(--color-text);
+  transition: var(--transition-base);
+}
+
+.filter-pills button:hover {
+  border-color: var(--color-primary);
+}
+
+.filter-pills button.is-active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-white);
+}
+
+/* ================================================================ results */
+
+.shop__bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-md);
+}
+
+.shop__search {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex: 1;
+  padding: 0.7rem var(--space-md);
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  color: var(--color-green);
+  transition: border-color var(--dur-fast) var(--ease-out);
+}
+
+.shop__search:focus-within {
+  border-color: var(--color-accent);
+}
+
+.shop__search input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: var(--fs-sm);
+  color: var(--color-text);
+}
+
+.shop__search input::-webkit-search-cancel-button {
+  cursor: pointer;
+}
+
+.shop__filter-toggle {
+  display: none;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: 0.7rem var(--space-md);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  color: var(--color-primary);
+  font-size: var(--fs-sm);
+}
+
+.shop__sort {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-size: var(--fs-sm);
+  color: var(--color-text-muted);
+}
+
+.shop__sort select {
+  padding: 0.6rem var(--space-sm);
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  color: var(--color-primary);
+  font-size: var(--fs-sm);
+  cursor: pointer;
+}
+
+.shop__count {
+  margin-bottom: var(--space-lg);
+  color: var(--color-text-muted);
+  font-size: var(--fs-sm);
+}
+
+.shop__grid {
+  display: grid;
+  /* auto-fill, not a fixed column count: at 1280px this is 3 across, at 1920px it is 5, on a phone it is 1 — with no breakpoint doing the work. */
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr));
+  gap: clamp(0.9rem, 1.6vw, 1.75rem);
+}
+
+.shop__empty {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-4xl) var(--space-lg);
+  background: var(--color-white);
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  text-align: center;
+}
+
+.shop__empty svg {
+  color: var(--color-border-strong);
+}
+
+.shop__empty p {
+  max-width: 46ch;
+  color: var(--color-text-muted);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-light);
+  margin-bottom: var(--space-sm);
+}
+
+/* ========================================================================== Responsive ========================================================================== */
+
+@media (max-width: 1199px) {
+  .shop__layout {
+    grid-template-columns: 230px 1fr;
+    gap: var(--space-lg);
+  }
+}
+
+@media (max-width: 991px) {
+  .shop__layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .shop__filters {
+    position: static;
+    display: none;
+  }
+  .shop__filters.is-open {
+    display: block;
+    margin-bottom: var(--space-lg);
+  }
+  .shop__filter-toggle {
+    display: inline-flex;
+  }
+  .shop__sort span {
+    display: none;
+  }
+}
+
+@media (max-width: 575px) {
+  .shop__bar {
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+  }
+  .shop__search {
+    flex-basis: 100%;
+  }
+}
+
+/* ------------------------------------------------------------- pagination */
+.shop__pages {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: var(--space-2xl);
+}
+
+.shop__pages span {
+  display: contents;
+}
+
+.shop__pages button {
+  min-width: 42px;
+  height: 42px;
+  padding-inline: 10px;
+  font: inherit;
+  font-size: var(--fs-sm);
+  color: var(--color-text);
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition-base);
+}
+
+.shop__pages button:hover:not(:disabled) {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.shop__pages button.is-current {
+  color: var(--color-white);
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.shop__pages button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* The previous-page arrow is the same glyph, mirrored. */
+.shop__pages button:first-child svg {
+  transform: rotate(180deg);
+}
+
+.shop__gap {
+  padding-inline: 2px;
+  color: var(--color-text-muted);
+}
+
+/* Card-shaped placeholders, so the grid does not reflow when products land. */
+.shop__skeleton {
+  display: grid;
+  gap: 10px;
+  padding: var(--space-md);
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}

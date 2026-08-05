@@ -1,0 +1,80 @@
+/* ========================================================================== Form field styles, shared by the auth card and the Contact page. */
+
+/* ------------------------------------------------------------------ form */
+
+.auth__form {
+  margin-top: var(--space-xl);
+}
+
+.auth__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+  font-size: var(--fs-xs);
+}
+
+.auth__row label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.auth__row input {
+  accent-color: var(--color-primary);
+  cursor: pointer;
+}
+
+.auth__row a {
+  color: var(--color-secondary);
+}
+
+.auth__row a:hover {
+  text-decoration: underline;
+}
+
+.auth__submit {
+  width: 100%;
+}
+
+.auth__notice {
+  margin-top: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-card-soft);
+  border-left: 3px solid var(--color-accent);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-muted);
+  font-size: var(--fs-xs);
+  line-height: 1.6;
+}
+
+/* ------------------------------------------------------------------- art */
+
+.auth__notice--error {
+  border-left-color: var(--color-secondary);
+  color: var(--color-secondary);
+  font-weight: var(--fw-medium);
+}
+
+/* --------------------------------------------------- refinements */
+
+/* A taller field with a clearer focus ring — this is the one form on the site
+   where a mis-keyed character costs the user a retry. */
+.field__control:focus-within {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(244, 92, 122, 0.18);
+}
+
+/* Status tones for the shared .auth__notice line. */
+.auth__notice.is-good {
+  color: var(--color-green);
+  font-weight: 500;
+}
+
+.auth__notice.is-bad {
+  color: var(--color-secondary);
+  font-weight: 500;
+}

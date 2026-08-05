@@ -1,0 +1,79 @@
+/* Deliberately self-contained: if the app crashed, we cannot assume any other stylesheet or component rendered. */
+
+.crash {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+  padding: clamp(1.15rem, 6vw, 4rem);
+  background: var(--color-bg, #fff8f8);
+}
+
+.crash__card {
+  width: min(560px, 100%);
+  padding: clamp(1.75rem, 5vw, 3rem);
+  text-align: center;
+  background: var(--color-white, #fff);
+  border-radius: var(--radius-lg, 24px);
+  box-shadow: var(--shadow-lg, 0 18px 45px rgba(109, 0, 8, 0.1));
+}
+
+.crash__mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 68px;
+  height: 68px;
+  margin-bottom: var(--space-lg, 1.5rem);
+  color: var(--color-white, #fff);
+  background: var(--color-primary, #6d0008);
+  border-radius: 50%;
+}
+
+.crash__card h1 {
+  font-size: var(--fs-h3, 1.6rem);
+  margin-bottom: var(--space-md, 1rem);
+}
+
+.crash__card > p {
+  max-width: 44ch;
+  margin: 0 auto var(--space-xl, 2rem);
+  color: var(--color-text-muted, #6b6560);
+  line-height: 1.7;
+}
+
+.crash__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md, 1rem);
+}
+
+.crash__reset {
+  font: inherit;
+  font-size: var(--fs-sm, 0.9375rem);
+  color: var(--color-text-muted, #6b6560);
+  background: none;
+  border: none;
+  border-bottom: 1px solid currentColor;
+  cursor: pointer;
+}
+
+.crash__reset:hover {
+  color: var(--color-primary, #6d0008);
+}
+
+.crash__detail {
+  margin-top: var(--space-xl, 2rem);
+  padding: var(--space-md, 1rem);
+  max-height: 220px;
+  overflow: auto;
+  text-align: left;
+  font-size: 0.75rem;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--color-text-muted, #6b6560);
+  background: var(--color-surface-alt, #fdf3f4);
+  border-radius: var(--radius-sm, 10px);
+}

@@ -1,0 +1,77 @@
+/* Explicit column counts, not auto-fit. */
+
+/* auto-FIT, not auto-fill. */
+
+.featured__head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-2xl);
+  margin-bottom: var(--space-2xl);
+  padding-bottom: var(--space-lg);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.featured__head h2 {
+  margin-top: var(--space-xs);
+}
+
+.featured__head p {
+  max-width: 42ch;
+  color: var(--color-text-muted);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-light);
+  text-align: right;
+}
+
+.featured__grid {
+  display: grid;
+  /* 320px rather than 250px as the minimum track. */
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-lg);
+}
+
+/* the reveal wrapper must not collapse the card's full-height stretch */
+.featured__grid > * {
+  display: flex;
+}
+
+.featured__more {
+  display: flex;
+  justify-content: center;
+  /* --space-3xl (4rem) put this section 5px over a 900px viewport on its own.
+     The grid above already provides plenty of separation. */
+  margin-top: var(--space-xl);
+}
+
+@media (max-width: 1199px) {
+  .featured__grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+  }
+}
+
+@media (max-width: 991px) {
+  .featured__head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-md);
+  }
+  .featured__head p {
+    text-align: left;
+  }
+  .featured__grid {
+    gap: var(--space-md);
+  }
+}
+
+@media (max-width: 1199px) {
+  .featured__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 575px) {
+  .featured__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

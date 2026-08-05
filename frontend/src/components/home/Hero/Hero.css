@@ -1,0 +1,299 @@
+/* ========================================================================== Hero — full-screen split. */
+
+.hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 100vh;
+  padding-top: calc(var(--navbar-height) + var(--space-2xl));
+  padding-bottom: var(--space-4xl);
+  overflow: hidden;
+}
+
+/* Soft blush wash bleeding out of the top-right corner. */
+.hero__wash {
+  position: absolute;
+  top: -28%;
+  right: -14%;
+  width: 74vw;
+  height: 118vh;
+  background: radial-gradient(
+    ellipse at 45% 40%,
+    var(--color-card-tint) 0%,
+    var(--color-card-soft) 38%,
+    transparent 68%
+  );
+  pointer-events: none;
+}
+
+.hero__inner {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.02fr) minmax(0, 0.98fr);
+  align-items: center;
+  gap: clamp(var(--space-xl), 4vw, var(--space-4xl));
+}
+
+/* --------------------------------------------------------------------- copy */
+
+.hero__content > * {
+  opacity: 0;
+  animation: fadeUp var(--dur-reveal) var(--ease-out) forwards;
+}
+.hero__eyebrow {
+  animation-delay: 80ms;
+}
+.hero__title {
+  animation-delay: 180ms;
+}
+.hero__text {
+  animation-delay: 300ms;
+}
+.hero__actions {
+  animation-delay: 420ms;
+}
+.hero__stats {
+  animation-delay: 540ms;
+}
+
+.hero__title {
+  margin-top: var(--space-sm);
+  font-size: var(--fs-display);
+  font-weight: var(--fw-regular);
+  line-height: 1.06;
+}
+
+/* "Every Home" set in the script face — the brand's own handwriting. */
+.hero__title em {
+  display: inline-block;
+  margin-top: 0.06em;
+  font-family: var(--font-script);
+  font-style: normal;
+  font-size: 1.24em;
+  line-height: 0.9;
+  color: var(--color-secondary);
+}
+
+.hero__text {
+  max-width: 52ch;
+  margin-top: var(--space-lg);
+  color: var(--color-text-muted);
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-light);
+}
+
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  margin-top: var(--space-2xl);
+}
+
+.hero__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(var(--space-lg), 3vw, var(--space-2xl));
+  margin-top: var(--space-2xl);
+  padding-top: var(--space-xl);
+  border-top: 1px solid var(--color-border);
+}
+
+.hero__stats strong {
+  display: block;
+  font-family: var(--font-heading);
+  font-size: 2rem;
+  font-weight: var(--fw-medium);
+  line-height: 1;
+  color: var(--color-primary);
+}
+
+.hero__stats span {
+  display: block;
+  margin-top: 4px;
+  font-size: var(--fs-xs);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-green);
+}
+
+/* -------------------------------------------------------------------- image */
+
+.hero__visual {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 520px;
+}
+
+.hero__blob {
+  position: absolute;
+  width: 96%;
+  aspect-ratio: 1;
+  background: linear-gradient(155deg, var(--color-card) 0%, var(--color-card-tint) 65%);
+  border-radius: 46% 54% 50% 50% / 52% 48% 52% 48%;
+  opacity: 0.5;
+  animation: zoomIn 1.2s var(--ease-out) both, floatSlow 16s var(--ease-in-out) 1.2s infinite;
+}
+
+/* The arch echoes the greenhouse doorway in the Green Haven emblem. */
+.hero__frame {
+  position: relative;
+  width: min(430px, 100%);
+  aspect-ratio: 3 / 4;
+  border-radius: 999px 999px var(--radius-xl) var(--radius-xl);
+  overflow: hidden;
+  background: var(--color-white);
+  box-shadow: var(--shadow-xl);
+  opacity: 0;
+  animation: fadeRight 1s var(--ease-out) 240ms forwards;
+}
+
+.hero__frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 1.2s var(--ease-out);
+}
+
+.hero__frame:hover img {
+  transform: scale(1.05);
+}
+
+/* drifting leaves */
+.hero__leaf {
+  position: absolute;
+  color: var(--color-green);
+  opacity: 0.22;
+  pointer-events: none;
+}
+.hero__leaf--1 {
+  top: 4%;
+  left: 2%;
+  width: 108px;
+  transform: rotate(-18deg);
+  animation-delay: 0s;
+}
+.hero__leaf--2 {
+  bottom: 10%;
+  left: -3%;
+  width: 84px;
+  transform: rotate(160deg);
+  animation-delay: 1.4s;
+}
+.hero__leaf--3 {
+  top: 16%;
+  right: -2%;
+  width: 96px;
+  transform: rotate(24deg) scaleX(-1);
+  animation-delay: 2.6s;
+}
+
+/* Two supporting plants in circular frames, offset either side of the arch. */
+.hero__disc {
+  position: absolute;
+  border-radius: var(--radius-circle);
+  overflow: hidden;
+  background: var(--color-white);
+  border: 5px solid var(--color-bg);
+  box-shadow: var(--shadow-lg);
+  opacity: 0;
+  animation: zoomIn var(--dur-slow) var(--ease-spring) forwards;
+}
+
+.hero__disc img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--dur-slow) var(--ease-out);
+}
+
+.hero__disc:hover img {
+  transform: scale(1.08);
+}
+
+.hero__disc--top {
+  top: 8%;
+  left: 0;
+  width: 168px;
+  height: 168px;
+  animation-delay: 780ms;
+}
+
+.hero__disc--bottom {
+  bottom: 6%;
+  right: 0;
+  width: 142px;
+  height: 142px;
+  animation-delay: 960ms;
+}
+
+/* ========================================================================== Responsive ========================================================================== */
+
+@media (max-width: 1199px) {
+  .hero__disc--top {
+    width: 140px;
+    height: 140px;
+  }
+  .hero__disc--bottom {
+    width: 120px;
+    height: 120px;
+  }
+}
+
+/* Tablet — stack, photo first is tempting but copy first reads better. */
+@media (max-width: 991px) {
+  .hero {
+    min-height: auto;
+    padding-top: calc(var(--navbar-height) + var(--space-2xl));
+    padding-bottom: var(--space-3xl);
+    text-align: center;
+  }
+  .hero__inner {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-3xl);
+  }
+  .hero__text {
+    margin-inline: auto;
+  }
+  .hero__actions,
+  .hero__stats {
+    justify-content: center;
+  }
+  .hero__visual {
+    min-height: auto;
+  }
+}
+
+@media (max-width: 575px) {
+  .hero__frame {
+    width: min(280px, 76%);
+  }
+  .hero__disc {
+    border-width: 4px;
+  }
+  .hero__disc--top {
+    top: 2%;
+    left: 2%;
+    width: 104px;
+    height: 104px;
+  }
+  .hero__disc--bottom {
+    bottom: 2%;
+    right: 2%;
+    width: 92px;
+    height: 92px;
+  }
+  .hero__stats {
+    gap: var(--space-lg);
+  }
+  .hero__stats strong {
+    font-size: 1.6rem;
+  }
+  .hero__leaf--1,
+  .hero__leaf--3 {
+    width: 70px;
+  }
+  .hero__leaf--2 {
+    display: none;
+  }
+}

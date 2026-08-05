@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" role="img" aria-label="Green Haven">
+  <title>Green Haven — Botanical Emblem</title>
+  <circle cx="100" cy="100" r="76" fill="none" stroke="#6D0008" stroke-width="4"/>
+  <circle cx="100" cy="100" r="67" fill="none" stroke="#F29BA8" stroke-width="1.6"/>
+  <path d="M100 140 C98 122 102 104 100 84" fill="none" stroke="#827C48" stroke-width="5" stroke-linecap="round"/>
+  <path d="M100 128 C90 138 72 130 62 108 C78 106 94 116 100 128 Z" fill="#827C48"/>
+  <path d="M100 128 C110 138 128 130 138 108 C122 106 106 116 100 128 Z" fill="#827C48"/>
+  <path d="M100 110 C92 118 78 112 70 94 C83 93 95 101 100 110 Z" fill="#827C48"/>
+  <path d="M100 110 C108 118 122 112 130 94 C117 93 105 101 100 110 Z" fill="#827C48"/>
+  <path d="M100 94 C94 100 84 96 78 80 C88 79 96 86 100 94 Z" fill="#827C48"/>
+  <path d="M100 94 C106 100 116 96 122 80 C112 79 104 86 100 94 Z" fill="#827C48"/>
+  <circle cx="100" cy="76" r="5.5" fill="#BF0513"/>
+  <circle cx="24" cy="100" r="4.5" fill="#BF0513"/>
+  <circle cx="176" cy="100" r="4.5" fill="#BF0513"/>
+</svg>

@@ -1,0 +1,221 @@
+/* ========================================================================== Green Haven — Animation library Keyframes plus scroll-reveal utilities. */
+
+/* --------------------------------------------------------------- keyframes */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(38px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeDown {
+  from {
+    opacity: 0;
+    transform: translateY(-38px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-48px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeRight {
+  from {
+    opacity: 0;
+    transform: translateX(48px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes zoomIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Slow drift for the hero's floating leaves. */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-22px) rotate(4deg);
+  }
+}
+
+@keyframes floatSlow {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-3deg);
+  }
+  50% {
+    transform: translateY(-32px) rotate(3deg);
+  }
+}
+
+@keyframes pulseSoft {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.06);
+    opacity: 0.85;
+  }
+}
+
+@keyframes shimmer {
+  from {
+    background-position: -420px 0;
+  }
+  to {
+    background-position: 420px 0;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---------------------------------------------------- scroll reveal system */
+
+.reveal {
+  opacity: 0;
+  will-change: opacity, transform;
+}
+
+/* Release the promoted layer once the animation is done — ~30 of these were
+   being held permanently on the home page. */
+.reveal.is-visible {
+  will-change: auto;
+}
+
+.reveal.is-visible {
+  /* opacity: 1 explicitly, NOT only via the animation's forwards fill.
+     Content that is invisible unless an animation completes is content the
+     customer may never see: a dropped animation frame, a throttled background
+     tab, or a browser that skips the keyframes leaves the base `opacity: 0`
+     standing and the section renders blank. The animation is decoration; this
+     line is what actually guarantees the product is on screen. */
+  opacity: 1;
+  animation: fadeUp var(--dur-reveal) var(--ease-out) forwards;
+}
+
+.reveal--up.is-visible {
+  animation-name: fadeUp;
+}
+.reveal--down.is-visible {
+  animation-name: fadeDown;
+}
+.reveal--left.is-visible {
+  animation-name: fadeLeft;
+}
+.reveal--right.is-visible {
+  animation-name: fadeRight;
+}
+.reveal--zoom.is-visible {
+  animation-name: zoomIn;
+}
+.reveal--fade.is-visible {
+  animation-name: fadeIn;
+}
+
+/* Stagger children of a grid so cards arrive one after another. */
+.delay-1 {
+  animation-delay: 80ms;
+}
+.delay-2 {
+  animation-delay: 160ms;
+}
+.delay-3 {
+  animation-delay: 240ms;
+}
+.delay-4 {
+  animation-delay: 320ms;
+}
+.delay-5 {
+  animation-delay: 400ms;
+}
+.delay-6 {
+  animation-delay: 480ms;
+}
+
+/* ------------------------------------------------------- helper utilities */
+
+.float {
+  animation: float 7s var(--ease-in-out) infinite;
+}
+.float--slow {
+  animation: floatSlow 11s var(--ease-in-out) infinite;
+}
+
+/* Skeleton placeholder while an image or product list loads. */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-card-soft) 25%,
+    var(--color-card-tint) 50%,
+    var(--color-card-soft) 75%
+  );
+  background-size: 840px 100%;
+  animation: shimmer 1.5s linear infinite;
+}
+
+/* Images inside a rounded frame gently scale on hover. */
+.img-hover {
+  overflow: hidden;
+}
+.img-hover img {
+  transition: transform var(--dur-slow) var(--ease-out);
+}
+.img-hover:hover img {
+  transform: scale(1.07);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+  }
+  .float,
+  .float--slow,
+  .skeleton {
+    animation: none;
+  }
+}

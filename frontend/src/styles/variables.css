@@ -1,0 +1,139 @@
+/* ==========================================================================
+   Green Haven — Design Tokens
+   The single source of truth for colour, type, spacing, depth and motion.
+   Never hard-code a hex, size or duration in a component; use these.
+   ========================================================================== */
+
+:root {
+  /* ---------------------------------------------------------------- colour */
+  --color-primary: #6d0008; /* deep burgundy — headings, nav, primary buttons */
+  --color-secondary: #bf0513; /* rose red   — hover states, sale tags, accents */
+  --color-accent: #f45c7a; /* bright rose — highlights, badges, active states */
+  --color-card: #f29ba8; /* soft pink   — tinted card surfaces, category tiles */
+  --color-bg: #fff8f8; /* blush white — page background */
+  --color-green: #827c48; /* nature green — foliage, eco labels, secondary text */
+  --color-text: #333333; /* body copy */
+  --color-white: #ffffff;
+
+  /* Derived tints. #F29BA8 at full strength is heavy for a large surface, so
+     cards use white with a pink border and fall back to these washes. */
+  --color-card-soft: #fdeef1;
+  --color-card-tint: #fbe0e6;
+  --color-border: #f6dbe1;
+  --color-border-strong: #efc3cd;
+
+  --color-text-muted: #6f6a63;
+  --color-text-light: #9a938c;
+  --color-text-on-dark: #fdf3f4;
+
+  --color-surface: var(--color-white);
+  --color-surface-alt: #fffdfd;
+
+  --color-success: #4b7f52;
+  --color-warning: #b8860b;
+  --color-danger: var(--color-secondary);
+
+  /* Overlays and glass */
+  --overlay-dark: rgba(109, 0, 8, 0.55);
+  --overlay-light: rgba(255, 255, 255, 0.72);
+  --glass-bg: rgba(255, 248, 248, 0.72);
+  --glass-border: rgba(255, 255, 255, 0.55);
+  --glass-blur: blur(14px) saturate(150%);
+
+  /* ------------------------------------------------------------ typography */
+  --font-heading: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --font-body: 'Poppins', 'Segoe UI', Helvetica, Arial, sans-serif;
+
+  /* The handwritten logo wordmark. */
+  --font-script: 'Sacramento', 'Segoe Script', cursive;
+
+  /* Fluid type — scales between mobile and desktop without breakpoints. */
+  --fs-display: clamp(2.75rem, 1.6rem + 4.6vw, 5rem); /* hero headline      */
+  --fs-h1: clamp(2.25rem, 1.5rem + 3vw, 3.5rem);
+  --fs-h2: clamp(1.75rem, 1.25rem + 2vw, 2.75rem);
+  --fs-h3: clamp(1.375rem, 1.1rem + 1.1vw, 1.875rem);
+  --fs-h4: clamp(1.125rem, 1rem + 0.5vw, 1.375rem);
+  --fs-lg: 1.125rem;
+  --fs-body: 1rem;
+  --fs-sm: 0.9375rem;
+  --fs-xs: 0.8125rem;
+  --fs-eyebrow: 0.75rem; /* the small caps label above a heading */
+
+  --fw-light: 300;
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+
+  --lh-tight: 1.15;
+  --lh-heading: 1.25;
+  --lh-body: 1.75;
+
+  --ls-eyebrow: 0.22em;
+  --ls-heading: -0.01em;
+  --ls-button: 0.06em;
+
+  /* --------------------------------------------------------------- spacing */
+  --space-2xs: 0.25rem;
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+  --space-3xl: 4rem;
+  --space-4xl: 6rem;
+  --space-5xl: 8rem;
+
+  /* Generous vertical rhythm — the white space that makes it feel premium. */
+  /* Was clamp(3.5rem, 2rem + 7vw, 8rem) — 128px top and bottom on a desktop, so 256px of a ~900px viewport was empty before any content. */
+  --section-padding: clamp(2.25rem, 1.4rem + 2.6vw, 3.5rem);
+
+  /* The shell is fluid, not a fixed 1280px column. */
+  --container-max: 2160px;
+  --container-narrow: 74ch;
+  --container-pad: clamp(1.15rem, 6vw, 7.5rem);
+
+  /* ------------------------------------------------------------------ form */
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
+  --radius-pill: 999px;
+  --radius-circle: 50%;
+
+  /* Shadows are warm — tinted with the burgundy, never neutral grey. */
+  --shadow-xs: 0 1px 2px rgba(109, 0, 8, 0.04);
+  --shadow-sm: 0 2px 8px rgba(109, 0, 8, 0.05);
+  --shadow-md: 0 8px 24px rgba(109, 0, 8, 0.07);
+  --shadow-lg: 0 18px 45px rgba(109, 0, 8, 0.1);
+  --shadow-xl: 0 30px 70px rgba(109, 0, 8, 0.13);
+  --shadow-glow: 0 12px 30px rgba(244, 92, 122, 0.28);
+
+  /* ---------------------------------------------------------------- motion */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  --dur-fast: 180ms;
+  --dur-base: 300ms;
+  --dur-slow: 550ms;
+  --dur-reveal: 800ms;
+
+  --transition-base: all var(--dur-base) var(--ease-out);
+
+  /* ---------------------------------------------------------------- layout */
+  --navbar-height: 84px;
+  --navbar-height-scrolled: 68px;
+
+  --z-base: 1;
+  --z-dropdown: 100;
+  --z-sticky: 500;
+  --z-navbar: 800;
+  --z-overlay: 900;
+  --z-modal: 1000;
+  --z-toast: 1100;
+}
+
+/* Breakpoints (CSS variables cannot be used in media queries — these are the agreed values, use them literally). */

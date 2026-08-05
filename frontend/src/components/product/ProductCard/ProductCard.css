@@ -1,0 +1,248 @@
+/* ========================================================================== Product card — used by Featured, Best Sellers, Shop and related plants. */
+
+.product-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: transform var(--dur-base) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out);
+}
+
+.product-card:hover {
+  transform: translateY(-8px);
+  border-color: var(--color-border-strong);
+  box-shadow: var(--shadow-lg);
+}
+
+/* --------------------------------------------------------------------- media */
+
+.product-card__media {
+  position: relative;
+  aspect-ratio: 4 / 3.4;
+  overflow: hidden;
+  background: var(--color-card-soft);
+}
+
+.product-card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--dur-slow) var(--ease-out);
+}
+
+.product-card:hover .product-card__media img {
+  transform: scale(1.07);
+}
+
+/* Seed packets are tall artwork, not a photograph of a plant — `contain`
+   keeps the whole packet visible rather than cropping into its middle. */
+.product-card__media img[src*='seed-'] {
+  object-fit: contain;
+  background: var(--color-bg);
+  padding: var(--space-xs);
+}
+
+.product-card__rank,
+.product-card__save {
+  position: absolute;
+  top: var(--space-sm);
+  left: var(--space-sm);
+  padding: 5px var(--space-sm);
+  border-radius: var(--radius-pill);
+  font-size: 0.6875rem;
+  font-weight: var(--fw-semibold);
+  letter-spacing: 0.06em;
+  box-shadow: var(--shadow-xs);
+}
+
+.product-card__rank {
+  background: var(--color-primary);
+  color: var(--color-white);
+}
+
+.product-card__save {
+  background: var(--color-accent);
+  color: var(--color-white);
+}
+
+.product-card__wish {
+  position: absolute;
+  top: var(--space-sm);
+  right: var(--space-sm);
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-circle);
+  background: var(--overlay-light);
+  backdrop-filter: blur(6px);
+  color: var(--color-primary);
+  box-shadow: var(--shadow-xs);
+  transition: var(--transition-base);
+}
+
+.product-card__wish:hover {
+  background: var(--color-white);
+  transform: scale(1.1);
+}
+
+.product-card__wish.is-on {
+  background: var(--color-secondary);
+  color: var(--color-white);
+  animation: pulseSoft var(--dur-slow) var(--ease-spring);
+}
+
+/* ---------------------------------------------------------------------- body */
+
+.product-card__body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: var(--space-2xs);
+  padding: var(--space-lg);
+}
+
+.product-card__category {
+  font-size: 0.6875rem;
+  font-weight: var(--fw-medium);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-green);
+}
+
+.product-card__name {
+  font-size: 1.1875rem;
+  font-weight: var(--fw-medium);
+  line-height: 1.25;
+}
+
+.product-card__name a:hover {
+  color: var(--color-secondary);
+}
+
+.product-card__short {
+  /* Clamp to two lines so cards in a row stay the same height regardless of
+     how chatty the copy is. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-top: var(--space-2xs);
+  color: var(--color-text-muted);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-light);
+  line-height: 1.55;
+}
+
+/* -------------------------------------------------------------------- badges */
+
+.product-card__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2xs);
+  margin-top: var(--space-sm);
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px var(--space-xs);
+  border-radius: var(--radius-pill);
+  font-size: 0.6875rem;
+  font-weight: var(--fw-medium);
+  white-space: nowrap;
+}
+
+.tag--good {
+  background: rgba(130, 124, 72, 0.12);
+  color: #5f5a33;
+}
+.tag--info {
+  background: rgba(109, 0, 8, 0.08);
+  color: var(--color-primary);
+}
+.tag--warn {
+  background: rgba(191, 5, 19, 0.1);
+  color: var(--color-secondary);
+}
+.tag--accent {
+  background: rgba(244, 92, 122, 0.14);
+  color: #b3234a;
+}
+
+/* ---------------------------------------------------------------------- foot */
+
+.product-card__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  margin-top: auto;
+  padding-top: var(--space-md);
+}
+
+.product-card__price {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.product-card__price strong {
+  font-family: var(--font-heading);
+  font-size: 1.3125rem;
+  font-weight: var(--fw-semibold);
+  color: var(--color-primary);
+}
+
+.product-card__price s {
+  color: var(--color-text-light);
+  font-size: var(--fs-xs);
+}
+
+.product-card__add {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0.55rem var(--space-md);
+  border-radius: var(--radius-pill);
+  background: var(--color-primary);
+  color: var(--color-white);
+  font-size: 0.8125rem;
+  font-weight: var(--fw-medium);
+  white-space: nowrap;
+  transition: var(--transition-base);
+}
+
+.product-card__add:hover {
+  background: var(--color-secondary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-glow);
+}
+
+.product-card__add.is-added {
+  background: var(--color-green);
+}
+
+@media (max-width: 575px) {
+  .product-card__body {
+    padding: var(--space-md);
+  }
+  .product-card__foot {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-sm);
+  }
+  .product-card__price {
+    flex-direction: row;
+    align-items: baseline;
+    gap: var(--space-xs);
+  }
+  .product-card__add {
+    justify-content: center;
+  }
+}

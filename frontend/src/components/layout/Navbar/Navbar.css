@@ -1,0 +1,339 @@
+/* ========================================================================== Navbar — sticky, condenses into a glass bar once the page scrolls ========================================================================== */
+
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: var(--z-navbar);
+  background: transparent;
+  border-bottom: 1px solid transparent;
+  transition: background var(--dur-base) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out);
+}
+
+.navbar__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-lg);
+  height: var(--navbar-height);
+  transition: height var(--dur-base) var(--ease-out);
+}
+
+/* --- scrolled state ------------------------------------------------------ */
+
+.navbar--scrolled {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-bottom-color: var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.navbar--scrolled .navbar__inner {
+  height: var(--navbar-height-scrolled);
+}
+
+/* --- centre links -------------------------------------------------------- */
+
+.navbar__links {
+  display: flex;
+  align-items: center;
+  gap: clamp(var(--space-md), 2vw, var(--space-xl));
+}
+
+.navbar__link {
+  position: relative;
+  padding-block: var(--space-xs);
+  color: var(--color-primary);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+/* Underline grows from the centre on hover. */
+.navbar__link::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 0;
+  height: 1.5px;
+  background: var(--color-secondary);
+  transform: translateX(-50%);
+  transition: width var(--dur-base) var(--ease-out);
+}
+
+.navbar__link:hover {
+  color: var(--color-secondary);
+}
+
+.navbar__link:hover::after,
+.navbar__link--active::after {
+  width: 100%;
+}
+
+.navbar__link--active {
+  color: var(--color-secondary);
+}
+
+/* --- right hand actions -------------------------------------------------- */
+
+.navbar__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.navbar__icon-btn {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-circle);
+  color: var(--color-primary);
+  transition: var(--transition-base);
+}
+
+.navbar__icon-btn:hover {
+  background: var(--color-card-tint);
+  color: var(--color-secondary);
+  transform: translateY(-2px);
+}
+
+.navbar__badge {
+  position: absolute;
+  top: 3px;
+  right: 2px;
+  min-width: 18px;
+  height: 18px;
+  padding-inline: 4px;
+  display: grid;
+  place-items: center;
+  background: var(--color-accent);
+  color: var(--color-white);
+  border-radius: var(--radius-pill);
+  font-size: 0.625rem;
+  font-weight: var(--fw-semibold);
+  line-height: 1;
+  box-shadow: var(--shadow-xs);
+  animation: zoomIn var(--dur-base) var(--ease-spring);
+}
+
+.navbar__login {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-left: var(--space-xs);
+  padding: 0.6rem var(--space-lg);
+  background: var(--color-primary);
+  color: var(--color-white);
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  letter-spacing: var(--ls-button);
+  transition: var(--transition-base);
+}
+
+.navbar__login:hover {
+  background: var(--color-secondary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-glow);
+}
+
+.navbar__burger {
+  display: none;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-circle);
+  color: var(--color-primary);
+  transition: var(--transition-base);
+}
+
+.navbar__burger:hover {
+  background: var(--color-card-tint);
+}
+
+/* ========================================================================== Mobile tablet menu — slides in from the right ========================================================================== */
+
+.mobile-menu {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  /* Clip the closed panel. It is parked at translateX(100%) — 88vw beyond the
+     right edge — and because this wrapper is position:fixed, the body's
+     overflow-x:hidden cannot reach it. Without this the whole document is
+     wider than the screen on a 320px phone. */
+  overflow: hidden;
+  background: var(--overlay-dark);
+  backdrop-filter: blur(3px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--dur-base) var(--ease-out), visibility var(--dur-base);
+}
+
+.mobile-menu--open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.mobile-menu__panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  width: min(400px, 88vw);
+  height: 100%;
+  padding: var(--space-lg) var(--space-xl) var(--space-xl);
+  background: var(--color-bg);
+  box-shadow: var(--shadow-xl);
+  transform: translateX(100%);
+  transition: transform var(--dur-slow) var(--ease-out);
+  overflow-y: auto;
+}
+
+.mobile-menu--open .mobile-menu__panel {
+  transform: translateX(0);
+}
+
+.mobile-menu__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: var(--space-lg);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.mobile-menu__close {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-circle);
+  color: var(--color-primary);
+  transition: var(--transition-base);
+}
+
+.mobile-menu__close:hover {
+  background: var(--color-card-tint);
+  transform: rotate(90deg);
+}
+
+.mobile-menu__links {
+  flex: 1;
+  margin-top: var(--space-lg);
+}
+
+.mobile-menu__links li {
+  opacity: 0;
+  transform: translateX(24px);
+}
+
+/* Links arrive one after another once the panel is open. */
+.mobile-menu--open .mobile-menu__links li {
+  animation: fadeLeft var(--dur-base) var(--ease-out) forwards;
+  animation-delay: calc(160ms + var(--i) * 60ms);
+}
+
+.mobile-menu__links a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-md) 0;
+  border-bottom: 1px solid var(--color-border);
+  font-family: var(--font-heading);
+  font-size: var(--fs-h4);
+  color: var(--color-primary);
+  transition: var(--transition-base);
+}
+
+.mobile-menu__links a:hover {
+  color: var(--color-secondary);
+  padding-left: var(--space-sm);
+}
+
+.mobile-menu__foot {
+  padding-top: var(--space-lg);
+}
+
+.mobile-menu__cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  padding: var(--space-md);
+  background: var(--color-primary);
+  color: var(--color-white);
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  letter-spacing: var(--ls-button);
+  transition: var(--transition-base);
+}
+
+.mobile-menu__cta:hover {
+  background: var(--color-secondary);
+  box-shadow: var(--shadow-glow);
+}
+
+.mobile-menu__foot p {
+  margin-top: var(--space-md);
+  text-align: center;
+  font-family: var(--font-script);
+  font-size: 1.35rem;
+  color: var(--color-green);
+}
+
+/* ========================================================================== Responsive ========================================================================== */
+
+/* Tablet and below — collapse the centre links into the drawer. */
+@media (max-width: 991px) {
+  .navbar__links,
+  .navbar__login {
+    display: none;
+  }
+  .navbar__burger {
+    display: grid;
+  }
+}
+
+@media (max-width: 575px) {
+  .navbar__icon-btn,
+  .navbar__burger {
+    width: 38px;
+    height: 38px;
+  }
+  .navbar__actions {
+    gap: 0;
+  }
+  .mobile-menu__panel {
+    padding-inline: var(--space-lg);
+  }
+}
+
+/* --------------------------------------------------------- small phones */
+/* At 320-380px the bar's contents measured 383px against a 310px box. */
+@media (max-width: 380px) {
+  .navbar__inner {
+    gap: var(--space-xs);
+  }
+
+  .logo__text {
+    display: none;
+  }
+
+  .navbar__actions {
+    gap: 2px;
+  }
+
+  .navbar__icon-btn,
+  .navbar__burger {
+    width: 34px;
+    height: 34px;
+  }
+}

@@ -1,0 +1,61 @@
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+
+import { authApi, getToken, setToken, clearToken } from '../services/api.js';
+import { remove } from '../utils/storage.js';
+
+const AuthContext = createContext(null);
+
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(null);
+  const [ready, setReady] = useState(false);
+
+  // A stored token may be expired or from an old secret, so it is verified
+  // against /auth/me rather than trusted on sight.
+  useEffect(() => {
+    if (!getToken()) {
+      setReady(true);
+      return;
+    }
+    authApi
+      .me()
+      .then(setUser)
+      .catch(() => clearToken())
+      .finally(() => setReady(true));
+  }, []);
+
+  const adopt = useCallback((response) => {
+    setToken(response.token);
+    setUser(response.user);
+    return response.user;
+  }, []);
+
+  const value = useMemo(
+    () => ({
+      user,
+      ready,
+      isSignedIn: Boolean(user),
+      register: async (fullName, email, password) =>
+        adopt(await authApi.register(fullName, email, password)),
+      login: async (email, password) => adopt(await authApi.login(email, password)),
+      logout: () => {
+        clearToken();
+        setUser(null);
+        // Clears the BROWSER's copy, not the customer's.
+        remove('greenhaven.cart');
+        remove('greenhaven.wishlist');
+        // A reload is the honest way to reset both contexts' in-memory copies
+        // without threading a clear through each of them.
+        window.location.assign('/');
+      },
+    }),
+    [user, ready, adopt]
+  );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+}
+
+export function useAuth() {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error('useAuth must be used inside <AuthProvider>');
+  return ctx;
+}

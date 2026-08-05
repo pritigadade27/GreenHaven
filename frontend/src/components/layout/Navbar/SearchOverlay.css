@@ -1,0 +1,108 @@
+.search-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay);
+  background: var(--overlay-dark);
+  backdrop-filter: blur(4px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--dur-base) var(--ease-out), visibility var(--dur-base);
+}
+
+.search-overlay--open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.search-overlay__panel {
+  background: var(--color-bg);
+  padding-block: var(--space-2xl) var(--space-xl);
+  box-shadow: var(--shadow-xl);
+  transform: translateY(-100%);
+  transition: transform var(--dur-slow) var(--ease-out);
+}
+
+.search-overlay--open .search-overlay__panel {
+  transform: translateY(0);
+}
+
+.search-overlay__form {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding-bottom: var(--space-lg);
+  border-bottom: 1px solid var(--color-border-strong);
+  color: var(--color-primary);
+}
+
+.search-overlay__form input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: var(--font-heading);
+  font-size: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+  color: var(--color-primary);
+}
+
+.search-overlay__form input::placeholder {
+  color: var(--color-border-strong);
+}
+
+/* Hide the browser's own clear button — it clashes with the type scale. */
+.search-overlay__form input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.search-overlay__close {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-circle);
+  color: var(--color-primary);
+  transition: var(--transition-base);
+}
+
+.search-overlay__close:hover {
+  background: var(--color-card-tint);
+  transform: rotate(90deg);
+}
+
+.search-overlay__suggestions {
+  margin-top: var(--space-xl);
+}
+
+.search-overlay__suggestions ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+}
+
+.search-overlay__suggestions button {
+  padding: var(--space-xs) var(--space-lg);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  color: var(--color-text-muted);
+  font-size: var(--fs-sm);
+  transition: var(--transition-base);
+}
+
+.search-overlay__suggestions button:hover {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-white);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+@media (max-width: 575px) {
+  .search-overlay__panel {
+    padding-block: var(--space-xl) var(--space-lg);
+  }
+  .search-overlay__suggestions ul {
+    gap: var(--space-2xs) var(--space-xs);
+  }
+}

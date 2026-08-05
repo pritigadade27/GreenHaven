@@ -1,0 +1,231 @@
+/* Explicit column counts, not auto-fit. */
+
+/* auto-FIT, not auto-fill. */
+
+.care {
+  background: linear-gradient(180deg, var(--color-bg) 0%, var(--color-card-soft) 100%);
+}
+
+/* ------------------------------------------------------------ topic cards */
+
+.care__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-lg);
+}
+
+.care-card {
+  padding: var(--space-xl);
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  transition: transform var(--dur-base) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-out);
+}
+
+.care-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-lg);
+}
+
+.care-card__icon {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  margin-bottom: var(--space-md);
+  border-radius: var(--radius-md);
+  background: var(--color-card-soft);
+  color: var(--color-primary);
+  transition: var(--transition-base);
+}
+
+.care-card:hover .care-card__icon {
+  background: var(--color-primary);
+  color: var(--color-white);
+  transform: rotate(-6deg);
+}
+
+.care-card__topic {
+  display: block;
+  font-size: 0.6875rem;
+  font-weight: var(--fw-semibold);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-green);
+}
+
+.care-card h3 {
+  margin-top: var(--space-xs);
+  font-size: 1.125rem;
+  font-weight: var(--fw-medium);
+  line-height: 1.3;
+}
+
+.care-card p {
+  margin-top: var(--space-sm);
+  color: var(--color-text-muted);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-light);
+  line-height: 1.7;
+}
+
+/* --------------------------------------------------- real tips from data */
+
+.care__cards {
+  margin-top: var(--space-3xl);
+  padding: var(--space-2xl);
+  background: var(--color-primary);
+  border-radius: var(--radius-xl);
+  color: var(--color-text-on-dark);
+}
+
+.care__cards-head h3 {
+  color: var(--color-white);
+  font-size: var(--fs-h3);
+  font-weight: var(--fw-regular);
+}
+
+.care__cards-head p {
+  margin-top: var(--space-2xs);
+  color: var(--color-card);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-light);
+}
+
+.care__cards ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+  gap: var(--space-lg);
+  margin-top: var(--space-xl);
+}
+
+.care__cards li {
+  display: flex;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-md);
+  transition: var(--transition-base);
+}
+
+.care__cards li:hover {
+  background: rgba(255, 255, 255, 0.12);
+  transform: translateY(-3px);
+}
+
+.care__cards img {
+  flex-shrink: 0;
+  width: 62px;
+  height: 62px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+}
+
+.care__cards a {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  color: var(--color-white);
+}
+
+.care__cards a:hover {
+  color: var(--color-card);
+}
+
+.care__cards li p {
+  margin-top: 4px;
+  color: var(--color-card);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-light);
+  line-height: 1.6;
+}
+
+.care__more {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--space-3xl);
+}
+
+/* ========================================================================== Responsive ========================================================================== */
+
+@media (max-width: 991px) {
+  .care__cards ul {
+  }
+  .care__cards {
+    padding: var(--space-xl);
+  }
+}
+
+@media (max-width: 575px) {
+  .care__grid {
+    gap: var(--space-md);
+  }
+  .care-card {
+    padding: var(--space-lg);
+  }
+  .care__cards {
+    padding: var(--space-lg);
+  }
+}
+
+@media (max-width: 1199px) {
+  .care__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 575px) {
+  .care__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* The whole card is the target, not just the plant's name — a 40px link inside
+   a 300px card is a hard thing to hit, especially on a phone. */
+.care__card-link {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-md);
+  width: 100%;
+  padding: var(--space-md);
+  color: inherit;
+  border-radius: var(--radius-md);
+  transition: var(--transition-base);
+}
+
+.care__card-link:hover {
+  background: rgb(255 255 255 / 0.09);
+  transform: translateX(3px);
+}
+
+.care__card-link strong {
+  display: block;
+  font-family: var(--font-heading);
+  font-size: var(--fs-lg);
+  color: var(--color-white);
+}
+
+.care__card-link p {
+  margin-top: 3px;
+  font-size: var(--fs-xs);
+  line-height: 1.55;
+  color: rgb(255 255 255 / 0.82);
+}
+
+.care__card-link svg {
+  flex: none;
+  opacity: 0;
+  transition: var(--transition-base);
+}
+
+.care__card-link:hover svg {
+  opacity: 0.85;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .care__card-link:hover {
+    transform: none;
+  }
+}

@@ -1,0 +1,26 @@
+import Hero from '../../components/home/Hero/Hero.jsx';
+import Categories from '../../components/home/Categories/Categories.jsx';
+import FeaturedPlants from '../../components/home/FeaturedPlants/FeaturedPlants.jsx';
+import BestSellers from '../../components/home/BestSellers/BestSellers.jsx';
+import WhyChooseUs from '../../components/home/WhyChooseUs/WhyChooseUs.jsx';
+import PlantCareTips from '../../components/home/PlantCareTips/PlantCareTips.jsx';
+import Newsletter from '../../components/home/Newsletter/Newsletter.jsx';
+
+/**
+ * Home page. Sections are added one per build step, in this order:
+ * Hero -> Categories -> Featured -> Best Sellers -> Why Choose Us ->
+ * Plant Care Tips -> Testimonials -> Newsletter -> Footer.
+ */
+export default function Home() {
+  return (
+    <>
+      <Hero />
+      <Categories />
+      <FeaturedPlants />
+      <BestSellers />
+      <WhyChooseUs />
+      <PlantCareTips />
+      <Newsletter />
+    </>
+  );
+}

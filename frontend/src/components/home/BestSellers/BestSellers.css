@@ -1,0 +1,105 @@
+/* Explicit column counts, not auto-fit. */
+
+/* auto-FIT, not auto-fill. */
+
+.bestsellers__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-lg);
+}
+
+.bestsellers__grid > * {
+  display: flex;
+}
+
+/* Cards sit on the tinted section, so give them a touch more lift than the
+   plain-background Featured grid. */
+.bestsellers .product-card {
+  border-color: transparent;
+  box-shadow: var(--shadow-sm);
+}
+
+.bestsellers .product-card:hover {
+  box-shadow: var(--shadow-xl);
+}
+
+/* ------------------------------------------------------------- promise row */
+
+.bestsellers__promise {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-lg);
+  margin-top: var(--space-xl);
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--color-border-strong);
+}
+
+.bestsellers__promise li {
+  display: flex;
+  align-items: center;
+  /* Centre the icon-and-text block inside its column rather than pinning it to
+     the left edge. With three wide columns, left-pinned content reads as a row
+     that ran out halfway; centred, it reads as a deliberate three-up strip. */
+  justify-content: center;
+  gap: var(--space-md);
+  color: var(--color-primary);
+}
+
+/* The text inside each block stays left-aligned — centring two lines of
+   different lengths against each other looks accidental. */
+.bestsellers__promise li > div {
+  text-align: left;
+}
+
+.bestsellers__promise svg {
+  flex-shrink: 0;
+  color: var(--color-green);
+}
+
+.bestsellers__promise strong {
+  display: block;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+}
+
+.bestsellers__promise span {
+  display: block;
+  margin-top: 2px;
+  color: var(--color-text-muted);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-light);
+}
+
+@media (max-width: 991px) {
+  .bestsellers__grid {
+    gap: var(--space-md);
+  }
+  .bestsellers__promise {
+    gap: var(--space-md);
+  }
+}
+
+@media (max-width: 1199px) {
+  .bestsellers__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 575px) {
+  .bestsellers__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 1199px) {
+  .bestsellers__promise {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 767px) {
+  .bestsellers__promise {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: start;
+  }
+}

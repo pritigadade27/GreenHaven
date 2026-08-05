@@ -1,0 +1,311 @@
+/* ========================================================================== Auth shell — a centred card over a blurred wall of plants. */
+
+.auth {
+  /* flex, not grid: `place-items: center` sizes the column to content, so the card's `width: min(980px, 100%)` resolved against the wrong box and the whole thing sat hard left. */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* min-height only, and dvh rather than vh. */
+  min-height: 100dvh;
+  padding: calc(var(--navbar-height) + var(--space-sm)) var(--container-pad) var(--space-lg);
+  background-size: cover;
+  background-position: center;
+  /* `fixed` repaints the whole backdrop on every scroll frame on iOS and is
+     simply ignored by some versions. The ::before veil is already fixed. */
+  background-attachment: scroll;
+}
+
+/* A blush veil over the photography so the card always has contrast to sit
+   against, whatever the background image happens to be doing behind it. */
+.auth::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(150deg, rgba(255, 248, 248, 0.72), rgba(242, 206, 216, 0.55));
+  pointer-events: none;
+}
+
+.auth__card {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  /* One fixed size for BOTH screens, so switching between Sign in and Sign up
+     never resizes the card. Sized to the taller of the two (sign up, four
+     fields) and capped to the viewport so it always fits. */
+  width: min(920px, 100%);
+  /* A floor rather than a fixed height: the card still looks identical between Sign in and Sign up on a normal screen, but it can grow instead of clipping its own contents on a short one. */
+  min-height: min(736px, 100%);
+  background: var(--color-white);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: 0 40px 90px rgba(109, 0, 8, 0.22);
+  animation: fadeUp var(--dur-reveal) var(--ease-out) both;
+}
+
+/* ------------------------------------------------------------------- form */
+
+.auth__pane {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--space-xl) clamp(var(--space-md), 2.5vw, var(--space-xl));
+}
+
+.auth__pane::-webkit-scrollbar {
+  width: 5px;
+}
+.auth__pane::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+  border-radius: var(--radius-pill);
+}
+
+.auth__tabs {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 4px;
+  padding: 4px;
+  background: var(--color-card-soft);
+  border-radius: var(--radius-pill);
+}
+
+.auth__tabs a {
+  padding: 0.6rem;
+  border-radius: var(--radius-pill);
+  color: var(--color-text-muted);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  text-align: center;
+  transition: var(--transition-base);
+}
+
+.auth__tabs a:hover {
+  color: var(--color-primary);
+}
+
+.auth__tabs a.is-active {
+  background: var(--color-primary);
+  color: var(--color-white);
+  box-shadow: var(--shadow-sm);
+}
+
+.auth__body {
+  padding-top: var(--space-lg);
+}
+
+.auth__body h1 {
+  margin-top: var(--space-2xs);
+  font-size: var(--fs-h3);
+  font-weight: var(--fw-regular);
+  line-height: 1.15;
+}
+
+.auth__body > p {
+  margin-top: var(--space-xs);
+  color: var(--color-text-muted);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-light);
+}
+
+/* -------------------------------------------------------------------- art */
+
+.auth__art {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-primary);
+}
+
+.auth__art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.auth__art figcaption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: var(--space-4xl) var(--space-lg) var(--space-lg);
+  /* A deeper, earlier scrim. */
+  background: linear-gradient(
+    180deg,
+    rgba(58, 0, 4, 0) 0%,
+    rgba(58, 0, 4, 0.55) 35%,
+    rgba(58, 0, 4, 0.95) 100%
+  );
+  color: var(--color-white);
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.35);
+}
+
+.auth__art blockquote {
+  font-family: var(--font-heading);
+  font-size: var(--fs-h4);
+  font-weight: var(--fw-regular);
+  line-height: 1.3;
+}
+
+.auth__art cite {
+  display: block;
+  margin-top: var(--space-xs);
+  color: rgba(255, 255, 255, 0.88);
+  font-size: var(--fs-xs);
+  font-style: normal;
+  font-weight: var(--fw-light);
+}
+
+.auth__points {
+  display: grid;
+  gap: 6px;
+  margin-top: var(--space-md);
+  padding-top: var(--space-md);
+  border-top: 1px solid rgba(255, 255, 255, 0.24);
+}
+
+.auth__points li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  /* Soft pink on a photograph measured around 2:1. White at 88% keeps the
+     tint of the brand without making the list a guessing game. */
+  color: rgba(255, 255, 255, 0.9);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-regular);
+}
+
+.auth__points svg {
+  flex-shrink: 0;
+  color: var(--color-white);
+}
+
+/* ========================================================================== Responsive — below 860px the photograph is decoration, so it goes. */
+
+@media (max-width: 767px) {
+  .auth__card {
+    grid-template-columns: minmax(0, 1fr);
+    width: min(460px, 100%);
+  }
+  .auth__art {
+    display: none;
+  }
+  .auth__pane {
+    padding: var(--space-xl) var(--space-lg);
+  }
+}
+
+/* Compact field metrics inside the card — the sign-up form has four inputs
+   and still has to fit a laptop screen without scrolling. */
+.auth__card .field {
+  margin-bottom: var(--space-sm);
+}
+
+.auth__card .field__control {
+  padding: 0.72rem var(--space-md);
+}
+
+.auth__card .field label {
+  margin-bottom: 3px;
+  font-size: 0.6875rem;
+}
+
+.auth__card .auth__row {
+  margin-bottom: var(--space-md);
+}
+
+.auth__card .auth__notice {
+  margin-top: var(--space-sm);
+  padding: var(--space-xs) var(--space-sm);
+  font-size: 0.6875rem;
+}
+
+/* Sign in has two fields to sign up's four. Centring the body keeps the
+   shorter form optically balanced in the shared card height. */
+.auth__pane {
+  justify-content: flex-start;
+}
+
+.auth__body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Trim the intro block so the four sign-up fields, the button and the note
+   all clear the card height without the pane needing to scroll. */
+.auth__body {
+  padding-top: var(--space-md);
+}
+
+.auth__body h1 {
+  font-size: 1.75rem;
+  line-height: 1.1;
+}
+
+.auth__body > p {
+  margin-top: 6px;
+  margin-bottom: var(--space-md);
+  font-size: var(--fs-xs);
+  line-height: 1.55;
+}
+
+.auth__card .eyebrow {
+  font-size: 0.625rem;
+}
+
+/* ---------------------------------------------------------------- Sign in Two fields in a card sized for four leaves slack. */
+
+.auth__card--login .auth__body {
+  padding-top: var(--space-xl);
+}
+
+.auth__card--login .auth__body h1 {
+  font-size: var(--fs-h2);
+}
+
+.auth__card--login .auth__body > p {
+  margin-top: var(--space-xs);
+  margin-bottom: var(--space-xl);
+  font-size: var(--fs-sm);
+}
+
+.auth__card--login .field {
+  margin-bottom: var(--space-lg);
+}
+
+.auth__card--login .field__control {
+  padding: 0.95rem var(--space-md);
+}
+
+.auth__card--login .field label {
+  margin-bottom: 6px;
+  font-size: var(--fs-xs);
+}
+
+.auth__card--login .auth__row {
+  margin-block: var(--space-md) var(--space-xl);
+  font-size: var(--fs-sm);
+}
+
+/* Shown when a visitor was redirected here from an action that needs an
+   account — tells them why they were moved rather than just relocating them. */
+.auth__reason {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-card-tint);
+  border-radius: var(--radius-sm);
+  color: var(--color-primary);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  line-height: 1.5;
+}
+
+.auth__reason svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+}

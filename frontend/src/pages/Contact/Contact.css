@@ -1,0 +1,167 @@
+.contact.section {
+  padding-top: calc(var(--navbar-height) + var(--space-xl));
+}
+
+.contact__layout {
+  display: grid;
+  /* minmax(0, …) rather than a bare fr. A grid track's default minimum is
+     `auto`, which is the content's minimum size — so a long unbreakable string
+     or a wide input pushes the track past its share and the whole page scrolls
+     sideways. This is the commonest cause of mobile horizontal scroll. */
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  align-items: start;
+  gap: var(--space-2xl);
+}
+
+/* =================================================================== form */
+
+.contact__form-card {
+  padding: clamp(var(--space-lg), 3vw, var(--space-2xl));
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+}
+
+.contact__form-card h2 {
+  font-size: var(--fs-h3);
+  font-weight: var(--fw-regular);
+}
+
+.contact__form-lede {
+  margin-top: var(--space-2xs);
+  color: var(--color-text-muted);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-light);
+}
+
+.contact__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-md);
+}
+
+/* let the shared .field__control host a select and a textarea too */
+.contact .field__control select {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: var(--fs-sm);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.field__control--area {
+  align-items: flex-start;
+  padding: var(--space-md);
+}
+
+.field__control--area textarea {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: var(--fs-sm);
+  line-height: 1.7;
+  resize: vertical;
+}
+
+/* ================================================================ details */
+
+.contact__details {
+  display: grid;
+  gap: var(--space-lg);
+}
+
+.contact__details li {
+  display: flex;
+  gap: var(--space-md);
+}
+
+.contact__details span {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 46px;
+  height: 46px;
+  border-radius: var(--radius-md);
+  background: var(--color-card-soft);
+  color: var(--color-primary);
+}
+
+.contact__details strong {
+  display: block;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--color-primary);
+}
+
+.contact__details p {
+  margin-top: 4px;
+  color: var(--color-text-muted);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-light);
+  line-height: 1.7;
+}
+
+.contact__details a:hover {
+  color: var(--color-secondary);
+  text-decoration: underline;
+}
+
+/* ================================================================== visit */
+
+.contact__visit {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+  margin-top: var(--space-xl);
+  padding: var(--space-lg);
+  background: var(--color-card-soft);
+  border-radius: var(--radius-lg);
+}
+
+.contact__visit svg {
+  flex: none;
+  margin-top: 2px;
+  color: var(--color-primary);
+}
+
+.contact__visit strong {
+  display: block;
+  font-family: var(--font-heading);
+  font-size: var(--fs-h4);
+  margin-bottom: 2px;
+}
+
+.contact__visit p {
+  font-size: var(--fs-sm);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-xs);
+}
+
+.contact__visit a {
+  font-size: var(--fs-sm);
+  color: var(--color-primary);
+  border-bottom: 1px solid currentColor;
+}
+
+/* The two-column layout had no stacking rule at all, so the form and the
+   details column stayed side by side down to 320px. */
+@media (max-width: 991px) {
+  .contact__layout {
+    /* minmax(0, …), not a bare 1fr: a bare fr track has an `auto` minimum, so
+       the form card sized itself to its content and overflowed the column. */
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-xl);
+  }
+}
+
+@media (max-width: 575px) {
+  .contact__row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+}
