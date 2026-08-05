@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| **Frontend** | React 18 + Vite, plain CSS (no Bootstrap/Tailwind), React Router DOM |
+| **Frontend** | React 18 + Vite, plain CSS, React Router DOM |
 | **Backend** | Java 17, Spring Boot 3.3, REST API |
 | **Database** | MySQL 8 |
 | **IDE** | VS Code (frontend) · Eclipse (backend) |
