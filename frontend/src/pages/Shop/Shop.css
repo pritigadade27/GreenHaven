@@ -13,8 +13,6 @@
   gap: var(--space-2xl);
 }
 
-/* ================================================================ filters */
-
 .shop__filters {
   position: sticky;
   top: calc(var(--navbar-height-scrolled) + var(--space-lg));
@@ -131,8 +129,6 @@
   color: var(--color-card);
 }
 
-/* range */
-
 .filter-group input[type='range'] {
   width: 100%;
   accent-color: var(--color-primary);
@@ -152,8 +148,6 @@
   font-size: var(--fs-sm);
 }
 
-/* checkbox */
-
 .filter-check {
   display: flex;
   align-items: center;
@@ -168,8 +162,6 @@
   accent-color: var(--color-primary);
   cursor: pointer;
 }
-
-/* pills */
 
 .filter-pills {
   display: flex;
@@ -198,8 +190,6 @@
   border-color: var(--color-primary);
   color: var(--color-white);
 }
-
-/* ================================================================ results */
 
 .shop__bar {
   display: flex;
@@ -304,8 +294,6 @@
   margin-bottom: var(--space-sm);
 }
 
-/* ========================================================================== Responsive ========================================================================== */
-
 @media (max-width: 1199px) {
   .shop__layout {
     grid-template-columns: 230px 1fr;
@@ -343,7 +331,6 @@
   }
 }
 
-/* ------------------------------------------------------------- pagination */
 .shop__pages {
   display: flex;
   flex-wrap: wrap;
@@ -405,4 +392,15 @@
   background: var(--color-white);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
+}
+
+/* Two range handles stacked for a price band. Kept visually simple: a real
+   dual-thumb slider needs a custom control, and two inputs plus the readout
+   below say the same thing accessibly. */
+.filter-group input[type='range'] + input[type='range'] {
+  margin-top: 6px;
+}
+
+.filter-range span {
+  color: var(--color-text-muted);
 }

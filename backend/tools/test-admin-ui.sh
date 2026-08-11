@@ -2,7 +2,8 @@
 # Admin UI journey, driven through the real browser.
 BR=http://127.0.0.1:10086/command
 S=green-haven-qa
-PW=$(grep '^ADMIN_PASSWORD=' "/c/Users/vnp12/Desktop/green haven/backend/.env" | cut -d= -f2-)
+PW=$(grep '^ADMIN_PASSWORD=' "/c/Users/vnp12/Desktop/green haven/backend/.env" | cut -d= -f2- | tr -d '\r')
+ADMIN_EMAIL=$(grep '^ADMIN_EMAIL=' "/c/Users/vnp12/Desktop/green haven/backend/.env" | cut -d= -f2- | tr -d '\r')
 
 go() {  # navigate and settle
   curl -s -X POST $BR -H 'Content-Type: application/json' \
@@ -54,7 +55,7 @@ check "no link back into the shop chrome" 0 "$(ev '[...document.querySelectorAll
 echo "== SIGNING IN =="
 ev "(async()=>{
   const r = await fetch('/api/admin/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({email:'admin@greenhaven.in',password:'$PW'})});
+    body: JSON.stringify({email:'$ADMIN_EMAIL',password:'$PW'})});
   const d = await r.json();
   if (d.token) localStorage.setItem('greenhaven.admin.token', d.token);
   return d.token ? 'ok' : JSON.stringify(d);
@@ -65,14 +66,16 @@ go /admin/dashboard 6
 check "dashboard reachable" "/admin/dashboard" "$(ev 'location.pathname')"
 check "stat cards rendered" "yes" "$(ev 'document.querySelectorAll(".admin-card").length >= 12 ? "yes" : String(document.querySelectorAll(".admin-card").length)')"
 check "products card shows 154" "yes" "$(ev 'document.body.innerText.includes("154") ? "yes":"no"')"
-check "sidebar navigation present" 7 "$(ev 'document.querySelectorAll(".admin__nav a").length')"
+# Named rather than counted: a bare count says nothing about which link is
+# missing, and it breaks every time the dashboard legitimately grows.
+check "sidebar has every section" "Dashboard,Orders,Payments,Products,Inventory,Customers,Reviews,Discount codes,Activity log" "$(ev '[...document.querySelectorAll(".admin__nav a")].map(a=>a.innerText.trim()).join(",")')"
 
 echo "== ALREADY SIGNED IN: /admin/login REDIRECTS =="
 go /admin/login 5
 check "bounced to the dashboard" "/admin/dashboard" "$(ev 'location.pathname')"
 
 echo "== EVERY SCREEN LOADS =="
-for route in orders payments inventory users reviews activity; do
+for route in orders payments inventory users reviews coupons activity; do
   go "/admin/$route" 5
   check "/admin/$route renders" "yes" \
     "$(ev 'document.querySelector(".admin-table, .admin-empty") ? "yes" : "no"')"
@@ -89,9 +92,13 @@ check "orders page fits" "yes" "$(ev '(document.documentElement.scrollWidth - wi
 
 echo "== LOGOUT KILLS THE SESSION AND THE BACK BUTTON =="
 TOK=$(ev 'localStorage.getItem("greenhaven.admin.token") || ""')
+check "a live token was captured" "yes" "$([ -n "$TOK" ] && echo yes || echo no)"
 ev "(async()=>{await fetch('/api/admin/auth/logout',{method:'POST',headers:{Authorization:'Bearer $TOK'}}); return 'sent';})()" >/dev/null
-sleep 1
-check "the old token is dead server-side" 403 "$(ev "(async()=>{const r=await fetch('/api/admin/stats',{headers:{Authorization:'Bearer $TOK'}}); return String(r.status);})()")"
+sleep 2
+# Asked over curl, not through the page: logout redirects to /admin/login, and an
+# in-page fetch that loses its JS realm mid-flight returns nothing rather than a status.
+check "the old token is dead server-side" 403 \
+  "$(curl -s -o /dev/null -m 20 -w '%{http_code}' http://localhost:8080/api/admin/stats -H "Authorization: Bearer $TOK")"
 ev 'localStorage.removeItem("greenhaven.admin.token"); "cleared"' >/dev/null
 go /admin/dashboard 5
 check "back to a protected page bounces to login" "/admin/login" "$(ev 'location.pathname')"

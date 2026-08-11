@@ -29,7 +29,6 @@ import potStand from '../assets/images/care/plant-stand.jpg';
 import potConcrete from '../assets/images/care/concrete-planter.jpg';
 import potSelfWater from '../assets/images/care/self-watering-pot.jpg';
 
-// Tools
 import toolTrowel from '../assets/images/care/hand-tool-duo.jpg';
 import toolFork from '../assets/images/tools/garden-fork.jpg';
 import toolShears from '../assets/images/tools/pruning-shears.jpg';
@@ -79,7 +78,6 @@ const item = ({
   // return a pesticide under "only show pet-safe". An item that is genuinely
   // inert says so for itself; everything else stays unrated, and an unrated
   // product is simply excluded from that filter.
-  //
   // Light, water and care level are plant concepts. Giving a wheelbarrow
   // 'Easy / bright indirect / low' put 54 tools and pots into the plant-care
   // filters. null keeps them out.
@@ -96,8 +94,6 @@ const item = ({
   bestSeller,
   isMerchandise: true,
 });
-
-/* ------------------------------------------------------------------- seeds */
 
 const seed = (n) => item({ ...n, category: 'seeds', badges: ['edible', 'beginner', ...(n.badges ?? [])] });
 
@@ -199,8 +195,6 @@ const SEEDS = [
   }),
 ];
 
-/* ---------------------------------------------------------- pots & planters */
-
 const pot = (n) => item({ ...n, category: 'pots-planters' });
 
 const POTS = [
@@ -297,8 +291,6 @@ const POTS = [
     specs: { Diameter: '18 cm', Reservoir: '1.2 litres', Indicator: 'Float gauge', Suits: 'Most houseplants except succulents' },
   }),
 ];
-
-/* ------------------------------------------------------------------- tools */
 
 const tool = (n) => item({ ...n, category: 'gardening-tools' });
 
@@ -457,8 +449,6 @@ const TOOLS = [
     specs: { Material: 'Bamboo', Quantity: '50 labels', Size: '15 × 2 cm', Includes: 'Graphite pencil' },
   }),
 ];
-
-/* -------------------------------------------------------- plant care range */
 
 const care = (n) => item({ ...n, category: 'plant-care' });
 

@@ -1,11 +1,7 @@
-/* ==========================================================================
-   Green Haven — Design Tokens
-   The single source of truth for colour, type, spacing, depth and motion.
-   Never hard-code a hex, size or duration in a component; use these.
-   ========================================================================== */
+/* Design tokens. Never hard-code a hex, size or duration in a component —
+   change it here and it changes everywhere. */
 
 :root {
-  /* ---------------------------------------------------------------- colour */
   --color-primary: #6d0008; /* deep burgundy — headings, nav, primary buttons */
   --color-secondary: #bf0513; /* rose red   — hover states, sale tags, accents */
   --color-accent: #f45c7a; /* bright rose — highlights, badges, active states */
@@ -40,7 +36,6 @@
   --glass-border: rgba(255, 255, 255, 0.55);
   --glass-blur: blur(14px) saturate(150%);
 
-  /* ------------------------------------------------------------ typography */
   --font-heading: 'Playfair Display', Georgia, 'Times New Roman', serif;
   --font-body: 'Poppins', 'Segoe UI', Helvetica, Arial, sans-serif;
 
@@ -73,7 +68,6 @@
   --ls-heading: -0.01em;
   --ls-button: 0.06em;
 
-  /* --------------------------------------------------------------- spacing */
   --space-2xs: 0.25rem;
   --space-xs: 0.5rem;
   --space-sm: 0.75rem;
@@ -94,7 +88,6 @@
   --container-narrow: 74ch;
   --container-pad: clamp(1.15rem, 6vw, 7.5rem);
 
-  /* ------------------------------------------------------------------ form */
   --radius-xs: 6px;
   --radius-sm: 10px;
   --radius-md: 16px;
@@ -111,7 +104,6 @@
   --shadow-xl: 0 30px 70px rgba(109, 0, 8, 0.13);
   --shadow-glow: 0 12px 30px rgba(244, 92, 122, 0.28);
 
-  /* ---------------------------------------------------------------- motion */
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -123,7 +115,6 @@
 
   --transition-base: all var(--dur-base) var(--ease-out);
 
-  /* ---------------------------------------------------------------- layout */
   --navbar-height: 84px;
   --navbar-height-scrolled: 68px;
 

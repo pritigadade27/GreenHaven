@@ -9,9 +9,11 @@ const NAV = [
   ['/admin/dashboard', 'Dashboard', 'leaf'],
   ['/admin/orders', 'Orders', 'truck'],
   ['/admin/payments', 'Payments', 'shield'],
+  ['/admin/products', 'Products', 'leaf'],
   ['/admin/inventory', 'Inventory', 'cart'],
   ['/admin/users', 'Customers', 'user'],
   ['/admin/reviews', 'Reviews', 'star'],
+  ['/admin/coupons', 'Discount codes', 'card'],
   ['/admin/activity', 'Activity log', 'filter'],
 ];
 

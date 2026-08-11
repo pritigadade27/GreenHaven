@@ -1,5 +1,3 @@
-/* ========================================================================== Auth shell — a centred card over a blurred wall of plants. */
-
 .auth {
   /* flex, not grid: `place-items: center` sizes the column to content, so the card's `width: min(980px, 100%)` resolved against the wrong box and the whole thing sat hard left. */
   display: flex;
@@ -41,8 +39,6 @@
   box-shadow: 0 40px 90px rgba(109, 0, 8, 0.22);
   animation: fadeUp var(--dur-reveal) var(--ease-out) both;
 }
-
-/* ------------------------------------------------------------------- form */
 
 .auth__pane {
   display: flex;
@@ -107,8 +103,6 @@
   font-size: var(--fs-sm);
   font-weight: var(--fw-light);
 }
-
-/* -------------------------------------------------------------------- art */
 
 .auth__art {
   position: relative;
@@ -178,8 +172,6 @@
   flex-shrink: 0;
   color: var(--color-white);
 }
-
-/* ========================================================================== Responsive — below 860px the photograph is decoration, so it goes. */
 
 @media (max-width: 767px) {
   .auth__card {
@@ -254,8 +246,6 @@
 .auth__card .eyebrow {
   font-size: 0.625rem;
 }
-
-/* ---------------------------------------------------------------- Sign in Two fields in a card sized for four leaves slack. */
 
 .auth__card--login .auth__body {
   padding-top: var(--space-xl);

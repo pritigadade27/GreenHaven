@@ -5,6 +5,8 @@ import java.time.Instant;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.hibernate.annotations.BatchSize;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -18,6 +20,9 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 /** A product in the catalogue. */
+// Class-level, so every ManyToOne that points at a Plant is batched too —
+// @BatchSize is illegal on a ManyToOne property itself.
+@BatchSize(size = 64)
 @Entity
 @Table(name = "plant")
 public class Plant {
@@ -117,12 +122,27 @@ public class Plant {
     @Column(name = "is_best_seller")
     private Boolean bestSeller = Boolean.FALSE;
 
+    /**
+     * Retired from the shop but kept for its history. Set instead of deleting
+     * whenever a product has been ordered.
+     */
+    @Column(nullable = false)
+    private boolean discontinued = false;
+
     @Column(name = "is_new_arrival", nullable = false)
     private Boolean newArrival = Boolean.FALSE;
 
     @Column(name = "created_at", insertable = false, updatable = false)
     private Instant createdAt;
 
+    /**
+     * Batched, not join-fetched. A fetch join on a collection forces Hibernate
+     * to apply the page limit in memory — it would read every plant to return
+     * twenty. Batching keeps LIMIT in SQL and collapses the per-row badge
+     * lookups from one query each into one per batch: listing 100 products
+     * went from 138 SELECTs to a handful.
+     */
+    @BatchSize(size = 64)
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "plant_badge",
@@ -216,6 +236,9 @@ public class Plant {
 
     public String getCareRepot() { return careRepot; }
     public void setCareRepot(String careRepot) { this.careRepot = careRepot; }
+
+    public boolean isDiscontinued() { return discontinued; }
+    public void setDiscontinued(boolean discontinued) { this.discontinued = discontinued; }
 
     public Boolean getNewArrival() { return newArrival; }
     public void setNewArrival(Boolean newArrival) { this.newArrival = newArrival; }

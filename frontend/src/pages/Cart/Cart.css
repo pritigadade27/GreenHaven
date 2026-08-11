@@ -1,7 +1,5 @@
 /* Shared by Cart and Wishlist when there is nothing to show. */
 
-/* =================================================================== cart */
-
 .cart.section {
   padding-top: var(--space-xl);
 }
@@ -160,8 +158,6 @@
   color: var(--color-secondary);
 }
 
-/* ------------------------------------------------------------- summary */
-
 .cart__summary {
   position: sticky;
   top: calc(var(--navbar-height-scrolled) + var(--space-lg));
@@ -250,8 +246,6 @@
 .cart__trust svg {
   color: var(--color-green);
 }
-
-/* ========================================================================== Responsive ========================================================================== */
 
 @media (max-width: 991px) {
   .cart__layout {

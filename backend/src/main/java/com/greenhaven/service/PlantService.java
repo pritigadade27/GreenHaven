@@ -28,16 +28,30 @@ public class PlantService {
         this.mapper = mapper;
     }
 
-    /** Maps the client's sort key onto a real Sort, defaulting safely. */
+    /**
+     * Maps the client's sort key onto a real Sort, defaulting safely.
+     *
+     * Every sort ends with id, and that is not decoration. LIMIT/OFFSET over a
+     * sort with ties has no defined order between the tied rows, so the same
+     * product can come back on two consecutive pages while another is never
+     * returned at all. With ratings now coming from real reviews, most rows
+     * tie on every other column, and paging the catalogue was duplicating 29
+     * of 154 products and silently dropping 29 more. A unique last key removes
+     * the ambiguity for good.
+     */
     private Sort sortFor(String key) {
+        Sort byId = Sort.by(Sort.Direction.ASC, "id");
         return switch (key == null ? "featured" : key) {
-            case "price-asc"  -> Sort.by(Sort.Direction.ASC, "price");
-            case "price-desc" -> Sort.by(Sort.Direction.DESC, "price");
-            case "rating"     -> Sort.by(Sort.Direction.DESC, "rating");
-            case "popular"    -> Sort.by(Sort.Direction.DESC, "reviewCount");
-            case "name"       -> Sort.by(Sort.Direction.ASC, "name");
+            case "price-asc"  -> Sort.by(Sort.Direction.ASC, "price").and(byId);
+            case "price-desc" -> Sort.by(Sort.Direction.DESC, "price").and(byId);
+            // Unrated products last rather than first — NULL sorts low in
+            // MySQL, so DESC would otherwise float them to the top.
+            case "rating"     -> Sort.by(Sort.Order.desc("rating").nullsLast()).and(byId);
+            case "popular"    -> Sort.by(Sort.Direction.DESC, "reviewCount").and(byId);
+            case "name"       -> Sort.by(Sort.Direction.ASC, "name").and(byId);
             default           -> Sort.by(Sort.Direction.DESC, "featured")
-                                     .and(Sort.by(Sort.Direction.DESC, "reviewCount"));
+                                     .and(Sort.by(Sort.Direction.DESC, "reviewCount"))
+                                     .and(byId);
         };
     }
 
@@ -49,13 +63,24 @@ public class PlantService {
 
     public Page<PlantSummaryDto> search(String q, String category, String petSafety,
                                         String difficulty, String light, String water,
-                                        BigDecimal maxPrice, String sort, int page, int size) {
+                                        BigDecimal minPrice, BigDecimal maxPrice,
+                                        Boolean inStock, Boolean newArrival,
+                                        String sort, int page, int size) {
         // Blank strings arrive from empty query params; the query treats only
         // null as "no filter", so normalise here rather than in every clause.
-        return plants.search(escapeLike(blankToNull(q)), blankToNull(category), blankToNull(petSafety),
+        return plants.search(escapeLike(blankToNull(q)), minPrice, inStock, newArrival,
+                        blankToNull(category), blankToNull(petSafety),
                         blankToNull(difficulty), blankToNull(light), blankToNull(water), maxPrice,
                         PageRequest.of(page, size, sortFor(sort)))
                 .map(mapper::toSummary);
+    }
+
+    /** The New Arrivals strip on the home page. */
+    public List<PlantSummaryDto> newArrivals(int limit) {
+        return plants.findByNewArrivalTrueAndDiscontinuedFalseOrderByIdDesc().stream()
+                .limit(Math.max(1, limit))
+                .map(mapper::toSummary)
+                .toList();
     }
 
     public PlantDetailDto bySlug(String slug) {
@@ -64,11 +89,11 @@ public class PlantService {
     }
 
     public List<PlantSummaryDto> featured() {
-        return plants.findByFeaturedTrue().stream().map(mapper::toSummary).toList();
+        return plants.findByFeaturedTrueAndDiscontinuedFalse().stream().map(mapper::toSummary).toList();
     }
 
     public List<PlantSummaryDto> bestSellers(int limit) {
-        return plants.findByBestSellerTrueOrderByReviewCountDesc().stream()
+        return plants.findByBestSellerTrueAndDiscontinuedFalseOrderByReviewCountDesc().stream()
                 .limit(limit).map(mapper::toSummary).toList();
     }
 

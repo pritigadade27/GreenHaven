@@ -31,8 +31,6 @@
   align-items: start;
 }
 
-/* ================================================================ gallery */
-
 .pdp__gallery {
   position: sticky;
   top: calc(var(--navbar-height-scrolled) + var(--space-lg));
@@ -150,8 +148,6 @@
   color: var(--color-text-light);
 }
 
-/* ==================================================================== buy */
-
 .pdp__category {
   font-size: var(--fs-xs);
   font-weight: var(--fw-medium);
@@ -182,9 +178,17 @@
   display: flex;
   align-items: center;
   gap: var(--space-sm);
+  width: fit-content;
   margin-top: var(--space-md);
   font-size: var(--fs-sm);
   color: var(--color-text-muted);
+  transition: color var(--dur-base) var(--ease-out);
+}
+
+/* It jumps to the reviews now, so it says so on hover. */
+.pdp__rating:hover .pdp__reviews {
+  color: var(--color-primary);
+  text-decoration: underline;
 }
 
 .pdp__stars {
@@ -237,8 +241,6 @@
   gap: var(--space-2xs);
   margin-top: var(--space-lg);
 }
-
-/* actions */
 
 .pdp__actions {
   display: flex;
@@ -328,8 +330,6 @@
   font-size: var(--fs-xs);
 }
 
-/* ================================================================== tabs */
-
 .pdp__tabs {
   margin-top: var(--space-2xl);
 }
@@ -383,8 +383,6 @@
   font-weight: var(--fw-light);
   line-height: 1.8;
 }
-
-/* care list */
 
 .pdp__care > div {
   display: grid;
@@ -456,8 +454,6 @@
   color: var(--color-secondary);
 }
 
-/* specs */
-
 .pdp__specs > div {
   display: grid;
   grid-template-columns: 150px 1fr;
@@ -477,15 +473,11 @@
   font-weight: var(--fw-medium);
 }
 
-/* =============================================================== related */
-
 .pdp-related__grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
   gap: clamp(0.9rem, 1.6vw, 1.5rem);
 }
-
-/* ========================================================================== Responsive ========================================================================== */
 
 @media (max-width: 991px) {
   .pdp__top {
@@ -527,7 +519,6 @@
   }
 }
 
-/* ------------------------------------------------- badges, promise, prose */
 /* Added with the buy panel. */
 .pdp__badge {
   display: inline-flex;

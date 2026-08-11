@@ -42,7 +42,6 @@ export default function useScrollReveal({ threshold = 0.15, rootMargin = '0px 0p
     const mutations = new MutationObserver(observeAll);
     mutations.observe(root, { childList: true, subtree: true });
 
-    // Safety net.
     const failsafe = setTimeout(() => {
       root.querySelectorAll('.reveal:not(.is-visible)').forEach(show);
     }, 2500);

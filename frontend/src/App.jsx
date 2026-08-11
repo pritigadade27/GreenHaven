@@ -6,6 +6,7 @@ import { WishlistProvider } from './context/WishlistContext.jsx';
 import { CatalogueProvider } from './context/CatalogueContext.jsx';
 
 import ErrorBoundary from './components/common/ErrorBoundary/ErrorBoundary.jsx';
+import { ToastProvider } from './components/common/Toast/ToastProvider.jsx';
 import AdminRoute from './components/admin/AdminRoute.jsx';
 import { AdminAuthProvider } from './context/AdminAuthContext.jsx';
 import './pages/admin/admin.css';
@@ -23,9 +24,23 @@ const Cart = lazy(() => import('./pages/Cart/Cart.jsx'));
 const Checkout = lazy(() => import('./pages/Checkout/Checkout.jsx'));
 const Login = lazy(() => import('./pages/Login/Login.jsx'));
 const Register = lazy(() => import('./pages/Register/Register.jsx'));
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword/ForgotPassword.jsx'));
 const About = lazy(() => import('./pages/About/About.jsx'));
 const Contact = lazy(() => import('./pages/Contact/Contact.jsx'));
 const Orders = lazy(() => import('./pages/Orders/Orders.jsx'));
+
+// My Profile. One chunk per screen, so a shopper who never signs in downloads
+// none of it.
+const ProfileLayout = lazy(() => import('./pages/Profile/ProfileLayout.jsx'));
+const ProfileOverview = lazy(() => import('./pages/Profile/ProfileOverview.jsx'));
+const ProfileOrders = lazy(() => import('./pages/Profile/ProfileOrders.jsx'));
+const ProfileOrderDetail = lazy(() => import('./pages/Profile/ProfileOrderDetail.jsx'));
+const ProfilePayments = lazy(() => import('./pages/Profile/ProfilePayments.jsx'));
+const ProfileWishlist = lazy(() => import('./pages/Profile/ProfileWishlist.jsx'));
+const ProfileAddresses = lazy(() => import('./pages/Profile/ProfileAddresses.jsx'));
+const ProfilePassword = lazy(() => import('./pages/Profile/ProfilePassword.jsx'));
+const ProfileInvoices = lazy(() => import('./pages/Profile/ProfileInvoices.jsx'));
+const ProfileNotifications = lazy(() => import('./pages/Profile/ProfileNotifications.jsx'));
 const NotFound = lazy(() => import('./pages/NotFound/NotFound.jsx'));
 
 // The dashboard is its own chunk. A shopper never downloads a byte of it,
@@ -36,15 +51,17 @@ const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard.jsx'));
 const AdminOrders = lazy(() => import('./pages/admin/AdminOrders.jsx'));
 const AdminPayments = lazy(() => import('./pages/admin/AdminPayments.jsx'));
 const AdminInventory = lazy(() => import('./pages/admin/AdminInventory.jsx'));
+const AdminProducts = lazy(() => import('./pages/admin/AdminProducts.jsx'));
 const AdminUsers = lazy(() => import('./pages/admin/AdminUsers.jsx'));
 const AdminReviews = lazy(() => import('./pages/admin/AdminReviews.jsx'));
+const AdminCoupons = lazy(() => import('./pages/admin/AdminCoupons.jsx'));
 const AdminActivity = lazy(() => import('./pages/admin/AdminActivity.jsx'));
 const AdminNotFound = lazy(() => import('./pages/admin/AdminNotFound.jsx'));
 
 /** Green Haven — application shell. */
 /** Login and Register are full-height split screens — a footer under them
  *  would just push the form off the fold. */
-const CHROMELESS = ['/login', '/register'];
+const CHROMELESS = ['/login', '/register', '/forgot-password'];
 
 /**
  * The dashboard branch.
@@ -80,8 +97,10 @@ function AdminArea() {
             <Route path="orders" element={<AdminOrders />} />
             <Route path="payments" element={<AdminPayments />} />
             <Route path="inventory" element={<AdminInventory />} />
+            <Route path="products" element={<AdminProducts />} />
             <Route path="users" element={<AdminUsers />} />
             <Route path="reviews" element={<AdminReviews />} />
+            <Route path="coupons" element={<AdminCoupons />} />
             <Route path="activity" element={<AdminActivity />} />
             {/* Unknown admin route: a 404 inside the shell, still signed in. */}
             <Route path="*" element={<AdminNotFound />} />
@@ -120,9 +139,22 @@ function StorefrontArea() {
             <Route path="/wishlist" element={<Wishlist />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/orders" element={<Orders />} />
+
+            <Route path="/profile" element={<ProfileLayout />}>
+              <Route index element={<ProfileOverview />} />
+              <Route path="orders" element={<ProfileOrders />} />
+              <Route path="orders/:orderNumber" element={<ProfileOrderDetail />} />
+              <Route path="payments" element={<ProfilePayments />} />
+              <Route path="wishlist" element={<ProfileWishlist />} />
+              <Route path="addresses" element={<ProfileAddresses />} />
+              <Route path="password" element={<ProfilePassword />} />
+              <Route path="invoices" element={<ProfileInvoices />} />
+              <Route path="notifications" element={<ProfileNotifications />} />
+            </Route>
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
             {/* A real 404. Rendering Home here told people their link worked. */}
@@ -144,12 +176,14 @@ export default function App() {
     // Outermost on purpose: a throw inside any provider or page shows a page
     // that explains itself instead of a blank white screen.
     <ErrorBoundary>
+      <ToastProvider>
       <Routes>
         {/* Everything under /admin, handled entirely by AdminArea. */}
         <Route path="/admin/*" element={<AdminArea />} />
         {/* Everything else is the shop. */}
         <Route path="/*" element={<StorefrontArea />} />
       </Routes>
+      </ToastProvider>
     </ErrorBoundary>
   );
 }

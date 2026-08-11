@@ -66,6 +66,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
             @Value("${greenhaven.ratelimit.register-per-hour:5}") int registerLimit,
             @Value("${greenhaven.ratelimit.forms-per-hour:10}") int formLimit,
             @Value("${greenhaven.ratelimit.checkout-per-hour:30}") int checkoutLimit,
+            @Value("${greenhaven.ratelimit.coupon-per-15min:15}") int couponLimit,
             @Value("${greenhaven.ratelimit.trusted-proxies:}") String trustedProxies) {
 
         this.rules = new Rule[] {
@@ -74,10 +75,22 @@ public class RateLimitFilter extends OncePerRequestFilter {
             // gets a tighter cap than a customer's.
             new Rule("POST", "/api/admin/auth/login", 5, Duration.ofMinutes(15)),
             new Rule("POST", "/api/auth/register", registerLimit, Duration.ofHours(1)),
+            // A reset both sends mail and probes for an account, so it is
+            // capped tighter than sign-in.
+            new Rule("POST", "/api/auth/forgot-password", 5, Duration.ofHours(1)),
+            new Rule("POST", "/api/auth/reset-password", 10, Duration.ofHours(1)),
             new Rule("POST", "/api/contact", formLimit, Duration.ofHours(1)),
             new Rule("POST", "/api/newsletter", formLimit, Duration.ofHours(1)),
             // Every checkout opens a real order on Razorpay's side.
             new Rule("POST", "/api/orders", checkoutLimit, Duration.ofHours(1)),
+            // Uploads put bytes on our disk. Generous enough for several
+            // reviews' worth of photographs, tight enough not to be storage.
+            new Rule("POST", "/api/reviews/image", 20, Duration.ofHours(1)),
+            // Quoting a code says whether that code exists, which makes this a
+            // guessing oracle: left open, someone works through likely words
+            // until they find a live discount. Loose enough for a customer
+            // mistyping the code on their card a few times, and no looser.
+            new Rule("POST", "/api/coupons/quote", couponLimit, Duration.ofMinutes(15)),
         };
 
         this.trustedProxies = Arrays.stream(trustedProxies.split(","))

@@ -11,7 +11,7 @@ import '../Login/Auth.css';
 export default function Register() {
   const location = useLocation();
   const from = location.state?.from ?? '/';
-  const [form, setForm] = useState({ name: '', email: '', password: '', confirm: '' });
+  const [form, setForm] = useState({ name: '', email: '', phone: '', password: '', confirm: '' });
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -39,7 +39,7 @@ export default function Register() {
 
     setBusy(true);
     try {
-      await register(form.name, form.email, form.password);
+      await register(form.name, form.email, form.password, form.phone.trim());
       // Honour where the customer was headed, exactly as Login does. Without
       // this, someone sent here from the cart is dropped on the home page.
       navigate(from, { replace: true });
@@ -107,6 +107,28 @@ export default function Register() {
                 />
               </div>
               {errors.email && <p className="field__error">{errors.email}</p>}
+            </div>
+
+            <div className={`field ${errors.phone ? 'is-error' : ''}`}>
+              <label htmlFor="reg-phone">
+                Phone <span className="field__optional">optional</span>
+              </label>
+              <div className="field__control">
+                <Icon name="phone" size={17} />
+                <input
+                  id="reg-phone"
+                  type="tel"
+                  inputMode="tel"
+                  value={form.phone}
+                  onChange={update('phone')}
+                  placeholder="10-digit mobile"
+                  autoComplete="tel"
+                />
+              </div>
+              {/* Not required here on purpose: an email address is enough to
+                  open an account, and checkout asks for a number anyway, where
+                  the courier actually needs it. */}
+              {errors.phone && <p className="field__error">{errors.phone}</p>}
             </div>
 
             <div className={`field ${errors.password ? 'is-error' : ''}`}>

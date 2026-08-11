@@ -1,5 +1,3 @@
-/* ========================================================================== Green Haven — Global base styles Reset, base typography, layout primitives. */
-
 *,
 *::before,
 *::after {
@@ -28,8 +26,6 @@ body {
   text-rendering: optimizeLegibility;
   /* NOTE: no overflow-x here either. */
 }
-
-/* ------------------------------------------------------------- typography */
 
 h1,
 h2,
@@ -96,14 +92,10 @@ button {
   cursor: pointer;
 }
 
-/* ------------------------------------------------------------- selection */
-
 ::selection {
   background-color: var(--color-accent);
   color: var(--color-white);
 }
-
-/* --------------------------------------------------------------- scrollbar */
 
 ::-webkit-scrollbar {
   width: 10px;
@@ -119,8 +111,6 @@ button {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-accent);
 }
-
-/* ------------------------------------------------------- focus visibility */
 
 :focus-visible {
   outline: 2px solid var(--color-accent);
@@ -143,8 +133,6 @@ button {
 .skip-link:focus {
   top: var(--space-md);
 }
-
-/* ------------------------------------------------------------- primitives */
 
 .container {
   width: 100%;
@@ -224,8 +212,6 @@ button {
   border: 0;
 }
 
-/* ---------------------------------------------------------- accessibility */
-
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -281,7 +267,6 @@ h4 {
 
 /* NOTE: deliberately no `overflow-x` on <html>. */
 
-/* ------------------------------------------------------------ form fields Shared by Login, Register and Contact. */
 .field {
   margin-bottom: var(--space-md);
 }
@@ -350,7 +335,6 @@ h4 {
   padding: 0.95rem var(--space-md);
 }
 
-/* ----------------------------------------------------------- empty state Cart, Wishlist, Orders and Checkout all render this. */
 .empty-state {
   display: grid;
   justify-items: center;
@@ -370,4 +354,14 @@ h4 {
   color: var(--color-text-muted);
   font-size: var(--fs-sm);
   font-weight: var(--fw-light);
+}
+
+/* Marks a field the form does not insist on. */
+.field__optional {
+  margin-left: 6px;
+  color: var(--color-text-muted);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-regular);
+  text-transform: none;
+  letter-spacing: 0;
 }

@@ -5,8 +5,6 @@
   gap: clamp(var(--space-2xl), 5vw, var(--space-5xl));
 }
 
-/* ------------------------------------------------------------------ visual */
-
 .why__visual {
   position: relative;
   padding-bottom: var(--space-3xl);
@@ -75,8 +73,6 @@
   color: var(--color-card);
 }
 
-/* -------------------------------------------------------------------- copy */
-
 .why__content h2 {
   margin-top: var(--space-sm);
 }
@@ -138,8 +134,6 @@
   font-weight: var(--fw-light);
   line-height: 1.65;
 }
-
-/* ========================================================================== Responsive ========================================================================== */
 
 @media (max-width: 991px) {
   .why__inner {

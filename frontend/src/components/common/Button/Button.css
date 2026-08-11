@@ -38,8 +38,6 @@
   transform: translateX(4px);
 }
 
-/* --- sizes --------------------------------------------------------------- */
-
 .btn--md {
   padding: 0.7rem var(--space-lg);
   font-size: var(--fs-sm);
@@ -49,8 +47,6 @@
   padding: 1rem var(--space-2xl);
   font-size: var(--fs-body);
 }
-
-/* --- variants ------------------------------------------------------------ */
 
 .btn--primary {
   background: var(--color-primary);

@@ -42,6 +42,17 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.POST,
                             "/api/auth/**", "/api/contact", "/api/newsletter").permitAll()
                     .requestMatchers("/error", "/actuator/health").permitAll()
+                    // Product photographs are as public as the pages they
+                    // appear on. Uploading them is not, and stays behind
+                    // ROLE_ADMIN under /api/admin.
+                    .requestMatchers(HttpMethod.GET, "/uploads/**").permitAll()
+                    // Checking whether a reset link is still good happens
+                    // before anyone can possibly be signed in.
+                    .requestMatchers(HttpMethod.GET, "/api/auth/reset-password").permitAll()
+                    // Razorpay carries no bearer token. The HMAC over the raw
+                    // body is the authentication, and WebhookController
+                    // refuses anything unsigned or wrongly signed.
+                    .requestMatchers(HttpMethod.POST, "/api/webhooks/razorpay").permitAll()
                     // Sign-in has to be reachable without a token, or there is
                     // no way to obtain one. It is listed BEFORE the catch-all
                     // because Spring applies the first matching rule.

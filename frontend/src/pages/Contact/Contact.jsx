@@ -176,7 +176,6 @@ export default function Contact() {
               </li>
             </ul>
 
-
           </aside>
         </div>
       </section>

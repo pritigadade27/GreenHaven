@@ -5,9 +5,11 @@ import Logo from '../../common/Logo/Logo.jsx';
 import Icon from '../../common/Icon/Icon.jsx';
 import ConfirmDialog from '../../common/ConfirmDialog/ConfirmDialog.jsx';
 import SearchOverlay from './SearchOverlay.jsx';
+import ProfileMenu from './ProfileMenu.jsx';
 import { useAuth } from '../../../context/AuthContext.jsx';
 import { useCart } from '../../../context/CartContext.jsx';
 import { useWishlist } from '../../../context/WishlistContext.jsx';
+import { profileApi } from '../../../services/api.js';
 import useScrolled from '../../../hooks/useScrolled.js';
 import useLockBodyScroll from '../../../hooks/useLockBodyScroll.js';
 import './Navbar.css';
@@ -18,6 +20,15 @@ const LINKS = [
   { label: 'Plant Care', to: '/#care-tips' },
   { label: 'About', to: '/about' },
   { label: 'Contact', to: '/contact' },
+];
+
+/** The same destinations as the desktop profile menu, for the drawer. */
+const ACCOUNT_LINKS = [
+  { label: 'My Profile', to: '/profile', icon: 'user' },
+  { label: 'My Orders', to: '/profile/orders', icon: 'truck' },
+  { label: 'Payment History', to: '/profile/payments', icon: 'card' },
+  { label: 'Saved Addresses', to: '/profile/addresses', icon: 'pin' },
+  { label: 'Change Password', to: '/profile/password', icon: 'lock' },
 ];
 
 export default function Navbar() {
@@ -33,6 +44,24 @@ export default function Navbar() {
   const { user, isSignedIn, logout } = useAuth();
   const { totalItems: cartCount } = useCart();
   const { totalItems: wishlistCount } = useWishlist();
+  // Only the count, so the badge is right without the menu having to open.
+  const [unread, setUnread] = useState(0);
+
+  useEffect(() => {
+    if (!isSignedIn) {
+      setUnread(0);
+      return undefined;
+    }
+    let alive = true;
+    profileApi
+      .notifications()
+      .then((list) => alive && setUnread(list.filter((n) => !n.read).length))
+      // A failed count is not worth a message; the badge simply stays hidden.
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [isSignedIn, pathname]);
 
   useLockBodyScroll(menuOpen);
 
@@ -111,10 +140,11 @@ export default function Navbar() {
             </Link>
 
             {isSignedIn ? (
-              <button type="button" className="navbar__login" onClick={() => setConfirmingLogout(true)} title={user.email}>
-                <Icon name="user" size={18} />
-                <span>{user.fullName.split(' ')[0]} &middot; Sign out</span>
-              </button>
+              <ProfileMenu
+                user={user}
+                unread={unread}
+                onSignOut={() => setConfirmingLogout(true)}
+              />
             ) : (
               <Link className="navbar__login" to="/login">
                 <Icon name="user" size={18} />
@@ -180,10 +210,26 @@ export default function Navbar() {
             ))}
           </ul>
 
+          {isSignedIn && (
+            <ul className="mobile-menu__links mobile-menu__links--account">
+              {ACCOUNT_LINKS.map(({ label, to, icon }, index) => (
+                <li key={to} style={{ '--i': LINKS.length + index }}>
+                  <Link to={to} tabIndex={menuOpen ? 0 : -1} onClick={() => setMenuOpen(false)}>
+                    <span>
+                      <Icon name={icon} size={17} />
+                      {label}
+                    </span>
+                    <Icon name="chevronRight" size={18} />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+
           <div className="mobile-menu__foot">
             {isSignedIn ? (
               <button type="button" className="mobile-menu__cta" onClick={() => setConfirmingLogout(true)}>
-                <Icon name="user" size={18} />
+                <Icon name="signOut" size={18} />
                 Sign out ({user.fullName.split(' ')[0]})
               </button>
             ) : (

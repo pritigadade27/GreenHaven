@@ -2,6 +2,7 @@ package com.greenhaven.model;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,6 +10,8 @@ import org.hibernate.annotations.Generated;
 import org.hibernate.generator.EventType;
 
 import jakarta.persistence.CascadeType;
+import org.hibernate.annotations.BatchSize;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -60,8 +63,18 @@ public class Order {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal tax = BigDecimal.ZERO;
 
+    /**
+     * What a coupon took off, and which code did it.
+     *
+     * The code is copied onto the order rather than read back through the
+     * coupon: an invoice must still say "SPRING20, −₹240" years later, after
+     * the code has been edited, deactivated or deleted.
+     */
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal discount = BigDecimal.ZERO;
+
+    @Column(name = "coupon_code", length = 40)
+    private String couponCode;
 
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal total = BigDecimal.ZERO;
@@ -92,11 +105,33 @@ public class Order {
     @Column(name = "razorpay_payment_id", length = 64)
     private String razorpayPaymentId;
 
+    /**
+     * Copied from the gateway, not joined at read time. An order is a record of
+     * what happened: "UPI" has to keep reading UPI whatever becomes of the
+     * payment row later.
+     */
+    @Column(name = "payment_method", length = 40)
+    private String paymentMethod;
+
+    @Column(name = "estimated_delivery")
+    private LocalDate estimatedDelivery;
+
+    @Column(name = "cancelled_at")
+    private Instant cancelledAt;
+
+    /** CUSTOMER or ADMIN — who ended it. */
+    @Column(name = "cancelled_by", length = 16)
+    private String cancelledBy;
+
+    @Column(name = "cancel_reason", length = 255)
+    private String cancelReason;
+
     /** Set by the database default, and read back immediately after the insert. */
     @Generated(event = EventType.INSERT)
     @Column(name = "placed_at", insertable = false, updatable = false)
     private Instant placedAt;
 
+    @BatchSize(size = 32)
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true,
             fetch = FetchType.EAGER)
     private List<OrderItem> items = new ArrayList<>();
@@ -121,8 +156,26 @@ public class Order {
     public BigDecimal getDiscount() { return discount; }
     public void setDiscount(BigDecimal discount) { this.discount = discount; }
 
+    public String getCouponCode() { return couponCode; }
+    public void setCouponCode(String couponCode) { this.couponCode = couponCode; }
+
     public String getCountry() { return country; }
     public void setCountry(String country) { this.country = country; }
+
+    public String getPaymentMethod() { return paymentMethod; }
+    public void setPaymentMethod(String paymentMethod) { this.paymentMethod = paymentMethod; }
+
+    public LocalDate getEstimatedDelivery() { return estimatedDelivery; }
+    public void setEstimatedDelivery(LocalDate estimatedDelivery) { this.estimatedDelivery = estimatedDelivery; }
+
+    public Instant getCancelledAt() { return cancelledAt; }
+    public void setCancelledAt(Instant cancelledAt) { this.cancelledAt = cancelledAt; }
+
+    public String getCancelledBy() { return cancelledBy; }
+    public void setCancelledBy(String cancelledBy) { this.cancelledBy = cancelledBy; }
+
+    public String getCancelReason() { return cancelReason; }
+    public void setCancelReason(String cancelReason) { this.cancelReason = cancelReason; }
 
     public String getOrderNumber() { return orderNumber; }
     public void setOrderNumber(String orderNumber) { this.orderNumber = orderNumber; }

@@ -4,11 +4,14 @@ import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 /**
@@ -51,11 +54,57 @@ public class GlobalExceptionHandler {
                 safeMessage(ex, "That service is not available right now."), null);
     }
 
+    /**
+     * Razorpay refused or could not be reached — a wrong key, a rejected order,
+     * a network fault. 502, because the failure is upstream and nothing about
+     * the customer's request was wrong. The gateway's own wording can name
+     * internal state, so it goes to the log and never to the browser.
+     */
+    @ExceptionHandler(com.razorpay.RazorpayException.class)
+    public ResponseEntity<Map<String, Object>> gatewayFailed(com.razorpay.RazorpayException ex) {
+        LoggerFactory.getLogger(GlobalExceptionHandler.class)
+                .error("Razorpay call failed: {}", ex.getMessage());
+        return build(HttpStatus.BAD_GATEWAY,
+                "The payment gateway could not be reached. Nothing has been charged — please try again.",
+                null);
+    }
+
     /** A constraint the database enforces and we did not check first — a duplicate email registered in the same instant, or a value too long for its column. */
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<Map<String, Object>> conflict(DataIntegrityViolationException ex) {
         return build(HttpStatus.CONFLICT,
                 "That could not be saved — it may already exist, or a field is too long.", null);
+    }
+
+    /**
+     * A body Jackson could not read at all — truncated JSON, a wrong content
+     * type, text in an encoding that is not UTF-8. Without this it escapes as
+     * Spring's own error page, which has no `message` field, so the React side
+     * shows "Request failed (400)" instead of something a person can act on.
+     */
+    @ExceptionHandler(org.springframework.http.converter.HttpMessageNotReadableException.class)
+    public ResponseEntity<Map<String, Object>> unreadable(
+            org.springframework.http.converter.HttpMessageNotReadableException ex) {
+        return build(HttpStatus.BAD_REQUEST,
+                "That request could not be read. Please check and retry.", null);
+    }
+
+    /**
+     * A file larger than spring.servlet.multipart.max-file-size.
+     *
+     * Needed explicitly because the container rejects the upload while parsing
+     * the request, before any controller runs — so UploadService's own 5 MB
+     * check never gets the chance to produce its message. Without this the
+     * failure surfaced as 503 "that service is not available", which reads as
+     * our fault and invites a retry that cannot possibly work.
+     *
+     * 413, and the limit is named, because the only useful thing a customer can
+     * do about it is send a smaller picture.
+     */
+    @ExceptionHandler({MaxUploadSizeExceededException.class, MultipartException.class})
+    public ResponseEntity<Map<String, Object>> tooLarge(Exception ex) {
+        return build(HttpStatus.PAYLOAD_TOO_LARGE,
+                "That file is too large. Images must be 5 MB or smaller.", null);
     }
 
     /** Bean-validation failures, returned field by field. */

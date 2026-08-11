@@ -13,7 +13,15 @@
 # buckets. This is the limiter working, not a bug.
 API=${API:-http://localhost:8080/api}
 MYSQL=${MYSQL:-/c/Users/vnp12/mysql/mysql-8.4.9-winx64/bin/mysql.exe}
-export MYSQL_PWD=${MYSQL_PWD:-'Priti@#12'}
+# Credentials come from backend/tools/test-env.sh, which is gitignored. There
+# is deliberately no built-in default: a fallback password in a committed
+# script is a published password.
+HERE="$(cd "$(dirname "$0")" && pwd)"
+[ -f "$HERE/test-env.sh" ] && . "$HERE/test-env.sh"
+: "${MYSQL_PWD:?set MYSQL_PWD — copy test-env.example.sh to test-env.sh}"
+ADMIN_EMAIL=${ADMIN_EMAIL:?set ADMIN_EMAIL in test-env.sh}
+ADMIN_PASSWORD=${ADMIN_PASSWORD:?set ADMIN_PASSWORD in test-env.sh}
+export MYSQL_PWD
 ENV_FILE="$(dirname "$0")/../.env"
 
 Q() { "$MYSQL" --default-character-set=utf8mb4 -u priti green_haven -N -B -e "$1"; }
@@ -58,13 +66,20 @@ echo "== CHECKOUT VALIDATION =="
 check "checkout needs a session" 403 "$(code -X POST $API/orders -H 'Content-Type: application/json' -d '{"addressLine":"a","phone":"9876543210","city":"Pune","state":"MH","pincode":"411045","items":[{"slug":"tulsi","quantity":1}]}')"
 check "phone required" 400 "$(code -X POST $API/orders -H "Authorization: Bearer $CUST" -H 'Content-Type: application/json' -d '{"addressLine":"12 Baner Road","city":"Pune","state":"MH","pincode":"411045","items":[{"slug":"tulsi","quantity":1}]}')"
 check "absurd quantity refused" 400 "$(code -X POST $API/orders -H "Authorization: Bearer $CUST" -H 'Content-Type: application/json' -d '{"addressLine":"12 Baner Road","phone":"9876543210","city":"Pune","state":"MH","pincode":"411045","items":[{"slug":"tulsi","quantity":2000000000}]}')"
-check "gateway unconfigured says so" 503 "$(code -X POST $API/orders -H "Authorization: Bearer $CUST" -H 'Content-Type: application/json' -d '{"addressLine":"12 Baner Road","phone":"9876543210","city":"Pune","state":"MH","pincode":"411045","items":[{"slug":"tulsi","quantity":1}]}')"
+MODE=$(grep '^RAZORPAY_MODE=' "$ENV_FILE" | cut -d= -f2- | tr -d '\r')
+CART='{"addressLine":"12 Baner Road","phone":"9876543210","city":"Pune","state":"MH","pincode":"411045","items":[{"slug":"tulsi","quantity":1}]}'
+if [ "$MODE" = "simulated" ]; then
+  check "simulated gateway opens an order" 201 "$(code -X POST $API/orders -H "Authorization: Bearer $CUST" -H 'Content-Type: application/json' -d "$CART")"
+else
+  check "gateway unconfigured says so" 503 "$(code -X POST $API/orders -H "Authorization: Bearer $CUST" -H 'Content-Type: application/json' -d "$CART")"
+fi
 check "order history" 200 "$(code $API/orders -H "Authorization: Bearer $CUST")"
 
 echo "== ADMIN =="
-PW=$(grep '^ADMIN_PASSWORD=' "$ENV_FILE" | cut -d= -f2-)
+PW=$(grep '^ADMIN_PASSWORD=' "$ENV_FILE" | cut -d= -f2- | tr -d '\r')
+ADMIN_EMAIL=$(grep '^ADMIN_EMAIL=' "$ENV_FILE" | cut -d= -f2- | tr -d '\r')
 ADMIN=$(curl -s -m 20 -X POST $API/admin/auth/login -H 'Content-Type: application/json' \
-  -d "{\"email\":\"admin@greenhaven.in\",\"password\":\"$PW\"}" \
+  -d "{\"email\":\"$ADMIN_EMAIL\",\"password\":\"$PW\"}" \
   | python -c "import json,sys;print(json.load(sys.stdin).get('token',''))")
 check "admin signs in" "yes" "$([ -n "$ADMIN" ] && echo yes || echo no)"
 check "admin reaches the dashboard" 200 "$(code $API/admin/stats -H "Authorization: Bearer $ADMIN")"

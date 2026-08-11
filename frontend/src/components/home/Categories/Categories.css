@@ -1,10 +1,10 @@
-/* ==========================================================================
-   Categories — a bento grid. The first tile is double-width and double-height,
-   which turns nine equal items into a composition rather than a plain grid.
-
-   The photograph is never tinted or veiled: the caption sits on its own cream
-   bar beneath the image, so every product shot reads at full colour.
-   ========================================================================== */
+/* An even grid: every collection is the same size, because every collection
+   matters the same amount. This was a bento layout with one double-size hero
+   tile, which worked while there were exactly nine categories — the hero ate
+   four cells of a 4x3 grid and the other eight filled the rest. A tenth
+   category broke the arithmetic and left one tile stranded on a row of its
+   own, which is what an exact composition does the moment the count moves.
+   Uniform tiles have no such arithmetic to get wrong. */
 
 .categories {
   position: relative;
@@ -12,20 +12,14 @@
 
 .categories__grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  /* The caption now sits ON the photograph rather than below it, so the whole tile is image: at 176px a small tile showed only ~116px of plant once the 60px caption strip was subtracted, which was too little to see what you were looking at. */
-  grid-auto-rows: 215px;
+  /* Five across, so the ten collections make two full rows. The caption sits
+     ON the photograph rather than below it, so the whole tile is image — a
+     separate caption strip used to eat 60px of a 176px tile and left too
+     little plant to see what you were looking at. */
+  grid-template-columns: repeat(5, 1fr);
+  grid-auto-rows: 235px;
   gap: var(--space-lg);
 }
-
-/* 4 cols x 3 rows = 12 cells. The hero tile eats 4, the other eight fill the
-   remaining 8 exactly — no gaps, no orphan row. */
-.categories__grid > :first-child {
-  grid-column: span 2;
-  grid-row: span 2;
-}
-
-/* --------------------------------------------------------------------- card */
 
 .cat-card {
   position: relative;
@@ -46,8 +40,6 @@
   box-shadow: var(--shadow-lg);
 }
 
-/* --------------------------------------------------------------------- media */
-
 /* Fills the whole card. The caption floats over it, so nothing is spent on a
    separate strip and the photograph is as large as the tile allows. */
 .cat-card__media {
@@ -67,8 +59,6 @@
 .cat-card:hover .cat-card__media img {
   transform: scale(1.06);
 }
-
-/* -------------------------------------------------------------------- caption */
 
 .cat-card__body {
   position: relative;   /* above the photograph */
@@ -123,16 +113,6 @@
 }
 
 /* The hero tile gets a larger caption to match its scale. */
-.categories__grid > :first-child .cat-card__body {
-  padding: var(--space-lg) var(--space-xl);
-}
-.categories__grid > :first-child .cat-card__body h3 {
-  font-size: var(--fs-h4);
-}
-.categories__grid > :first-child .cat-card__body p {
-  font-size: var(--fs-sm);
-}
-
 .cat-card__go {
   display: grid;
   place-items: center;
@@ -152,27 +132,21 @@
   transform: translateX(3px);
 }
 
-/* ========================================================================== Responsive ========================================================================== */
-
-@media (max-width: 1199px) {
+/* Ten divides by 5 and by 2 and by nothing useful in between, so the column
+   count steps straight from five to two. Four columns would leave two tiles
+   alone on a third row — the very thing this layout is avoiding. */
+@media (max-width: 1399px) {
   .categories__grid {
     grid-auto-rows: 205px;
+    gap: var(--space-md);
   }
 }
 
-/* Tablet — 2 columns, hero tile stays double-width but single height. */
 @media (max-width: 991px) {
   .categories__grid {
     grid-template-columns: repeat(2, 1fr);
     grid-auto-rows: 215px;
     gap: var(--space-md);
-  }
-  .categories__grid > :first-child {
-    grid-column: span 2;
-    grid-row: span 1;
-  }
-  .categories__grid > :first-child .cat-card__body {
-    padding: var(--space-md) var(--space-lg);
   }
 }
 
@@ -185,14 +159,10 @@
   .cat-card__body {
     padding: var(--space-sm) var(--space-md);
   }
-  .categories__grid > :first-child .cat-card__body {
-    padding: var(--space-sm) var(--space-md);
-  }
-  .cat-card__body h3,
-  .categories__grid > :first-child .cat-card__body h3 {
+  .cat-card__body h3 {
     font-size: 0.9375rem;
   }
-  .categories__grid > :first-child .cat-card__body p {
+  .cat-card__body p {
     font-size: var(--fs-xs);
   }
   .cat-card__go {

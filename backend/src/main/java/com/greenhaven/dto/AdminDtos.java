@@ -109,12 +109,20 @@ public final class AdminDtos {
     public record ReviewRow(
             Long id,
             String productName,
+            String productSlug,
             String customerName,
-            int rating,
+            String customerEmail,
+            BigDecimal rating,
             String title,
             String body,
             String status,
-            Instant createdAt) {
+            String hiddenReason,
+            boolean verifiedPurchase,
+            String orderNumber,
+            Instant createdAt,
+            Instant updatedAt,
+            /** Customer photographs — the part of a review most needing an eye on it. */
+            List<String> images) {
     }
 
     /** One month of takings, for the revenue chart. */

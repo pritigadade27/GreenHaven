@@ -121,7 +121,7 @@ export default function Login() {
               <label>
   
               </label>
-              <Link to="/contact">Forgot password?</Link>
+              <Link to="/forgot-password">Forgot password?</Link>
             </div>
 
             <Button size="lg" className="auth__submit" icon="arrowRight" type="submit" disabled={busy}>

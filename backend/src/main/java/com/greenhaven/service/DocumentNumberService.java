@@ -15,6 +15,7 @@ public class DocumentNumberService {
 
     private static final String ORDER = "ORDER";
     private static final String INVOICE = "INVOICE";
+    private static final String CREDIT_NOTE = "CREDIT_NOTE";
 
     private final DocumentSequenceRepository sequences;
 
@@ -41,6 +42,20 @@ public class DocumentNumberService {
     public String nextInvoiceNumber() {
         int year = Year.now().getValue();
         return "INV-GH-" + year + "-" + String.format("%05d", next(INVOICE, year));
+    }
+
+    /**
+     * CRN-GH-year-5 digits, e.g. CRN-GH-2026-00001.
+     *
+     * A series of its own, not a continuation of the invoice numbers. Mixing
+     * them would leave gaps in the invoice sequence wherever a credit note was
+     * issued, and a gapless invoice series is the point of keeping a counter
+     * rather than counting rows.
+     */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public String nextCreditNoteNumber() {
+        int year = Year.now().getValue();
+        return "CRN-GH-" + year + "-" + String.format("%05d", next(CREDIT_NOTE, year));
     }
 
     /**

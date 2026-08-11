@@ -5,12 +5,12 @@ import useScrollReveal from '../../../hooks/useScrollReveal.js';
 import { useCatalogue } from '../../../context/CatalogueContext.jsx';
 import './Categories.css';
 
-// Plants
 import castIron from '../../../assets/images/plants/cast-iron-plant.jpg';
 import croton from '../../../assets/images/plants/croton.jpg';
 import hibiscus from '../../../assets/images/plants/hibiscus.jpg';
 import jade from '../../../assets/images/plants/jade-plant.jpg';
 import peaceLily from '../../../assets/images/plants/peace-lily.jpg';
+import basil from '../../../assets/images/plants/basil.jpg';
 // Merchandise — the branded shots, so the logo is visible on every product image
 import pots from '../../../assets/images/care/terracotta-set.jpg';
 import toolSet from '../../../assets/images/tools/tool-set-2.jpg';
@@ -29,6 +29,7 @@ const IMAGES = {
   'gardening-tools': toolSet,
   seeds: seedFlatlay,
   'plant-care': plantCare,
+  herbs: basil,
 };
 
 export default function Categories() {
@@ -57,7 +58,11 @@ export default function Categories() {
                 className={`cat-card reveal reveal--zoom delay-${(index % 6) + 1}`}
               >
                 <div className="cat-card__media">
-                  <img src={IMAGES[slug]} alt="" loading="lazy" />
+                  {/* Only when there is one. A category added to the database
+                      with no picture mapped here would otherwise render an
+                      empty <img>, which draws as a broken-image glyph — worse
+                      than the tinted panel underneath. */}
+                  {IMAGES[slug] && <img src={IMAGES[slug]} alt="" loading="lazy" />}
                 </div>
 
                 <div className="cat-card__body">

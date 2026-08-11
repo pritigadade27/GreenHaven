@@ -13,8 +13,6 @@
   gap: var(--space-2xl);
 }
 
-/* =================================================================== form */
-
 .contact__form-card {
   padding: clamp(var(--space-lg), 3vw, var(--space-2xl));
   background: var(--color-white);
@@ -68,8 +66,6 @@
   resize: vertical;
 }
 
-/* ================================================================ details */
-
 .contact__details {
   display: grid;
   gap: var(--space-lg);
@@ -110,8 +106,6 @@
   color: var(--color-secondary);
   text-decoration: underline;
 }
-
-/* ================================================================== visit */
 
 .contact__visit {
   display: flex;

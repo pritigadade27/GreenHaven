@@ -1,7 +1,3 @@
-/* ========================================================================== Green Haven — Animation library Keyframes plus scroll-reveal utilities. */
-
-/* --------------------------------------------------------------- keyframes */
-
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -114,8 +110,6 @@
   }
 }
 
-/* ---------------------------------------------------- scroll reveal system */
-
 .reveal {
   opacity: 0;
   will-change: opacity, transform;
@@ -176,8 +170,6 @@
 .delay-6 {
   animation-delay: 480ms;
 }
-
-/* ------------------------------------------------------- helper utilities */
 
 .float {
   animation: float 7s var(--ease-in-out) infinite;

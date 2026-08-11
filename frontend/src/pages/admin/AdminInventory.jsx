@@ -2,6 +2,7 @@ import { useState } from 'react';
 
 import Icon from '../../components/common/Icon/Icon.jsx';
 import useAdminQuery from '../../hooks/useAdminQuery.js';
+import { useToast } from '../../components/common/Toast/ToastProvider.jsx';
 import { adminApi } from '../../services/adminApi.js';
 import { formatPrice } from '../../utils/format.js';
 import AdminState from './AdminState.jsx';
@@ -12,6 +13,7 @@ const FILTERS = [['', 'All products'], ['low', 'Low stock'], ['out', 'Out of sto
                  ['recent', 'Recently added']];
 
 export default function AdminInventory() {
+  const toast = useToast();
   const [filter, setFilter] = useState('');
   const [q, setQ] = useState('');
   const [page, setPage] = useState(0);
@@ -30,7 +32,7 @@ export default function AdminInventory() {
       await adminApi.setStock(row.id, next);
       items.reload();
     } catch (err) {
-      window.alert(err.message);
+      toast.error(err.message);
     } finally {
       setSavingId(null);
     }

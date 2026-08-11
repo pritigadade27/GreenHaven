@@ -55,15 +55,23 @@ function Invoke-Sql {
     if ($LASTEXITCODE -ne 0) { throw "mysql failed on $(Split-Path -Leaf $File)" }
 }
 
+# The application user's password comes from the environment, not from this
+# file — see mysql.ps1 for the same reason.
+$appPassword = $env:MYSQL_PWD
+if (-not $appPassword) {
+  Write-Host 'Set MYSQL_PWD first:  $env:MYSQL_PWD = "..."' -ForegroundColor Red
+  exit 1
+}
+
 Write-Host ''
 Write-Host '1/3  creating database + application user ...' -ForegroundColor Cyan
 Invoke-Sql -File $setupUser -User 'root' -Password $plain
 
 Write-Host '2/3  creating tables ...' -ForegroundColor Cyan
-Invoke-Sql -File $schema -User 'priti' -Password 'Priti@#12' -Database 'green_haven'
+Invoke-Sql -File $schema -User 'priti' -Password $appPassword -Database 'green_haven'
 
 Write-Host '3/3  loading catalogue ...' -ForegroundColor Cyan
-Invoke-Sql -File $data -User 'priti' -Password 'Priti@#12' -Database 'green_haven'
+Invoke-Sql -File $data -User 'priti' -Password $appPassword -Database 'green_haven'
 
 # -------------------------------------------------------------------- verify
 Write-Host ''
@@ -74,7 +82,8 @@ UNION ALL SELECT 'badges',  COUNT(*) FROM badge
 UNION ALL SELECT 'plants',  COUNT(*) FROM plant
 UNION ALL SELECT 'plant_badge', COUNT(*) FROM plant_badge;
 '@
-$check | & $mysql '-upriti' '-pPriti@#12' '--default-character-set=utf8mb4' 'green_haven'
+$env:MYSQL_PWD = $appPassword
+$check | & $mysql '-upriti' '--default-character-set=utf8mb4' 'green_haven'
 
 Write-Host ''
 Write-Host 'Done. Start the API with:  mvn spring-boot:run' -ForegroundColor Green

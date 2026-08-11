@@ -2,6 +2,7 @@ package com.greenhaven.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public record RegisterRequest(
@@ -15,5 +16,13 @@ public record RegisterRequest(
 
         @NotBlank(message = "Password is required")
         @Size(min = 8, max = 72, message = "Password must be at least 8 characters")
-        String password) {
+        String password,
+
+        // Optional, because an email address is enough to open an account and
+        // demanding a phone number to browse costs sign-ups. It is required at
+        // checkout instead, where a courier genuinely needs one. An empty
+        // string is how the form says "not given".
+        @Pattern(regexp = "^([+]?91[- ]?|0)?[6-9]\\d{9}$|^$",
+                message = "Enter a 10-digit Indian mobile number")
+        String phone) {
 }

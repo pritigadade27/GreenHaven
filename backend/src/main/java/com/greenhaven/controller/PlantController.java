@@ -33,7 +33,12 @@ public class PlantController {
             @RequestParam(required = false) String difficulty,
             @RequestParam(required = false) String light,
             @RequestParam(required = false) String water,
+            @RequestParam(required = false) BigDecimal minPrice,
             @RequestParam(required = false) BigDecimal maxPrice,
+            // Availability and recency. Boxed so "absent" and "false" stay
+            // distinguishable — the query treats null as no filter at all.
+            @RequestParam(required = false) Boolean inStock,
+            @RequestParam(required = false) Boolean newArrival,
             @RequestParam(defaultValue = "featured") String sort,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "24") int size) {
@@ -41,7 +46,12 @@ public class PlantController {
         // Cap the page size so a crafted request cannot ask for the whole table.
         int safeSize = Math.min(Math.max(size, 1), 100);
         return PageResponse.of(plants.search(q, category, petSafety, difficulty, light, water,
-                maxPrice, sort, Math.max(page, 0), safeSize));
+                minPrice, maxPrice, inStock, newArrival, sort, Math.max(page, 0), safeSize));
+    }
+
+    @GetMapping("/new-arrivals")
+    public List<PlantSummaryDto> newArrivals(@RequestParam(defaultValue = "8") int limit) {
+        return plants.newArrivals(Math.min(Math.max(limit, 1), 20));
     }
 
     @GetMapping("/featured")

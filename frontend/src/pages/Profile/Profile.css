@@ -1,0 +1,1402 @@
+/* My Profile. Uses the shop's tokens throughout — no new colours, type or
+   easing are introduced here, so it reads as part of Green Haven rather than a
+   panel bolted on. */
+
+.profile {
+  padding-top: calc(var(--navbar-height) + var(--space-xl));
+}
+
+.profile__hero {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-lg);
+  padding: var(--space-xl) var(--space-2xl);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, var(--color-card-tint) 0%, var(--color-bg) 70%);
+  border: 1px solid var(--color-border);
+}
+
+.profile__avatar {
+  display: grid;
+  place-items: center;
+  width: 74px;
+  height: 74px;
+  border-radius: var(--radius-circle);
+  overflow: hidden;
+  background: var(--color-primary);
+  color: var(--color-white);
+  font-family: var(--font-heading);
+  font-size: 1.6rem;
+  letter-spacing: 0.04em;
+  box-shadow: var(--shadow-md);
+}
+
+.profile__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile__greeting h2 {
+  font-size: var(--fs-h3);
+  line-height: 1.15;
+}
+
+.profile__greeting p {
+  margin-top: 4px;
+  color: var(--color-text-muted);
+  font-size: var(--fs-sm);
+  word-break: break-word;
+}
+
+.profile__stats {
+  display: flex;
+  gap: var(--space-xl);
+}
+
+.profile__stats dt {
+  font-size: var(--fs-xs);
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--color-green);
+}
+
+.profile__stats dd {
+  margin-top: 2px;
+  font-family: var(--font-heading);
+  font-size: 1.35rem;
+  color: var(--color-primary);
+}
+
+.profile__error {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-top: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+  background: rgba(191, 5, 19, 0.08);
+  color: var(--color-secondary);
+  font-size: var(--fs-sm);
+}
+
+.profile__grid {
+  display: grid;
+  grid-template-columns: minmax(210px, 250px) minmax(0, 1fr);
+  gap: var(--space-xl);
+  margin-top: var(--space-xl);
+  align-items: start;
+}
+
+.profile__nav {
+  position: sticky;
+  top: calc(var(--navbar-height-scrolled) + var(--space-md));
+  padding: var(--space-sm);
+  border-radius: var(--radius-lg);
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.profile__nav ul {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.profile__nav a,
+.profile__nav button {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  width: 100%;
+  padding: 0.68rem var(--space-md);
+  border: 0;
+  border-radius: var(--radius-md);
+  background: none;
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: var(--fs-sm);
+  text-align: left;
+  cursor: pointer;
+  transition: var(--transition-base);
+}
+
+.profile__nav a:hover,
+.profile__nav button:hover {
+  background: var(--color-bg);
+  color: var(--color-primary);
+}
+
+.profile__nav a.is-active {
+  background: var(--color-primary);
+  color: var(--color-white);
+  box-shadow: var(--shadow-sm);
+}
+
+.profile__nav span {
+  flex: 1;
+}
+
+.profile__nav li:last-child button {
+  margin-top: var(--space-xs);
+  border-top: 1px solid var(--color-border);
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  color: var(--color-secondary);
+}
+
+.profile__pip,
+.profile-menu__pip {
+  display: grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: var(--radius-pill);
+  background: var(--color-accent);
+  color: var(--color-white);
+  font-size: 11px;
+  font-style: normal;
+  font-weight: var(--fw-medium);
+}
+
+.profile__nav a.is-active .profile__pip {
+  background: var(--color-white);
+  color: var(--color-primary);
+}
+
+.profile__panel {
+  min-width: 0;
+}
+
+.psec {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  animation: fadeUp var(--dur-base) var(--ease-out) both;
+}
+
+.psec__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-md);
+}
+
+.psec__head h2 {
+  font-size: var(--fs-h4);
+}
+
+.psec__head h3 {
+  font-size: var(--fs-lg);
+}
+
+.psec__head p {
+  margin-top: 4px;
+  max-width: 62ch;
+  color: var(--color-text-muted);
+  font-size: var(--fs-sm);
+}
+
+.psec__head-actions {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.psec__back {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 0;
+  background: none;
+  color: var(--color-text-muted);
+  font-family: var(--font-body);
+  font-size: var(--fs-sm);
+  cursor: pointer;
+}
+
+.psec__back svg {
+  transform: rotate(180deg);
+}
+
+.psec__back:hover {
+  color: var(--color-primary);
+}
+
+.psec__ghost,
+.psec__danger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0.5rem 0.95rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-primary);
+  font-family: var(--font-body);
+  font-size: var(--fs-sm);
+  cursor: pointer;
+  transition: var(--transition-base);
+}
+
+.psec__ghost:hover {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-white);
+}
+
+.psec__danger {
+  border-color: rgba(191, 5, 19, 0.35);
+  color: var(--color-secondary);
+}
+
+.psec__danger:hover {
+  background: var(--color-secondary);
+  border-color: var(--color-secondary);
+  color: var(--color-white);
+}
+
+.psec__ghost:disabled,
+.psec__danger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.psec__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+.psec__muted {
+  color: var(--color-text-muted);
+  font-size: var(--fs-sm);
+}
+
+.psec__note {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.psec__note svg {
+  flex: none;
+  margin-top: 2px;
+}
+
+.psec__empty {
+  padding-block: var(--space-2xl);
+}
+
+.psec__skeletons {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.psec__flash {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: 0.7rem var(--space-md);
+  border-radius: var(--radius-md);
+  font-size: var(--fs-sm);
+  animation: fadeUp var(--dur-base) var(--ease-out) both;
+}
+
+.psec__flash.is-good {
+  background: rgba(75, 122, 71, 0.12);
+  color: #3d6639;
+}
+
+.psec__flash.is-bad {
+  background: rgba(191, 5, 19, 0.09);
+  color: var(--color-secondary);
+}
+
+.psec__flash span {
+  flex: 1;
+}
+
+.psec__flash button {
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.psec__flash button:hover {
+  opacity: 1;
+}
+
+.psec__pill {
+  display: inline-block;
+  padding: 3px 11px;
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+.psec__pill.is-good {
+  background: rgba(75, 122, 71, 0.14);
+  color: #3d6639;
+}
+
+.psec__pill.is-wait {
+  background: rgba(212, 149, 41, 0.16);
+  color: #8a5a00;
+}
+
+.psec__pill.is-bad {
+  background: rgba(191, 5, 19, 0.12);
+  color: var(--color-secondary);
+}
+
+.psec__pill.is-muted {
+  background: var(--color-bg);
+  color: var(--color-text-muted);
+}
+
+.pcard {
+  padding: var(--space-lg);
+  border-radius: var(--radius-lg);
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--dur-base) var(--ease-out);
+}
+
+.pcard__title {
+  margin-bottom: var(--space-md);
+  font-size: var(--fs-lg);
+  color: var(--color-primary);
+}
+
+.pcard--narrow {
+  max-width: 460px;
+}
+
+.pcards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--space-md);
+}
+
+.pcards--two {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.pcard--wide {
+  grid-column: 1 / -1;
+}
+
+.pcard--stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--color-green);
+}
+
+.pcard--stat strong {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: var(--fw-medium);
+  color: var(--color-primary);
+}
+
+.pcard--stat span {
+  font-size: var(--fs-xs);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.pfacts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-md) var(--space-xl);
+}
+
+.pfacts--tight {
+  grid-template-columns: 1fr;
+  gap: var(--space-sm);
+}
+
+.pfacts--tight > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-md);
+}
+
+.pfacts__wide {
+  grid-column: 1 / -1;
+}
+
+.pfacts dt {
+  font-size: var(--fs-xs);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.pfacts dd {
+  margin-top: 3px;
+  color: var(--color-text);
+  word-break: break-word;
+}
+
+.pfacts--tight dd {
+  margin-top: 0;
+  text-align: right;
+}
+
+.pfacts em {
+  color: var(--color-text-muted);
+}
+
+.pmono {
+  font-family: ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, monospace;
+  font-size: 0.85em;
+}
+
+/* Marks a credit note in the documents list. Muted rather than alarming: it
+   is a normal document, not a problem. */
+.pcredit {
+  display: block;
+  margin-top: 3px;
+  font-size: var(--fs-xs);
+  color: var(--color-text-muted);
+}
+
+.pform {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.pform--grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+}
+
+.pform__wide {
+  grid-column: 1 / -1;
+}
+
+.pform__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.pform__check {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-size: var(--fs-sm);
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.pform__check input {
+  width: 17px;
+  height: 17px;
+  accent-color: var(--color-primary);
+}
+
+.pform__labels {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  border: 0;
+}
+
+.pform__labels legend {
+  margin-bottom: 6px;
+  font-size: var(--fs-xs);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.pform__labels label {
+  padding: 0.42rem 1rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-sm);
+  cursor: pointer;
+  transition: var(--transition-base);
+}
+
+.pform__labels label.is-on {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-white);
+}
+
+.pform__labels input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Password strength — four bars that fill as the score rises. */
+.pstrength {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 8px;
+}
+
+.pstrength i {
+  flex: 1;
+  height: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--color-border);
+  transition: background var(--dur-base) var(--ease-out);
+}
+
+.pstrength em {
+  flex: none;
+  font-size: var(--fs-xs);
+  font-style: normal;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.pstrength.is-weak i:nth-child(1),
+.pstrength.is-fair i:nth-child(-n + 2),
+.pstrength.is-good i:nth-child(-n + 3),
+.pstrength.is-strong i {
+  background: currentColor;
+}
+
+.pstrength.is-weak { color: var(--color-secondary); }
+.pstrength.is-fair { color: #8a5a00; }
+.pstrength.is-good { color: #4b7a47; }
+.pstrength.is-strong { color: #3d6639; }
+
+.porders {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.porder {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.porder:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.porder__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
+.porder__head h3 {
+  font-family: var(--font-heading);
+  font-size: var(--fs-lg);
+  color: var(--color-primary);
+}
+
+.porder__head p {
+  margin-top: 2px;
+  color: var(--color-text-muted);
+  font-size: var(--fs-xs);
+}
+
+.porder__pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.porder__body {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-lg);
+  padding-block: var(--space-md);
+  border-block: 1px solid var(--color-border);
+}
+
+.porder__thumbs {
+  display: flex;
+  gap: var(--space-xs);
+}
+
+.porder__thumbs li {
+  position: relative;
+  width: 62px;
+  height: 62px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+}
+
+.porder__thumbs img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.porder__thumbs em {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  padding: 1px 5px;
+  border-radius: var(--radius-sm) 0 0 0;
+  background: var(--color-primary);
+  color: var(--color-white);
+  font-size: 10px;
+  font-style: normal;
+}
+
+.porder__more {
+  display: grid;
+  place-items: center;
+  color: var(--color-text-muted);
+  font-size: var(--fs-sm);
+}
+
+.porder__noimg {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  color: var(--color-green);
+}
+
+.porder__facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+  gap: var(--space-md);
+}
+
+.porder__facts dt {
+  font-size: var(--fs-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.porder__facts dd {
+  margin-top: 2px;
+  font-size: var(--fs-sm);
+}
+
+.porder__total {
+  font-family: var(--font-heading);
+  font-size: var(--fs-lg);
+  color: var(--color-primary);
+}
+
+.porder__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
+.porder__foot p {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--color-text-muted);
+  font-size: var(--fs-sm);
+}
+
+.ptrack {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: var(--space-xs);
+}
+
+.ptrack__step {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+}
+
+/* The connector, drawn from each dot to the next rather than as a bar behind
+   the row — so it inherits the step's own state colour. */
+.ptrack__step::before {
+  content: '';
+  position: absolute;
+  top: 17px;
+  left: calc(-50% + 20px);
+  width: calc(100% - 40px);
+  height: 2px;
+  background: var(--color-border);
+}
+
+.ptrack__step:first-child::before {
+  display: none;
+}
+
+.ptrack__step.is-done::before,
+.ptrack__step.is-current::before {
+  background: var(--color-green);
+}
+
+.ptrack__dot {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-circle);
+  background: var(--color-white);
+  border: 2px solid var(--color-border);
+  color: var(--color-text-muted);
+  transition: var(--transition-base);
+}
+
+.ptrack__step.is-done .ptrack__dot {
+  background: var(--color-green);
+  border-color: var(--color-green);
+  color: var(--color-white);
+}
+
+.ptrack__step.is-current .ptrack__dot {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-white);
+  animation: pulseRing 2.2s var(--ease-in-out) infinite;
+}
+
+.ptrack__step.is-cancelled .ptrack__dot {
+  background: var(--color-secondary);
+  border-color: var(--color-secondary);
+  color: var(--color-white);
+}
+
+.ptrack__label {
+  font-size: var(--fs-xs);
+  line-height: 1.3;
+  color: var(--color-text-muted);
+}
+
+.ptrack__step.is-done .ptrack__label,
+.ptrack__step.is-current .ptrack__label {
+  color: var(--color-text);
+  font-weight: var(--fw-medium);
+}
+
+.ptrack__at {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.ptrack__eta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: var(--space-md);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  font-size: var(--fs-sm);
+}
+
+@keyframes pulseRing {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(109, 0, 8, 0.32);
+  }
+  50% {
+    box-shadow: 0 0 0 7px rgba(109, 0, 8, 0);
+  }
+}
+
+/* Wide tables scroll inside their own box; the page never scrolls sideways. */
+.ptable-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  /* Belt and braces: a flex or grid item's automatic minimum is its content,
+     and the table below is 560px wide. Without this a phone-width page is
+     pushed sideways by a table that was supposed to scroll inside its own box. */
+  min-width: 0;
+}
+
+.ptable {
+  width: 100%;
+  min-width: 560px;
+  border-collapse: collapse;
+  font-size: var(--fs-sm);
+}
+
+.ptable th {
+  padding: 0 var(--space-sm) var(--space-sm);
+  border-bottom: 1px solid var(--color-border);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  text-align: left;
+}
+
+.ptable td {
+  padding: var(--space-sm);
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: middle;
+}
+
+.ptable tr:last-child td {
+  border-bottom: 0;
+}
+
+.ptable tbody tr:hover,
+.ptable tbody tr.is-open {
+  background: var(--color-bg);
+}
+
+.ptable small {
+  display: block;
+  margin-top: 2px;
+  color: var(--color-text-muted);
+  font-size: var(--fs-xs);
+}
+
+.ptable__amount {
+  font-family: var(--font-heading);
+  color: var(--color-primary);
+  white-space: nowrap;
+}
+
+.ptable__actions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.ptable__product {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.ptable__product img,
+.ptable__product .porder__noimg {
+  width: 46px;
+  height: 46px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  background: var(--color-bg);
+}
+
+.ptotals {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  margin-top: var(--space-lg);
+  margin-left: auto;
+  width: min(320px, 100%);
+}
+
+.ptotals > div {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-md);
+  font-size: var(--fs-sm);
+}
+
+.ptotals dt {
+  color: var(--color-text-muted);
+}
+
+.ptotals__final {
+  margin-top: 6px;
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--color-border);
+}
+
+.ptotals__final dt {
+  color: var(--color-text);
+  font-weight: var(--fw-medium);
+}
+
+.ptotals__final dd {
+  font-family: var(--font-heading);
+  font-size: var(--fs-lg);
+  color: var(--color-primary);
+}
+
+.paddr {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-style: normal;
+  font-size: var(--fs-sm);
+  color: var(--color-text-muted);
+}
+
+.paddr strong {
+  color: var(--color-text);
+  font-weight: var(--fw-medium);
+}
+
+.paddr span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.paddrs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--space-md);
+}
+
+.paddr-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.paddr-card.is-default {
+  border-color: var(--color-primary);
+}
+
+.paddr-card header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
+.paddr-card__label {
+  font-family: var(--font-heading);
+  font-size: var(--fs-body);
+  color: var(--color-primary);
+}
+
+.paddr-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: auto;
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--color-border);
+}
+
+.pemail {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+}
+
+.pemail p {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--fs-sm);
+  color: var(--color-text-muted);
+}
+
+.pemail p strong {
+  color: var(--color-text);
+}
+
+.pemail__note {
+  width: 100%;
+  color: var(--color-text-muted);
+  font-size: var(--fs-xs);
+}
+
+.pwish {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.pwish__row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md);
+}
+
+.pwish__img {
+  display: block;
+  width: 74px;
+  height: 74px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--color-bg);
+}
+
+.pwish__img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--dur-slow) var(--ease-out);
+}
+
+.pwish__row:hover .pwish__img img {
+  transform: scale(1.06);
+}
+
+.pwish__body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pwish__body a {
+  font-family: var(--font-heading);
+  font-size: var(--fs-body);
+  color: var(--color-text);
+}
+
+.pwish__body a:hover {
+  color: var(--color-primary);
+}
+
+.pwish__body strong {
+  color: var(--color-primary);
+}
+
+.pwish__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+.pnotifs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.pnotif {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--space-md);
+  padding: var(--space-md);
+}
+
+.pnotif.is-unread {
+  border-left: 3px solid var(--color-accent);
+}
+
+.pnotif__icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-circle);
+}
+
+.pnotif__icon.is-good {
+  background: rgba(75, 122, 71, 0.14);
+  color: #3d6639;
+}
+
+.pnotif__icon.is-wait {
+  background: rgba(212, 149, 41, 0.16);
+  color: #8a5a00;
+}
+
+.pnotif__icon.is-bad {
+  background: rgba(191, 5, 19, 0.1);
+  color: var(--color-secondary);
+}
+
+.pnotif__icon.is-muted {
+  background: var(--color-bg);
+  color: var(--color-text-muted);
+}
+
+.pnotif__body h3 {
+  font-size: var(--fs-body);
+  color: var(--color-text);
+}
+
+.pnotif__body p {
+  margin-top: 3px;
+  color: var(--color-text-muted);
+  font-size: var(--fs-sm);
+}
+
+.pnotif__meta {
+  display: block;
+  margin-top: 6px;
+  color: var(--color-text-muted);
+  font-size: var(--fs-xs);
+}
+
+@media (max-width: 1024px) {
+  /* minmax(0, 1fr), not 1fr: a bare `1fr` track takes its minimum from the
+     content, so the 560px-wide table inside .ptable-wrap sizes the whole
+     column and pushes the page sideways — the scroll box never gets the
+     chance to scroll. */
+  .profile__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* The sidebar becomes a scrolling strip of chips above the panel. */
+  .profile__nav {
+    position: static;
+    padding: var(--space-xs);
+    overflow-x: auto;
+  }
+
+  .profile__nav ul {
+    flex-direction: row;
+    gap: var(--space-xs);
+  }
+
+  .profile__nav a,
+  .profile__nav button {
+    width: auto;
+    white-space: nowrap;
+  }
+
+  .profile__nav li:last-child button {
+    margin-top: 0;
+    border-top: 0;
+    border-left: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+  }
+
+  .ptrack {
+    grid-auto-flow: row;
+    grid-auto-columns: auto;
+    gap: 0;
+  }
+
+  /* Vertical on narrow screens: seven labels across a phone is unreadable. */
+  .ptrack__step {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-md);
+    padding-block: var(--space-xs);
+    text-align: left;
+  }
+
+  .ptrack__step::before {
+    top: auto;
+    bottom: 50%;
+    left: 17px;
+    width: 2px;
+    height: calc(100% - 36px);
+  }
+
+  .ptrack__label {
+    flex: 1;
+    font-size: var(--fs-sm);
+  }
+}
+
+@media (max-width: 860px) {
+  .profile__hero {
+    grid-template-columns: auto minmax(0, 1fr);
+    padding: var(--space-lg);
+  }
+
+  .profile__stats {
+    grid-column: 1 / -1;
+    justify-content: space-between;
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .porder__body {
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+  }
+
+  .pwish__row {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .pwish__actions {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Below 640px the tables stop being tables. Six columns cannot be read on a
+   phone whichever way they are scrolled, so each row becomes its own stacked
+   card with the column heading carried in data-label. It also removes the
+   560px floor that was pushing the page sideways. */
+@media (max-width: 640px) {
+  .ptable {
+    min-width: 0;
+  }
+
+  .ptable thead {
+    /* Hidden from sight, not from screen readers' reading order — the labels
+       are repeated per cell below. */
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  .ptable,
+  .ptable tbody,
+  .ptable tr,
+  .ptable td {
+    display: block;
+    width: auto;
+  }
+
+  .ptable tr {
+    padding: var(--space-sm) 0;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .ptable tr:last-child {
+    border-bottom: 0;
+  }
+
+  .ptable td {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 2px var(--space-md);
+    padding: 5px 0;
+    border: 0;
+    text-align: right;
+  }
+
+  /* The secondary line (payment method, invoice number) drops under its value
+     rather than competing with it for the same row. */
+  .ptable td small {
+    flex-basis: 100%;
+    text-align: right;
+  }
+
+  .ptable td::before {
+    content: attr(data-label);
+    flex: none;
+    font-size: var(--fs-xs);
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    text-align: left;
+  }
+
+  .ptable td:empty,
+  .ptable td:not([data-label]):not(.ptable__actions) {
+    display: none;
+  }
+
+  .ptable td.ptable__actions {
+    justify-content: flex-end;
+    flex-direction: row;
+    padding-top: var(--space-sm);
+  }
+
+  .ptable td.ptable__actions::before {
+    content: none;
+  }
+
+  .ptable small {
+    margin-top: 0;
+  }
+
+  .ptable__product {
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 620px) {
+  .profile {
+    padding-top: calc(var(--navbar-height-scrolled) + var(--space-lg));
+  }
+
+  .profile__hero {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+  }
+
+  .profile__stats {
+    gap: var(--space-md);
+  }
+
+  .pcard {
+    padding: var(--space-md);
+  }
+
+  .psec__head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .ptable__actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+/* The strip animates in; anyone who has asked for less motion gets none. */
+@media (prefers-reduced-motion: reduce) {
+  .psec,
+  .profile-menu__panel,
+  .psec__flash {
+    animation: none;
+  }
+
+  .ptrack__step.is-current .ptrack__dot {
+    animation: none;
+  }
+}
+
+/* "Rate & review" on a delivered order's line. Only rendered once the parcel
+   has arrived, so it never appears as a promise the API would refuse. */
+.porder__rate {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+  padding: 3px 10px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  color: var(--color-primary);
+  font-size: var(--fs-xs);
+  transition: var(--transition-base);
+}
+
+.porder__rate:hover {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-white);
+}
+
+.porder__rate svg {
+  color: var(--color-accent);
+}
+
+.porder__rate:hover svg {
+  color: currentColor;
+}

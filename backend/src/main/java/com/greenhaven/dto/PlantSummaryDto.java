@@ -24,6 +24,7 @@ public record PlantSummaryDto(
         String water,
         boolean featured,
         boolean bestSeller,
+        boolean newArrival,
         String careTip,
         List<String> badges,
         /** True for pots, tools, care products and seed packets. */

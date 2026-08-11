@@ -1,0 +1,67 @@
+.stars {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--color-accent);
+  line-height: 0;
+}
+
+.stars__one {
+  position: relative;
+  display: inline-flex;
+}
+
+/* The filled glyph clipped to its left half, sitting exactly over the empty
+   one beneath it. */
+.stars__half {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  width: 50%;
+  display: inline-flex;
+}
+
+.stars--input {
+  display: inline-flex;
+  gap: 4px;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  color: var(--color-border-strong);
+}
+
+/* One star: the glyph, plus two invisible hit areas over it. */
+.stars__slot {
+  position: relative;
+  display: inline-flex;
+  padding: 2px;
+  color: var(--color-accent);
+}
+
+.stars__pick {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50%;
+  cursor: pointer;
+  /* Above the glyph, or the icon swallows the click. */
+  z-index: 1;
+}
+
+.stars__pick.is-left  { left: 0; }
+.stars__pick.is-right { right: 0; }
+
+.stars--input input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* Keyboard focus has to be visible — the input itself is hidden, and the hit
+   area is transparent, so the ring goes on the star it belongs to. */
+.stars__slot:has(input:focus-visible) {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}

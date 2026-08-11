@@ -1,7 +1,10 @@
 package com.greenhaven.service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.springframework.data.domain.Page;
@@ -45,10 +48,19 @@ public class AdminService {
     private final AppUserRepository users;
     private final ReviewRepository reviews;
     private final NewsletterSubscriberRepository subscribers;
+    private final NotificationService notifier;
+    private final ReviewService reviewService;
+    private final com.greenhaven.repository.ReviewImageRepository reviewImages;
+    private final UploadService uploads;
 
     public AdminService(OrderRepository orders, PaymentRepository payments, PlantRepository plants,
                         CategoryRepository categories, AppUserRepository users,
-                        ReviewRepository reviews, NewsletterSubscriberRepository subscribers) {
+                        ReviewRepository reviews, NewsletterSubscriberRepository subscribers,
+                        NotificationService notifier, ReviewService reviewService,
+                        com.greenhaven.repository.ReviewImageRepository reviewImages,
+                        UploadService uploads) {
+        this.reviewImages = reviewImages;
+        this.uploads = uploads;
         this.orders = orders;
         this.payments = payments;
         this.plants = plants;
@@ -56,9 +68,9 @@ public class AdminService {
         this.users = users;
         this.reviews = reviews;
         this.subscribers = subscribers;
+        this.notifier = notifier;
+        this.reviewService = reviewService;
     }
-
-    /* ------------------------------------------------------------- stats */
 
     @Transactional(readOnly = true)
     public AdminDtos.Stats stats() {
@@ -78,8 +90,6 @@ public class AdminService {
                 reviews.count(),
                 subscribers.count());
     }
-
-    /* ------------------------------------------------------------ orders */
 
     @Transactional(readOnly = true)
     public Page<AdminDtos.OrderRow> orders(String status, String delivery, String q,
@@ -132,10 +142,15 @@ public class AdminService {
         }
 
         order.setDeliveryStatus(next);
-        return toRow(orders.save(order));
+        if ("CANCELLED".equals(next) && order.getCancelledAt() == null) {
+            order.setCancelledAt(java.time.Instant.now());
+            order.setCancelledBy("ADMIN");
+        }
+        Order saved = orders.save(order);
+        // The customer hears about it in their profile the moment it changes.
+        notifier.deliveryChanged(saved, next);
+        return toRow(saved);
     }
-
-    /* ---------------------------------------------------------- payments */
 
     @Transactional(readOnly = true)
     public Page<AdminDtos.PaymentRow> payments(String status, int page, int size) {
@@ -145,8 +160,6 @@ public class AdminService {
                 : payments.findByStatusOrderByIdDesc(status.trim().toUpperCase(), pageable);
         return found.map(this::toPaymentRow);
     }
-
-    /* ------------------------------------------------------------- users */
 
     @Transactional(readOnly = true)
     public Page<AdminDtos.UserRow> users(String q, int page, int size) {
@@ -177,14 +190,12 @@ public class AdminService {
                 orders.countByUserId(id), BigDecimal.ZERO);
     }
 
-    /* --------------------------------------------------------- inventory */
-
     @Transactional(readOnly = true)
     public Page<AdminDtos.InventoryRow> inventory(String filter, String q, int page, int size) {
         Pageable pageable = PageRequest.of(Math.max(0, page), Math.min(Math.max(1, size), 100));
         Page<Plant> found = switch (filter == null ? "" : filter.toLowerCase()) {
-            case "out" -> plants.findByStockLessThanEqualOrderByNameAsc(0, pageable);
-            case "low" -> plants.findByStockBetweenOrderByStockAsc(1, LOW_STOCK_AT, pageable);
+            case "out" -> plants.findByStockLessThanEqualOrderByNameAscIdAsc(0, pageable);
+            case "low" -> plants.findByStockBetweenOrderByStockAscIdAsc(1, LOW_STOCK_AT, pageable);
             case "recent" -> plants.findAllByOrderByIdDesc(pageable);
             default -> plants.searchForAdmin(blank(q), pageable);
         };
@@ -202,40 +213,74 @@ public class AdminService {
         return toInventoryRow(plants.save(plant));
     }
 
-    /* ----------------------------------------------------------- reviews */
-
     @Transactional(readOnly = true)
     public Page<AdminDtos.ReviewRow> reviews(String status, int page, int size) {
         Pageable pageable = PageRequest.of(Math.max(0, page), Math.min(Math.max(1, size), 100));
         Page<Review> found = blank(status) == null
                 ? reviews.findAllByOrderByIdDesc(pageable)
                 : reviews.findByStatusOrderByIdDesc(status.trim().toUpperCase(), pageable);
+        // One query for the page's photographs rather than one per review.
+        Map<Long, List<String>> photos = new LinkedHashMap<>();
+        List<Long> ids = found.getContent().stream().map(Review::getId).toList();
+        if (!ids.isEmpty()) {
+            for (var image : reviewImages.findByReviewIdInOrderBySortOrderAscIdAsc(ids)) {
+                photos.computeIfAbsent(image.getReview().getId(), k -> new ArrayList<>())
+                        .add(image.getUrl());
+            }
+        }
+
         return found.map(r -> new AdminDtos.ReviewRow(r.getId(), r.getPlant().getName(),
-                r.getUser().getFullName(), r.getRating(), r.getTitle(), r.getBody(),
-                r.getStatus(), r.getCreatedAt()));
+                r.getPlant().getSlug(), r.getUser().getFullName(), r.getUser().getEmail(),
+                r.getRating(), r.getTitle(), r.getBody(), r.getStatus(), r.getHiddenReason(),
+                r.isVerifiedPurchase(),
+                r.getOrder() == null ? null : r.getOrder().getOrderNumber(),
+                r.getCreatedAt(), r.getUpdatedAt(),
+                photos.getOrDefault(r.getId(), List.of())));
     }
 
+    /**
+     * Moderates a review. HIDDEN takes it off the product page while keeping
+     * the row, so the decision can be undone and the customer's words are not
+     * destroyed to settle a complaint.
+     *
+     * The plant's average is rewritten either way: a review that is no longer
+     * shown must no longer count, or hiding it would change nothing that
+     * matters.
+     */
     @Transactional
-    public void setReviewStatus(Long id, String status) {
+    public void setReviewStatus(Long id, String status, String reason) {
         String next = status == null ? "" : status.trim().toUpperCase();
-        if (!Set.of(Review.PENDING, Review.APPROVED, Review.REJECTED).contains(next)) {
+        if (!Set.of(Review.PENDING, Review.APPROVED, Review.REJECTED, Review.HIDDEN)
+                .contains(next)) {
             throw new IllegalArgumentException("Unknown review status: " + status);
         }
         Review review = reviews.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No review with id " + id));
         review.setStatus(next);
-        reviews.save(review);
+        review.setHiddenReason(Review.HIDDEN.equals(next)
+                ? (reason == null || reason.isBlank() ? "Hidden by an administrator" : reason.trim())
+                : null);
+        reviews.saveAndFlush(review);
+        reviewService.recompute(review.getPlant().getId());
     }
 
     @Transactional
     public void deleteReview(Long id) {
-        if (!reviews.existsById(id)) {
-            throw new ResourceNotFoundException("No review with id " + id);
-        }
-        reviews.deleteById(id);
-    }
+        Review review = reviews.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No review with id " + id));
+        Long plantId = review.getPlant().getId();
 
-    /* --------------------------------------------------------- analytics */
+        // Read before the delete: the FK cascade takes the rows, and with them
+        // the only record of which files are still on disk.
+        List<String> files = reviewImages.findByReviewIdOrderBySortOrderAscIdAsc(id).stream()
+                .map(com.greenhaven.model.ReviewImage::getUrl)
+                .toList();
+
+        reviews.delete(review);
+        reviews.flush();
+        files.forEach(uploads::deleteQuietly);
+        reviewService.recompute(plantId);
+    }
 
     @Transactional(readOnly = true)
     public AdminDtos.Analytics analytics() {
@@ -260,8 +305,6 @@ public class AdminService {
 
         return new AdminDtos.Analytics(monthly, topProducts, topCategories);
     }
-
-    /* ----------------------------------------------------------- mapping */
 
     private AdminDtos.OrderRow toRow(Order o) {
         AppUser u = o.getUser();

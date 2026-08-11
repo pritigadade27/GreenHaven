@@ -9,7 +9,12 @@ export default function BestSellers() {
   const ref = useScrollReveal();
   // Ranked by how many people have reviewed them — a real signal from the
   // catalogue rather than a hand-picked order.
-  const plants = [...getBestSellers()].sort((a, b) => b.reviews - a.reviews).slice(0, 4);
+  // Ordered by review count where there is one, and otherwise left in
+  // catalogue order — ranking by a count that is zero for everything would
+  // just shuffle them.
+  const plants = [...getBestSellers()]
+    .sort((a, b) => (b.reviews ?? 0) - (a.reviews ?? 0))
+    .slice(0, 4);
 
   return (
     <section className="bestsellers section section--tint" id="best-sellers" ref={ref}>

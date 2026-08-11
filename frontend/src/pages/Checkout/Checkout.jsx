@@ -5,7 +5,7 @@ import Button from '../../components/common/Button/Button.jsx';
 import Icon from '../../components/common/Icon/Icon.jsx';
 import { useCart } from '../../context/CartContext.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
-import { orderApi } from '../../services/api.js';
+import { orderApi, addressApi, couponApi } from '../../services/api.js';
 import loadRazorpay from '../../utils/razorpay.js';
 import { formatPrice } from '../../utils/format.js';
 import './Checkout.css';
@@ -14,6 +14,15 @@ const FREE_DELIVERY_OVER = 999;
 const DELIVERY_FEE = 99;
 
 const EMPTY = { addressLine: '', phone: '', city: '', state: '', pincode: '' };
+
+/** A saved address flattened into the shape the checkout form holds. */
+const toForm = (a) => ({
+  addressLine: [a.line1, a.line2].filter(Boolean).join(', '),
+  phone: a.phone ?? '',
+  city: a.city ?? '',
+  state: a.state ?? '',
+  pincode: a.pincode ?? '',
+});
 
 export default function Checkout() {
   const { items, subtotal, totalItems, clearCart } = useCart();
@@ -26,12 +35,29 @@ export default function Checkout() {
   const [busy, setBusy] = useState(false);
   const [placed, setPlaced] = useState(null);
   const [priceChange, setPriceChange] = useState(null);
+  const [testSheet, setTestSheet] = useState(null);
+
+  // Saved addresses. `chosen` is the id being delivered to, or 'new' while the
+  // customer is typing one that is not saved.
+  const [addresses, setAddresses] = useState([]);
+  const [chosen, setChosen] = useState('new');
+  const [saveNew, setSaveNew] = useState(true);
   // Which of the two Razorpay callbacks got there first. A ref, not state:
   // both callbacks read it synchronously and must see the same value.
   const settled = useRef(false);
 
-  const delivery = subtotal >= FREE_DELIVERY_OVER ? 0 : DELIVERY_FEE;
-  const total = subtotal + delivery;
+  // A code the customer has typed, and the server's answer about it. The
+  // answer holds every figure, because what a code is worth is the server's
+  // decision — this page never works out a discount of its own.
+  const [couponInput, setCouponInput] = useState('');
+  const [coupon, setCoupon] = useState(null);
+  const [couponError, setCouponError] = useState('');
+  const [couponBusy, setCouponBusy] = useState(false);
+
+  const localDelivery = subtotal >= FREE_DELIVERY_OVER ? 0 : DELIVERY_FEE;
+  const discount = coupon?.discount ?? 0;
+  const delivery = coupon ? coupon.shipping : localDelivery;
+  const total = coupon ? coupon.total : subtotal + localDelivery;
 
   // Reaching checkout signed out means a stale tab or a hand-typed URL; the
   // API would reject it anyway, so bounce to the sign-in screen with a reason.
@@ -45,10 +71,91 @@ export default function Checkout() {
     }
   }, [ready, isSignedIn, navigate]);
 
+  // Pull the saved addresses in and pre-select the default, so a returning
+  // customer does not retype an address the account already knows.
+  useEffect(() => {
+    if (!ready || !isSignedIn) return undefined;
+    let alive = true;
+    addressApi
+      .list()
+      .then((saved) => {
+        if (!alive || saved.length === 0) return;
+        setAddresses(saved);
+        const preferred = saved.find((a) => a.isDefault) ?? saved[0];
+        setChosen(preferred.id);
+        setForm(toForm(preferred));
+      })
+      // A failure here is not worth blocking checkout — the form still works.
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [ready, isSignedIn]);
+
   const update = (key) => (event) => {
     setForm((prev) => ({ ...prev, [key]: event.target.value }));
     setFieldErrors((prev) => ({ ...prev, [key]: undefined }));
   };
+
+  const basket = items.map((line) => ({ slug: line.slug, quantity: line.quantity }));
+
+  async function applyCoupon(event) {
+    event?.preventDefault();
+    const code = couponInput.trim();
+    if (!code) return;
+
+    setCouponBusy(true);
+    setCouponError('');
+    try {
+      const quote = await couponApi.quote(code, basket);
+      if (quote.applied) {
+        setCoupon(quote);
+        setCouponInput('');
+      } else {
+        setCoupon(null);
+        setCouponError(quote.message);
+      }
+    } catch (err) {
+      setCoupon(null);
+      setCouponError(err.message);
+    } finally {
+      setCouponBusy(false);
+    }
+  }
+
+  function removeCoupon() {
+    setCoupon(null);
+    setCouponError('');
+  }
+
+  // A quote is priced against the basket it was asked about. Change the basket
+  // in another tab and the discount shown here is answering a question nobody
+  // is asking any more — so it is re-asked, and drops away if it no longer
+  // applies (a code with a minimum the smaller basket no longer meets).
+  useEffect(() => {
+    if (!coupon) return undefined;
+    if (Math.round(coupon.subtotal * 100) === Math.round(subtotal * 100)) return undefined;
+
+    let alive = true;
+    couponApi
+      .quote(coupon.code, basket)
+      .then((quote) => {
+        if (!alive) return;
+        if (quote.applied) {
+          setCoupon(quote);
+        } else {
+          setCoupon(null);
+          setCouponError(quote.message);
+        }
+      })
+      .catch(() => {
+        if (alive) setCoupon(null);
+      });
+    return () => {
+      alive = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [subtotal, coupon]);
 
   async function handlePay(event) {
     event.preventDefault();
@@ -77,7 +184,27 @@ export default function Checkout() {
       const order = await orderApi.start(
         form,
         items.map((line) => ({ slug: line.slug, quantity: line.quantity })),
+        coupon?.code,
       );
+
+      // Saved only once the order exists, and never blocking it: a failure to
+      // remember an address must not lose the customer their checkout.
+      if (chosen === 'new' && saveNew) {
+        addressApi
+          .add({
+            label: 'Home',
+            fullName: user?.fullName || 'Delivery',
+            phone: form.phone.trim(),
+            line1: form.addressLine.trim(),
+            line2: '',
+            city: form.city.trim(),
+            state: form.state.trim(),
+            pincode: form.pincode.trim(),
+            country: 'India',
+            makeDefault: addresses.length === 0,
+          })
+          .catch(() => {});
+      }
 
       // The button showed a total summed from prices persisted in the browser; the sheet charges what the server just calculated.
       if (Math.round(order.total * 100) !== Math.round(total * 100)) {
@@ -94,7 +221,33 @@ export default function Checkout() {
     }
   }
 
+  // Test mode: the gateway is stood in for, so there is no sheet to open. The
+  // outcome the tester picks is signed by the server and then goes through the
+  // same verify call a real payment does.
+  async function settleSimulated(order, succeed) {
+    setTestSheet(null);
+    setBusy(true);
+    settled.current = true;
+    try {
+      const response = await orderApi.simulate(order.razorpayOrderId, succeed);
+      const confirmed = await orderApi.verify(response);
+      clearCart();
+      setPlaced(confirmed);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function openSheet(order) {
+    if (order.simulated) {
+      setBusy(false);
+      settled.current = false;
+      setTestSheet(order);
+      return;
+    }
+
     try {
       // 2. Payment sheet.
       const sdkLoaded = await loadRazorpay();
@@ -159,7 +312,6 @@ export default function Checkout() {
     }
   }
 
-  /* --------------------------------------------------------- price moved */
   // Reached only when the server's total differs from the one on the button.
   // The customer decides — we never quietly charge a number they were not shown.
   if (priceChange) {
@@ -202,7 +354,6 @@ export default function Checkout() {
     );
   }
 
-  /* ------------------------------------------------------------ confirmed */
   if (placed) {
     return (
       <>
@@ -244,7 +395,6 @@ export default function Checkout() {
     );
   }
 
-  /* --------------------------------------------------------- empty basket */
   if (items.length === 0) {
     return (
       <>
@@ -273,6 +423,52 @@ export default function Checkout() {
         <div className="container checkout__grid">
           <form className="checkout__form" onSubmit={handlePay} noValidate>
             <h2>Delivery address</h2>
+
+            {addresses.length > 0 && (
+              <ul className="checkout__saved">
+                {addresses.map((a) => (
+                  <li key={a.id}>
+                    <label className={chosen === a.id ? 'is-on' : undefined}>
+                      <input
+                        type="radio"
+                        name="saved-address"
+                        checked={chosen === a.id}
+                        onChange={() => {
+                          setChosen(a.id);
+                          setForm(toForm(a));
+                          setFieldErrors({});
+                        }}
+                      />
+                      <span className="checkout__saved-label">
+                        {a.label}
+                        {a.isDefault && <em>Default</em>}
+                      </span>
+                      <span className="checkout__saved-body">
+                        {a.line1}
+                        {a.line2 ? `, ${a.line2}` : ''}, {a.city} {a.pincode}
+                      </span>
+                      <span className="checkout__saved-phone">{a.phone}</span>
+                    </label>
+                  </li>
+                ))}
+                <li>
+                  <label className={chosen === 'new' ? 'is-on' : undefined}>
+                    <input
+                      type="radio"
+                      name="saved-address"
+                      checked={chosen === 'new'}
+                      onChange={() => {
+                        setChosen('new');
+                        setForm(EMPTY);
+                        setFieldErrors({});
+                      }}
+                    />
+                    <span className="checkout__saved-label">Deliver somewhere else</span>
+                    <span className="checkout__saved-body">Type a new address below.</span>
+                  </label>
+                </li>
+              </ul>
+            )}
 
             <label className="field">
               <span>Address</span>
@@ -365,11 +561,76 @@ export default function Checkout() {
               {busy ? 'Opening payment…' : `Pay ${formatPrice(total)}`}
             </Button>
 
+            {chosen === 'new' && (
+              <label className="checkout__remember">
+                <input
+                  type="checkbox"
+                  checked={saveNew}
+                  onChange={(e) => setSaveNew(e.target.checked)}
+                />
+                <span>Save this address for next time</span>
+              </label>
+            )}
+
             <p className="checkout__secure">
               <Icon name="shield" size={15} /> Payments are handled by Razorpay. Card details never
               touch Green Haven&rsquo;s servers.
             </p>
           </form>
+
+          {testSheet && (
+            <div
+              className="testpay"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="testpay-title"
+            >
+              <div className="testpay__card">
+                <span className="testpay__badge">Test mode</span>
+                <h2 id="testpay-title">Simulated payment</h2>
+                <p>
+                  No Razorpay account is connected yet, so no money moves and no card is asked
+                  for. Choose an outcome and the rest of the order runs exactly as it would in
+                  production.
+                </p>
+
+                <dl className="testpay__facts">
+                  <div>
+                    <dt>Order</dt>
+                    <dd>{testSheet.orderNumber}</dd>
+                  </div>
+                  <div>
+                    <dt>Amount</dt>
+                    <dd>{formatPrice(testSheet.total)}</dd>
+                  </div>
+                </dl>
+
+                <div className="testpay__actions">
+                  <Button size="lg" icon="check" onClick={() => settleSimulated(testSheet, true)}>
+                    Pay {formatPrice(testSheet.total)}
+                  </Button>
+                  <button
+                    type="button"
+                    className="testpay__fail"
+                    onClick={() => settleSimulated(testSheet, false)}
+                  >
+                    Simulate a failed payment
+                  </button>
+                  <button
+                    type="button"
+                    className="testpay__cancel"
+                    onClick={() => {
+                      setTestSheet(null);
+                      orderApi.cancel(testSheet.razorpayOrderId).catch(() => {});
+                      setError('Payment cancelled. Your cart is still here whenever you are ready.');
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
           <aside className="checkout__summary">
             <h2>Your order</h2>
@@ -387,15 +648,87 @@ export default function Checkout() {
               ))}
             </ul>
 
+            {/* Sits above the totals it changes, so the effect of applying a
+                code is visible in the same glance as the code itself. */}
+            <div className="checkout__coupon">
+              {coupon ? (
+                <div className="checkout__coupon-applied">
+                  <span>
+                    <Icon name="check" size={15} />
+                    <strong>{coupon.code}</strong>
+                    {coupon.description && <em>{coupon.description}</em>}
+                  </span>
+                  <button type="button" onClick={removeCoupon}>
+                    Remove
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <label htmlFor="checkout-coupon">Discount code</label>
+                  <div className="checkout__coupon-entry">
+                    <input
+                      id="checkout-coupon"
+                      type="text"
+                      value={couponInput}
+                      onChange={(e) => {
+                        setCouponInput(e.target.value);
+                        setCouponError('');
+                      }}
+                      onKeyDown={(e) => {
+                        // Enter here would submit the delivery form and open
+                        // the payment sheet — emphatically not what someone
+                        // pressing Enter in a coupon box is asking for.
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          applyCoupon();
+                        }
+                      }}
+                      placeholder="Enter a code"
+                      autoComplete="off"
+                      spellCheck="false"
+                      maxLength={40}
+                    />
+                    <button
+                      type="button"
+                      onClick={applyCoupon}
+                      disabled={couponBusy || !couponInput.trim()}
+                    >
+                      {couponBusy ? 'Checking…' : 'Apply'}
+                    </button>
+                  </div>
+                </>
+              )}
+              {couponError && (
+                <p className="checkout__coupon-error" role="alert">
+                  {couponError}
+                </p>
+              )}
+            </div>
+
             <dl>
               <div>
                 <dt>Subtotal ({totalItems} items)</dt>
                 <dd>{formatPrice(subtotal)}</dd>
               </div>
+              {discount > 0 && (
+                <div className="checkout__saved">
+                  <dt>Discount ({coupon.code})</dt>
+                  <dd>−{formatPrice(discount)}</dd>
+                </div>
+              )}
               <div>
                 <dt>Delivery</dt>
                 <dd>{delivery === 0 ? <em>Free</em> : formatPrice(delivery)}</dd>
               </div>
+              {coupon?.tax > 0 && (
+                <div>
+                  <dt>GST</dt>
+                  <dd>{formatPrice(coupon.tax)}</dd>
+                </div>
+              )}
+              {/* Tax is only shown when some is charged. The figure the
+                  customer is actually billed comes from the server; this is
+                  the estimate the button is labelled with. */}
               <div className="checkout__total">
                 <dt>Total</dt>
                 <dd>{formatPrice(total)}</dd>

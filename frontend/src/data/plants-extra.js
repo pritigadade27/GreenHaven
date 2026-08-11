@@ -16,8 +16,10 @@ const P = (a) => ({
   price: a.price,
   mrp: a.mrp,
   image: img(a.img ?? a.slug),
-  rating: a.rating ?? 4.5,
-  reviews: a.reviews ?? 60,
+  // No invented default. A product has the rating its reviewers gave it, or
+  // none at all.
+  rating: a.rating ?? null,
+  reviews: a.reviews ?? 0,
   stock: a.stock ?? 30,
   featured: a.featured ?? false,
   bestSeller: a.best ?? false,
@@ -37,8 +39,6 @@ const P = (a) => ({
   },
   tip: a.tip,
 });
-
-/* ============================================================ indoor (+7) */
 
 const INDOOR = [
   P({ id:'x01', slug:'chinese-money-plant', name:'Chinese Money Plant', bot:'Pilea peperomioides',
@@ -127,8 +127,6 @@ const INDOOR = [
        'Balanced feed monthly in growth.','Every 2 years.'],
     tip:'Dust the leaves monthly. They are matte, so dust dulls them faster than on a glossy ficus.' }),
 ];
-
-/* =========================================================== outdoor (+13) */
 
 const OUTDOOR = [
   P({ id:'x10', slug:'bamboo', name:'Golden Bamboo', bot:'Bambusa vulgaris',
@@ -286,8 +284,6 @@ const OUTDOOR = [
     tip:'Wear gloves when pruning and never burn the clippings — the smoke is toxic. Not a plant for homes with pets or small children.' }),
 ];
 
-/* ========================================================= flowering (+11) */
-
 const FLOWERING = [
   P({ id:'x30', slug:'chrysanthemum', name:'Chrysanthemum', bot:'Chrysanthemum morifolium',
     cat:'flowering-plants', price:349, mrp:449, rating:4.6, reviews:243, best:true,
@@ -423,8 +419,6 @@ const FLOWERING = [
        'Weak succulent feed monthly in growth.','Every 2 years.'],
     tip:'To rebloom it, give it 14 hours of complete darkness a night for six weeks. Short days are what trigger the buds.' }),
 ];
-
-/* ======================================================== succulents (+14) */
 
 const SUCCULENTS = [
   P({ id:'x50', slug:'echeveria', name:'Echeveria', bot:'Echeveria elegans',
@@ -593,8 +587,6 @@ const SUCCULENTS = [
        'Weak bromeliad feed in the soak water monthly.','Never — there is no pot.'],
     tip:'Always shake it out and dry it upside down after soaking. Water trapped in the centre rots it within days.' }),
 ];
-
-/* ===================================================== air purifying (+15) */
 
 const AIR = [
   P({ id:'x70', slug:'aglaonema', name:'Aglaonema', bot:'Aglaonema commutatum',

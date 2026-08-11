@@ -2,6 +2,7 @@ import { useState } from 'react';
 
 import Icon from '../../components/common/Icon/Icon.jsx';
 import useAdminQuery from '../../hooks/useAdminQuery.js';
+import { useToast } from '../../components/common/Toast/ToastProvider.jsx';
 import { adminApi } from '../../services/adminApi.js';
 import { formatPrice } from '../../utils/format.js';
 import AdminState from './AdminState.jsx';
@@ -12,6 +13,7 @@ const DELIVERY = ['', 'PENDING', 'CONFIRMED', 'PROCESSING', 'PACKED',
 const pretty = (value) => (value || '').replaceAll('_', ' ').toLowerCase();
 
 export default function AdminOrders() {
+  const toast = useToast();
   const [q, setQ] = useState('');
   const [delivery, setDelivery] = useState('');
   const [page, setPage] = useState(0);
@@ -30,7 +32,7 @@ export default function AdminOrders() {
       await adminApi.setDeliveryStatus(row.id, status);
       orders.reload();
     } catch (err) {
-      window.alert(err.message);
+      toast.error(err.message);
     } finally {
       setBusyId(null);
     }

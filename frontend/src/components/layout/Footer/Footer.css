@@ -10,8 +10,6 @@
   padding-block: var(--space-4xl) var(--space-3xl);
 }
 
-/* -------------------------------------------------------------------- brand */
-
 .footer__brand > p {
   max-width: 42ch;
   margin-top: var(--space-lg);
@@ -44,8 +42,6 @@
   color: var(--color-primary);
   transform: translateY(-3px);
 }
-
-/* ------------------------------------------------------------------ columns */
 
 .footer__col h3 {
   color: var(--color-white);
@@ -81,8 +77,6 @@
   transform: translateX(4px);
 }
 
-/* ------------------------------------------------------------------ contact */
-
 .footer__contact ul {
   gap: var(--space-md);
 }
@@ -112,8 +106,6 @@
   color: var(--color-white);
 }
 
-/* ---------------------------------------------------------------- bottom bar */
-
 .footer__bar {
   border-top: 1px solid rgba(242, 155, 168, 0.22);
 }
@@ -142,8 +134,6 @@
 .footer__bar-inner a:hover {
   color: var(--color-white);
 }
-
-/* ========================================================================== Responsive ========================================================================== */
 
 @media (max-width: 991px) {
   .footer__inner {

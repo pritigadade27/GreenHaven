@@ -1,5 +1,3 @@
-/* ========================================================================== Hero — full-screen split. */
-
 .hero {
   position: relative;
   display: flex;
@@ -33,8 +31,6 @@
   align-items: center;
   gap: clamp(var(--space-xl), 4vw, var(--space-4xl));
 }
-
-/* --------------------------------------------------------------------- copy */
 
 .hero__content > * {
   opacity: 0;
@@ -115,8 +111,6 @@
   text-transform: uppercase;
   color: var(--color-green);
 }
-
-/* -------------------------------------------------------------------- image */
 
 .hero__visual {
   position: relative;
@@ -226,8 +220,6 @@
   height: 142px;
   animation-delay: 960ms;
 }
-
-/* ========================================================================== Responsive ========================================================================== */
 
 @media (max-width: 1199px) {
   .hero__disc--top {

@@ -1,5 +1,7 @@
 package com.greenhaven.model;
 
+import org.hibernate.annotations.BatchSize;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -8,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 /** A shop category — Indoor Plants, Succulents, Seeds and so on. */
+@BatchSize(size = 64)   // loaded once per batch of plants, not once per plant
 @Entity
 @Table(name = "category")
 public class Category {

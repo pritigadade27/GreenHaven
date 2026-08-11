@@ -4,8 +4,6 @@
   background: var(--color-bg);
 }
 
-/* --------------------------------------------------------------- summary */
-
 .testimonials__summary {
   display: flex;
   align-items: center;
@@ -32,8 +30,6 @@
   font-size: var(--fs-sm);
   font-weight: var(--fw-light);
 }
-
-/* ----------------------------------------------------------------- grid */
 
 .testimonials__grid {
   display: grid;

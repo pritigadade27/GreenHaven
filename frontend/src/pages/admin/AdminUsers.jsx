@@ -2,12 +2,14 @@ import { useState } from 'react';
 
 import Icon from '../../components/common/Icon/Icon.jsx';
 import useAdminQuery from '../../hooks/useAdminQuery.js';
+import { useToast } from '../../components/common/Toast/ToastProvider.jsx';
 import { adminApi } from '../../services/adminApi.js';
 import { formatPrice } from '../../utils/format.js';
 import AdminState from './AdminState.jsx';
 import { Pager } from './AdminOrders.jsx';
 
 export default function AdminUsers() {
+  const toast = useToast();
   const [q, setQ] = useState('');
   const [page, setPage] = useState(0);
   const [busyId, setBusyId] = useState(null);
@@ -20,7 +22,7 @@ export default function AdminUsers() {
       await adminApi.setBlocked(row.id, !row.blocked);
       users.reload();
     } catch (err) {
-      window.alert(err.message);
+      toast.error(err.message);
     } finally {
       setBusyId(null);
     }

@@ -98,7 +98,11 @@ function adapt(dto) {
     short: dto.shortDescription ?? dto.short ?? '',
     tip: dto.careTip ?? dto.tip ?? '',
     image: resolveImage(dto.image),
+    // Each shot goes through the same resolver as the primary, so a
+    // bundled asset and an uploaded file both work.
+    gallery: (dto.gallery ?? []).map(resolveImage).filter(Boolean),
     badges: dto.badges ?? [],
     isMerchandise: Boolean(dto.merchandise ?? dto.isMerchandise),
+    newArrival: Boolean(dto.newArrival),
   };
 }

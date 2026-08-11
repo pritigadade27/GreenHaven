@@ -5,7 +5,6 @@ import Icon from '../../components/common/Icon/Icon.jsx';
 import { useCatalogue } from '../../context/CatalogueContext.jsx';
 import './NotFound.css';
 
-/** A real 404. */
 export default function NotFound() {
   const { CATEGORIES } = useCatalogue();
   const { pathname } = useLocation();

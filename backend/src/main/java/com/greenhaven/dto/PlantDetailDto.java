@@ -14,6 +14,8 @@ public record PlantDetailDto(
         BigDecimal price,
         BigDecimal mrp,
         String image,
+        /** Extra shots, primary first. Empty for most products. */
+        java.util.List<String> gallery,
         BigDecimal rating,
         Integer reviews,
         Integer stock,

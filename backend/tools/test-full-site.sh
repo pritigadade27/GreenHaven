@@ -2,7 +2,16 @@
 # Whole-site test: storefront renders from MySQL, and an admin edit reaches it.
 BR=http://127.0.0.1:10086/command
 MYSQL="/c/Users/vnp12/mysql/mysql-8.4.9-winx64/bin/mysql.exe"
-export MYSQL_PWD='Priti@#12'
+# Credentials come from backend/tools/test-env.sh, which is gitignored. There
+# is deliberately no built-in default: a fallback password in a committed
+# script is a published password.
+HERE="$(cd "$(dirname "$0")" && pwd)"
+[ -f "$HERE/test-env.sh" ] && . "$HERE/test-env.sh"
+: "${MYSQL_PWD:?set MYSQL_PWD — copy test-env.example.sh to test-env.sh}"
+ADMIN_EMAIL=${ADMIN_EMAIL:?set ADMIN_EMAIL in test-env.sh}
+ADMIN_PASSWORD=${ADMIN_PASSWORD:?set ADMIN_PASSWORD in test-env.sh}
+export MYSQL_PWD
+export MYSQL_PWD='$ADMIN_PASSWORD'
 Q() { "$MYSQL" --default-character-set=utf8mb4 -u priti green_haven -N -B -e "$1"; }
 
 go() {
@@ -49,9 +58,10 @@ go /plant/tulsi 6
 check "and the restored price" "yes" "$(ev 'document.body.innerText.includes("199") ? "yes":"no"')"
 
 echo "== AN ADMIN STOCK EDIT REACHES THE SHOP =="
-PW=$(grep '^ADMIN_PASSWORD=' "/c/Users/vnp12/Desktop/green haven/backend/.env" | cut -d= -f2-)
+PW=$(grep '^ADMIN_PASSWORD=' "/c/Users/vnp12/Desktop/green haven/backend/.env" | cut -d= -f2- | tr -d '\r')
+ADMIN_EMAIL=$(grep '^ADMIN_EMAIL=' "/c/Users/vnp12/Desktop/green haven/backend/.env" | cut -d= -f2- | tr -d '\r')
 TOK=$(curl -s -m 20 -X POST http://localhost:8080/api/admin/auth/login -H 'Content-Type: application/json' \
-  -d "{\"email\":\"admin@greenhaven.in\",\"password\":\"$PW\"}" \
+  -d "{\"email\":\"$ADMIN_EMAIL\",\"password\":\"$PW\"}" \
   | python -c "import json,sys;print(json.load(sys.stdin).get('token',''))")
 PID=$(Q "SELECT id FROM plant WHERE slug='tulsi';")
 BEFORE=$(Q "SELECT stock FROM plant WHERE id=$PID;")

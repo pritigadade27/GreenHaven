@@ -3,8 +3,6 @@
   padding-top: calc(var(--navbar-height) + var(--space-xl));
 }
 
-/* ================================================================== story */
-
 .about-story__inner {
   display: grid;
   grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
@@ -36,8 +34,6 @@
   font-weight: var(--fw-light);
   line-height: 1.85;
 }
-
-/* ====================================================== mission / vision */
 
 .about-mv__grid {
   display: grid;
@@ -85,8 +81,6 @@
   font-weight: var(--fw-light);
   line-height: 1.75;
 }
-
-/* ================================================================ values */
 
 .about-values__grid {
   display: grid;
@@ -138,8 +132,6 @@
   line-height: 1.7;
 }
 
-/* =================================================================== cta */
-
 .about-cta__inner {
   display: grid;
   grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
@@ -182,8 +174,6 @@
   gap: var(--space-sm);
   margin-top: var(--space-lg);
 }
-
-/* ========================================================================== Responsive ========================================================================== */
 
 @media (max-width: 1199px) {
   .about-values__grid {

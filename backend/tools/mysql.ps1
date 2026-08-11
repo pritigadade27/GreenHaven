@@ -32,8 +32,14 @@ $Ini      = Join-Path $Home_ 'my.ini'
 $Mysqld   = Join-Path $Bin 'mysqld.exe'
 $Mysql    = Join-Path $Bin 'mysql.exe'
 $Admin    = Join-Path $Bin 'mysqladmin.exe'
-$User     = 'priti'
-$Password = 'Priti@#12'
+$User     = if ($env:MYSQL_USER) { $env:MYSQL_USER } else { 'priti' }
+# From the environment, never from this file. A password written into a
+# committed script is a published password.
+$Password = $env:MYSQL_PWD
+if (-not $Password) {
+  Write-Host 'Set MYSQL_PWD first:  $env:MYSQL_PWD = "..."' -ForegroundColor Red
+  exit 1
+}
 $Db       = 'green_haven'
 # The schema and seed live in backend\db, deliberately OUTSIDE src\main\resources:
 # everything under resources is packaged into the deployable JAR, and schema.sql

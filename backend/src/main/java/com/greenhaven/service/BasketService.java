@@ -22,6 +22,9 @@ import com.greenhaven.repository.WishlistItemRepository;
 @Service
 public class BasketService {
 
+    private static final org.slf4j.Logger log =
+            org.slf4j.LoggerFactory.getLogger(BasketService.class);
+
     private final CartItemRepository carts;
     private final WishlistItemRepository wishlists;
     private final PlantRepository plants;
@@ -34,8 +37,6 @@ public class BasketService {
         this.plants = plants;
         this.users = users;
     }
-
-    /* -------------------------------------------------------------- cart */
 
     @Transactional(readOnly = true)
     public List<BasketDto.Line> cart(String email) {
@@ -71,8 +72,6 @@ public class BasketService {
                 .toList();
     }
 
-    /* ---------------------------------------------------------- wishlist */
-
     @Transactional(readOnly = true)
     public List<String> wishlist(String email) {
         return wishlists.findByUserId(user(email).getId()).stream()
@@ -102,7 +101,21 @@ public class BasketService {
         return rows.stream().map(r -> r.getPlant().getSlug()).toList();
     }
 
-    /* ------------------------------------------------------------ helpers */
+    /**
+     * Empties the saved cart after a purchase.
+     *
+     * Failure is swallowed: this runs immediately after money has been taken,
+     * and a cart that would not clear is no reason to unwind a captured
+     * payment. The worst case is a stale basket, which the customer can empty.
+     */
+    @Transactional
+    public void clearCartQuietly(Long userId) {
+        try {
+            carts.deleteByUserId(userId);
+        } catch (RuntimeException e) {
+            log.warn("Could not clear the cart for user {}: {}", userId, e.getMessage());
+        }
+    }
 
     /** Collapses duplicate slugs, so one product is one row. */
     private static Map<String, Integer> merge(List<BasketDto.Line> lines) {

@@ -22,6 +22,11 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
     Page<Payment> findByStatusOrderByIdDesc(String status, Pageable pageable);
 
+    /** One customer's payment history, attempts included. */
+    List<Payment> findByOrderUserIdOrderByIdDesc(Long userId);
+
+    Optional<Payment> findByIdAndOrderUserId(Long id, Long userId);
+
     long countByStatus(String status);
 
     /** Money actually taken. COALESCE so an empty table returns 0, not null. */

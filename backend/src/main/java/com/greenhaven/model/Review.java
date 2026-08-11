@@ -17,9 +17,16 @@ import jakarta.persistence.Table;
 @Table(name = "review")
 public class Review {
 
+    /** Awaiting moderation. Written before the storefront could post reviews. */
     public static final String PENDING = "PENDING";
+    /** Visible on the product page. Where a verified purchase lands. */
     public static final String APPROVED = "APPROVED";
     public static final String REJECTED = "REJECTED";
+    /**
+     * Taken down by an admin. Kept rather than deleted so the decision can be
+     * undone, and excluded from the average exactly like a deleted one.
+     */
+    public static final String HIDDEN = "HIDDEN";
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,8 +40,20 @@ public class Review {
     @JoinColumn(name = "user_id", nullable = false)
     private AppUser user;
 
+    /** The delivered order that earned the right to write this. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id")
+    private Order order;
+
+    /**
+     * Settled when the review is written, not looked up when it is read: it is
+     * a fact about that moment, and has to keep reading true afterwards.
+     */
+    @Column(name = "verified_purchase", nullable = false)
+    private boolean verifiedPurchase = false;
+
     @Column(nullable = false)
-    private Integer rating;
+    private java.math.BigDecimal rating;
 
     @Column(length = 150)
     private String title;
@@ -45,8 +64,15 @@ public class Review {
     @Column(nullable = false, length = 16)
     private String status = PENDING;
 
+    @Column(name = "hidden_reason", length = 255)
+    private String hiddenReason;
+
     @Column(name = "created_at", insertable = false, updatable = false)
     private Instant createdAt;
+
+    /** Null until the customer edits it — an edited review says so. */
+    @Column(name = "updated_at")
+    private Instant updatedAt;
 
     public Long getId() { return id; }
 
@@ -56,8 +82,8 @@ public class Review {
     public AppUser getUser() { return user; }
     public void setUser(AppUser user) { this.user = user; }
 
-    public Integer getRating() { return rating; }
-    public void setRating(Integer rating) { this.rating = rating; }
+    public java.math.BigDecimal getRating() { return rating; }
+    public void setRating(java.math.BigDecimal rating) { this.rating = rating; }
 
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
@@ -65,8 +91,20 @@ public class Review {
     public String getBody() { return body; }
     public void setBody(String body) { this.body = body; }
 
+    public Order getOrder() { return order; }
+    public void setOrder(Order order) { this.order = order; }
+
+    public boolean isVerifiedPurchase() { return verifiedPurchase; }
+    public void setVerifiedPurchase(boolean verifiedPurchase) { this.verifiedPurchase = verifiedPurchase; }
+
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
 
+    public String getHiddenReason() { return hiddenReason; }
+    public void setHiddenReason(String hiddenReason) { this.hiddenReason = hiddenReason; }
+
     public Instant getCreatedAt() { return createdAt; }
+
+    public Instant getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
 }

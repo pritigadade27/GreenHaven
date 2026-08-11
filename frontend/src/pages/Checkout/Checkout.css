@@ -9,7 +9,6 @@
   align-items: start;
 }
 
-/* ------------------------------------------------------------------ form */
 .checkout__form h2,
 .checkout__summary h2 {
   font-size: var(--fs-h4);
@@ -86,7 +85,6 @@
   margin-top: 2px;
 }
 
-/* --------------------------------------------------------------- summary */
 .checkout__summary {
   position: sticky;
   top: 110px;
@@ -165,6 +163,121 @@
   color: var(--color-green);
 }
 
+/* ---- discount code ------------------------------------------------------ */
+
+.checkout__coupon {
+  margin-bottom: var(--space-md);
+  padding-bottom: var(--space-md);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.checkout__coupon label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: var(--fs-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.checkout__coupon-entry {
+  display: flex;
+  gap: var(--space-xs);
+}
+
+.checkout__coupon-entry input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-sm);
+  /* Codes are printed in capitals and matched in capitals, so showing them
+     that way keeps what is typed and what is checked looking the same. */
+  text-transform: uppercase;
+}
+
+.checkout__coupon-entry input:focus-visible {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.checkout__coupon-entry button {
+  padding: 0.6rem 1.1rem;
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--color-primary);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+
+.checkout__coupon-entry button:hover:not(:disabled),
+.checkout__coupon-entry button:focus-visible {
+  background: var(--color-primary);
+  color: var(--color-white);
+}
+
+.checkout__coupon-entry button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.checkout__coupon-applied {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  padding: 0.6rem 0.8rem;
+  border-radius: var(--radius-sm);
+  background: rgba(75, 122, 71, 0.12);
+}
+
+.checkout__coupon-applied span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  color: #3d6639;
+  font-size: var(--fs-sm);
+}
+
+.checkout__coupon-applied em {
+  font-style: normal;
+  color: var(--color-text-muted);
+  font-size: var(--fs-xs);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.checkout__coupon-applied button {
+  border: none;
+  background: none;
+  color: var(--color-text-muted);
+  font-size: var(--fs-xs);
+  cursor: pointer;
+  border-bottom: 1px solid currentColor;
+  white-space: nowrap;
+}
+
+.checkout__coupon-error {
+  margin-top: 6px;
+  color: var(--color-secondary);
+  font-size: var(--fs-xs);
+}
+
+/* Money coming off reads as a gain, so it is coloured like the free-delivery
+   note rather than like an error. */
+.checkout__saved dt,
+.checkout__saved dd {
+  color: #3d6639 !important;
+}
+
 .checkout__total {
   margin-top: 6px;
   padding-top: var(--space-md) !important;
@@ -190,7 +303,6 @@
   color: var(--color-primary);
 }
 
-/* ------------------------------------------------------------- confirmed */
 .checkout__done {
   max-width: 620px;
   margin: 0 auto;
@@ -284,4 +396,177 @@
 
 .section:first-of-type {
   padding-top: calc(var(--navbar-height) + var(--space-xl));
+}
+
+/* Simulated payment sheet. Deliberately unlike the rest of the shop: nobody
+   should be able to mistake it for a real Razorpay window. */
+.testpay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: var(--space-lg);
+  background: rgba(30, 8, 12, 0.55);
+  backdrop-filter: blur(4px);
+  animation: fadeIn var(--dur-base) var(--ease-out);
+}
+
+.testpay__card {
+  width: min(440px, 100%);
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: var(--space-2xl);
+  border-radius: var(--radius-lg);
+  background: var(--color-white);
+  box-shadow: var(--shadow-xl);
+  text-align: center;
+}
+
+.testpay__badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  background: #8a5a00;
+  color: var(--color-white);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.testpay__card h2 {
+  margin-top: var(--space-md);
+  font-size: var(--fs-h4);
+}
+
+.testpay__card > p {
+  margin-top: var(--space-sm);
+  color: var(--color-text-muted);
+  font-size: var(--fs-sm);
+}
+
+.testpay__facts {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-2xl);
+  margin: var(--space-xl) 0;
+  padding: var(--space-md) 0;
+  border-block: 1px solid var(--color-border);
+}
+
+.testpay__facts dt {
+  font-size: var(--fs-xs);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.testpay__facts dd {
+  margin-top: 4px;
+  font-family: var(--font-heading);
+  font-size: var(--fs-lg);
+  color: var(--color-primary);
+}
+
+.testpay__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.testpay__fail,
+.testpay__cancel {
+  border: 0;
+  background: none;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: var(--fs-sm);
+  color: var(--color-text-muted);
+  transition: color var(--dur-base) var(--ease-out);
+}
+
+.testpay__fail:hover {
+  color: var(--color-secondary);
+}
+
+.testpay__cancel:hover {
+  color: var(--color-primary);
+}
+
+/* Saved addresses at checkout. A returning customer picks one instead of
+   retyping what the account already knows. */
+.checkout__saved {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-md);
+}
+
+.checkout__saved label {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 2px var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: var(--transition-base);
+}
+
+.checkout__saved label:hover {
+  border-color: var(--color-primary);
+}
+
+.checkout__saved label.is-on {
+  border-color: var(--color-primary);
+  background: var(--color-card-tint);
+}
+
+.checkout__saved input {
+  grid-row: 1 / span 3;
+  align-self: center;
+  width: 17px;
+  height: 17px;
+  accent-color: var(--color-primary);
+}
+
+.checkout__saved-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-weight: var(--fw-medium);
+  color: var(--color-primary);
+}
+
+.checkout__saved-label em {
+  padding: 1px 8px;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary);
+  color: var(--color-white);
+  font-size: var(--fs-xs);
+  font-style: normal;
+}
+
+.checkout__saved-body,
+.checkout__saved-phone {
+  color: var(--color-text-muted);
+  font-size: var(--fs-sm);
+}
+
+.checkout__remember {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-top: calc(var(--space-sm) * -1);
+  color: var(--color-text-muted);
+  font-size: var(--fs-sm);
+  cursor: pointer;
+}
+
+.checkout__remember input {
+  width: 17px;
+  height: 17px;
+  accent-color: var(--color-primary);
 }

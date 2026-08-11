@@ -87,10 +87,42 @@ export const adminApi = {
   setStock: (id, stock) =>
     request(`/inventory/${id}/stock`, { method: 'PATCH', body: { stock: Number(stock) } }),
 
+  createProduct: (body) => request('/products', { method: 'POST', body }),
+  updateProduct: (id, body) => request(`/products/${id}`, { method: 'PUT', body }),
+  deleteProduct: (id) => request(`/products/${id}`, { method: 'DELETE' }),
+  setProductGallery: (id, urls) =>
+    request(`/products/${id}/gallery`, { method: 'PUT', body: { urls } }),
+  setProductListing: (id, discontinued) =>
+    request(`/products/${id}/listing?discontinued=${discontinued}`, { method: 'PATCH' }),
+
+  /**
+   * Multipart, so it cannot go through request(): that sets a JSON content
+   * type, and the browser must set its own with the multipart boundary.
+   */
+  uploadProductImage: async (file) => {
+    const body = new FormData();
+    body.append('file', file);
+    const response = await fetch('/api/admin/products/image', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${getAdminToken()}` },
+      body,
+    });
+    const data = await response.json().catch(() => null);
+    if (!response.ok) throw new Error(data?.message || `Upload failed (${response.status})`);
+    return data;
+  },
+
   reviews: (params = {}) => request(`/reviews${query(params)}`),
-  setReviewStatus: (id, status) =>
-    request(`/reviews/${id}/status`, { method: 'PATCH', body: { status } }),
+  setReviewStatus: (id, status, reason) =>
+    request(`/reviews/${id}/status`, { method: 'PATCH', body: { status, reason } }),
   deleteReview: (id) => request(`/reviews/${id}`, { method: 'DELETE' }),
+
+  coupons: (params = {}) => request(`/coupons${query(params)}`),
+  createCoupon: (body) => request('/coupons', { method: 'POST', body }),
+  updateCoupon: (id, body) => request(`/coupons/${id}`, { method: 'PUT', body }),
+  // Off, not deleted: paid orders name the code they used.
+  setCouponState: (id, active) =>
+    request(`/coupons/${id}/state?active=${active}`, { method: 'PATCH' }),
 };
 
 /** Builds a query string, dropping empty values so "" is not sent as a filter. */

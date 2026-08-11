@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import com.greenhaven.dto.ApiMessage;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.greenhaven.dto.AuthResponse;
@@ -28,8 +30,10 @@ import jakarta.validation.Valid;
 public class AuthController {
 
     private final AuthService auth;
+    private final com.greenhaven.service.PasswordResetService passwordResets;
 
-    public AuthController(AuthService auth) {
+    public AuthController(AuthService auth, com.greenhaven.service.PasswordResetService passwordResets) {
+        this.passwordResets = passwordResets;
         this.auth = auth;
     }
 
@@ -41,6 +45,39 @@ public class AuthController {
     @PostMapping("/login")
     public AuthResponse login(@Valid @RequestBody LoginRequest request) {
         return auth.login(request);
+    }
+
+    /**
+     * Starts a password reset.
+     *
+     * Always 200, whether or not the address has an account: a different answer
+     * would turn this into a free way to discover who shops here.
+     */
+    @PostMapping("/forgot-password")
+    public java.util.Map<String, String> forgotPassword(
+            @RequestBody java.util.Map<String, String> body,
+            jakarta.servlet.http.HttpServletRequest http) {
+        var token = passwordResets.request(body.get("email"), http.getRemoteAddr());
+        java.util.Map<String, String> response = new java.util.LinkedHashMap<>();
+        response.put("message",
+                "If that address has an account, a reset link is on its way. "
+                        + "It is good for one hour.");
+        // Present only in development — see greenhaven.auth.expose-reset-token.
+        token.ifPresent(value -> response.put("token", value));
+        return response;
+    }
+
+    /** Whether a reset link is still good, so the form can say so up front. */
+    @GetMapping("/reset-password")
+    public java.util.Map<String, Boolean> checkReset(@RequestParam String token) {
+        return java.util.Map.of("usable", passwordResets.isUsable(token));
+    }
+
+    @PostMapping("/reset-password")
+    public ApiMessage resetPassword(@RequestBody java.util.Map<String, String> body) {
+        passwordResets.complete(body.get("token"), body.get("newPassword"),
+                body.get("confirmPassword"));
+        return new ApiMessage("Your password has been changed. You can sign in with it now.");
     }
 
     @GetMapping("/me")

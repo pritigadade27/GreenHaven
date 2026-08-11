@@ -12,6 +12,28 @@ export default defineConfig({
         target: 'http://localhost:8080',
         changeOrigin: true,
       },
+      // Uploaded product photographs are served by Spring, not Vite.
+      '/uploads': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+      },
+    },
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        /**
+         * React and the router in their own chunk.
+         *
+         * They change when a dependency is upgraded, which is rarely; the app
+         * code changes constantly. Split apart, a returning visitor
+         * re-downloads only what actually changed instead of the whole entry
+         * bundle every deploy.
+         */
+        manualChunks: {
+          react: ['react', 'react-dom', 'react-router-dom'],
+        },
+      },
     },
   },
 });

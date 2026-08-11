@@ -1,0 +1,29 @@
+# Secrets. backend/.env holds the JWT signing key, the MySQL password, the
+# admin password and the Razorpay keys — it must never be committed.
+.env
+.env.*
+!.env.example
+
+# The test suites' credentials. test-env.example.sh is the committed template.
+backend/tools/test-env.sh
+*.pem
+*.key
+
+# Build output
+target/
+dist/
+build/
+node_modules/
+*.jar
+*.war
+
+# Editors and OS
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Logs and scratch
+*.log
+npm-debug.log*

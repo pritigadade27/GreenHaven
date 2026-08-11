@@ -59,12 +59,73 @@ async function request(path, { method = 'GET', body, auth = false } = {}) {
   return data;
 }
 
+/**
+ * Fetches a file rather than JSON, and hands back a Blob.
+ *
+ * A plain <a download> cannot carry the bearer token, and putting the token in
+ * the query string would leak it into browser history and server logs — so the
+ * download goes through fetch and is handed to the browser as an object URL.
+ */
+async function download(path) {
+  const headers = {};
+  const token = getToken();
+  if (token) headers.Authorization = `Bearer ${token}`;
+
+  let response;
+  try {
+    response = await fetch(`/api${path}`, { headers });
+  } catch {
+    throw new Error('Cannot reach the server. Is the Spring Boot API running on port 8080?');
+  }
+
+  if (!response.ok) {
+    // The error body is JSON even when the happy path is a PDF.
+    let message = `Download failed (${response.status})`;
+    try {
+      const data = JSON.parse(await response.text());
+      if (data?.message) message = data.message;
+    } catch {
+      /* not JSON — keep the status message */
+    }
+    const error = new Error(message);
+    error.status = response.status;
+    throw error;
+  }
+
+  const disposition = response.headers.get('Content-Disposition') || '';
+  const named = /filename="?([^"]+)"?/.exec(disposition);
+  return { blob: await response.blob(), filename: named ? named[1] : 'download.pdf' };
+}
+
+/** Saves a fetched Blob to disk, then releases the object URL. */
+export async function saveFile(path) {
+  const { blob, filename } = await download(path);
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  // Revoked on the next tick: released synchronously, Safari cancels the
+  // download it has only just started.
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  return filename;
+}
+
 export const authApi = {
-  register: (fullName, email, password) =>
-    request('/auth/register', { method: 'POST', body: { fullName, email, password } }),
+  register: (fullName, email, password, phone = '') =>
+    request('/auth/register', { method: 'POST', body: { fullName, email, password, phone } }),
   login: (email, password) =>
     request('/auth/login', { method: 'POST', body: { email, password } }),
   me: () => request('/auth/me', { auth: true }),
+
+  // Always resolves the same way whether or not the address has an account —
+  // the server deliberately gives nothing away, and neither does this.
+  forgotPassword: (email) =>
+    request('/auth/forgot-password', { method: 'POST', body: { email } }),
+  resetPassword: (token, newPassword, confirmPassword) =>
+    request('/auth/reset-password', { method: 'POST', body: { token, newPassword, confirmPassword } }),
 };
 
 /**
@@ -75,12 +136,134 @@ export const authApi = {
  * edited in a browser devtools console.
  */
 export const orderApi = {
-  start: (shipping, items) =>
-    request('/orders', { method: 'POST', auth: true, body: { ...shipping, items } }),
+  start: (shipping, items, couponCode) =>
+    request('/orders', {
+      method: 'POST',
+      auth: true,
+      // The code only. What it is worth is the server's to decide.
+      body: { ...shipping, items, couponCode: couponCode || null },
+    }),
   verify: (payload) => request('/orders/verify', { method: 'POST', auth: true, body: payload }),
+  // Test mode only — the server refuses this once real Razorpay keys are set.
+  simulate: (razorpayOrderId, succeed = true) =>
+    request(`/orders/${razorpayOrderId}/simulate?succeed=${succeed}`, {
+      method: 'POST',
+      auth: true,
+    }),
   cancel: (razorpayOrderId) =>
     request(`/orders/${razorpayOrderId}/cancel`, { method: 'POST', auth: true }),
   mine: () => request('/orders', { auth: true }),
+};
+
+/**
+ * My Profile. Every route is scoped server-side to the token's own account —
+ * nothing here takes a user id, so there is no id to tamper with.
+ */
+export const profileApi = {
+  me: () => request('/profile', { auth: true }),
+  update: (body) => request('/profile', { method: 'PATCH', auth: true, body }),
+
+  requestEmailChange: (email, password) =>
+    request('/profile/email', { method: 'POST', auth: true, body: { email, password } }),
+  // The reply carries a NEW token: a JWT names its subject by email, so the
+  // one in hand stops matching the account the moment the address moves.
+  confirmEmailChange: async (token) => {
+    const session = await request(`/profile/email/confirm?token=${encodeURIComponent(token)}`, {
+      method: 'POST',
+      auth: true,
+    });
+    setToken(session.token);
+    return session;
+  },
+  cancelEmailChange: () => request('/profile/email', { method: 'DELETE', auth: true }),
+
+  changePassword: (currentPassword, newPassword, confirmPassword) =>
+    request('/profile/password', {
+      method: 'POST',
+      auth: true,
+      body: { currentPassword, newPassword, confirmPassword },
+    }),
+
+  orders: () => request('/profile/orders', { auth: true }),
+  order: (orderNumber) => request(`/profile/orders/${orderNumber}`, { auth: true }),
+  cancelOrder: (orderNumber, reason) =>
+    request(`/profile/orders/${orderNumber}/cancel`, {
+      method: 'POST',
+      auth: true,
+      body: { reason },
+    }),
+  reorder: (orderNumber) => request(`/profile/orders/${orderNumber}/reorder`, { auth: true }),
+  downloadInvoice: (orderNumber) => saveFile(`/profile/orders/${orderNumber}/invoice`),
+  // By document number — an order can carry an invoice and a credit note.
+  downloadDocument: (number) => saveFile(`/profile/documents/${encodeURIComponent(number)}`),
+
+  payments: () => request('/profile/payments', { auth: true }),
+  invoices: () => request('/profile/invoices', { auth: true }),
+
+  notifications: () => request('/profile/notifications', { auth: true }),
+  markNotificationsRead: () =>
+    request('/profile/notifications/read', { method: 'POST', auth: true }),
+};
+
+/**
+ * Ratings and reviews.
+ *
+ * Reading is public and needs no token; writing is refused server-side unless
+ * the caller has actually had the plant delivered.
+ */
+export const reviewApi = {
+  // auth: true so a signed-in reader gets `mine` marked on their own review —
+  // the endpoint itself works fine without a token.
+  list: (slug, page = 0, size = 10) =>
+    request(`/plants/${slug}/reviews?page=${page}&size=${size}`, { auth: true }),
+  eligibility: (slug) => request(`/reviews/${slug}/eligibility`, { auth: true }),
+  write: (slug, body) => request(`/reviews/${slug}`, { method: 'POST', auth: true, body }),
+  edit: (id, body) => request(`/reviews/${id}`, { method: 'PUT', auth: true, body }),
+  remove: (id) => request(`/reviews/${id}`, { method: 'DELETE', auth: true }),
+  mine: () => request('/reviews/mine', { auth: true }),
+
+  /**
+   * Multipart, so it cannot go through request(): that sets a JSON content
+   * type, and the browser must set its own with the multipart boundary.
+   */
+  uploadImage: async (file) => {
+    const body = new FormData();
+    body.append('file', file);
+
+    const headers = {};
+    const token = getToken();
+    if (token) headers.Authorization = `Bearer ${token}`;
+
+    let response;
+    try {
+      response = await fetch('/api/reviews/image', { method: 'POST', headers, body });
+    } catch {
+      throw new Error('Cannot reach the server. Is the Spring Boot API running on port 8080?');
+    }
+    const data = await response.json().catch(() => null);
+    if (!response.ok) throw new Error(data?.message || `Upload failed (${response.status})`);
+    return data;
+  },
+};
+
+/**
+ * Discount codes.
+ *
+ * Only ever sends the code and the basket — the discount comes back from the
+ * server, and this file has no arithmetic of its own to disagree with it.
+ */
+export const couponApi = {
+  quote: (code, items) =>
+    request('/coupons/quote', { method: 'POST', auth: true, body: { code, items } }),
+};
+
+/** Saved delivery addresses. */
+export const addressApi = {
+  list: () => request('/addresses', { auth: true }),
+  add: (body) => request('/addresses', { method: 'POST', auth: true, body }),
+  update: (id, body) => request(`/addresses/${id}`, { method: 'PUT', auth: true, body }),
+  makeDefault: (id) => request(`/addresses/${id}/default`, { method: 'POST', auth: true }),
+  remove: (id) => request(`/addresses/${id}`, { method: 'DELETE', auth: true }),
 };
 
 /** The two public forms. Neither needs a signed-in user. */

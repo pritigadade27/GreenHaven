@@ -38,6 +38,8 @@ public class AuthService {
         user.setFullName(request.fullName().trim());
         user.setEmail(email);
         user.setPasswordHash(encoder.encode(request.password()));
+        user.setPhone(request.phone() == null || request.phone().isBlank()
+                ? null : request.phone().trim());
         user.setRole("CUSTOMER");
         users.save(user);
 
@@ -61,6 +63,16 @@ public class AuthService {
 
         if (!encoder.matches(request.password(), user.getPasswordHash())) {
             throw new IllegalArgumentException("Email or password is incorrect.");
+        }
+
+        // Checked after the password, not before: answering differently to a
+        // blocked account than to a wrong password would tell an attacker which
+        // addresses are real. The JwtAuthFilter refuses a blocked user's token
+        // on every request anyway — this stops the browser signing them in and
+        // then failing at everything they touch.
+        if (user.isBlocked()) {
+            throw new IllegalArgumentException(
+                    "This account has been suspended. Please contact us at hello@greenhaven.in.");
         }
         return tokenFor(user);
     }

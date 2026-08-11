@@ -50,7 +50,6 @@ export default function Orders() {
     };
   }, [ready, isSignedIn, navigate]);
 
-  /* ---------------------------------------------------------------- states */
   if (!ready || orders === null) {
     return (
       <>

@@ -1,0 +1,27 @@
+package com.greenhaven.repository;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import com.greenhaven.model.Invoice;
+
+public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
+
+    Optional<Invoice> findByNumber(String number);
+
+    List<Invoice> findByOrderIdOrderByIdAsc(Long orderId);
+
+    boolean existsByOrderIdAndDocType(Long orderId, String docType);
+
+    /** Every document belonging to one customer, newest first. */
+    @Query("""
+            SELECT i FROM Invoice i
+             WHERE i.order.user.id = :userId
+             ORDER BY i.issuedAt DESC, i.id DESC
+            """)
+    List<Invoice> findForUser(@Param("userId") Long userId);
+}

@@ -34,8 +34,15 @@ export function AuthProvider({ children }) {
       user,
       ready,
       isSignedIn: Boolean(user),
-      register: async (fullName, email, password) =>
-        adopt(await authApi.register(fullName, email, password)),
+      // Re-reads the account after the profile page edits it, so the navbar
+      // greeting changes with the name instead of waiting for a reload.
+      refresh: async () => {
+        const fresh = await authApi.me();
+        setUser(fresh);
+        return fresh;
+      },
+      register: async (fullName, email, password, phone) =>
+        adopt(await authApi.register(fullName, email, password, phone)),
       login: async (email, password) => adopt(await authApi.login(email, password)),
       logout: () => {
         clearToken();

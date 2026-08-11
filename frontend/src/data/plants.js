@@ -1,6 +1,5 @@
 /** Green Haven — product catalogue. */
 
-// Indoor
 import aloeVera from '../assets/images/plants/aloe-vera.jpg';
 import castIron from '../assets/images/plants/cast-iron-plant.jpg';
 import dumbcane from '../assets/images/plants/dumbcane.jpg';
@@ -16,7 +15,6 @@ import spiderPlant from '../assets/images/plants/spider-plant.jpg';
 import staghorn from '../assets/images/plants/staghorn-fern.jpg';
 import zzPlant from '../assets/images/plants/zz-plant.jpg';
 
-// Outdoor
 import agave from '../assets/images/plants/agave.jpg';
 import banana from '../assets/images/plants/banana.jpg';
 import croton from '../assets/images/plants/croton.jpg';
@@ -62,7 +60,6 @@ export const CATEGORIES = [
 ];
 
 export const PLANTS = [
-  /* ------------------------------------------------------------- indoor */
   {
     id: 'p01', slug: 'aloe-vera', name: 'Aloe Vera', botanical: 'Aloe barbadensis',
     category: 'succulents', price: 449, mrp: 599, image: aloeVera,
@@ -358,7 +355,6 @@ export const PLANTS = [
     tip: 'Yellowing leaves on a ZZ almost always mean too much water.',
   },
 
-  /* ------------------------------------------------------------ outdoor */
   {
     id: 'p15', slug: 'agave', name: 'Agave', botanical: 'Agave americana',
     category: 'succulents', price: 949, mrp: 1199, image: agave,
@@ -612,7 +608,6 @@ export const PLANTS = [
     tip: 'Pinch off the flower spikes as they appear — flowering makes the leaves bitter and shortens the plant\u2019s life.',
   },
 
-  /* -------------------------------------------------------- second wave */
   {
     id: 'p27', slug: 'monstera-deliciosa', name: 'Monstera Deliciosa', botanical: 'Monstera deliciosa',
     category: 'indoor-plants', price: 1149, mrp: 1449, image: monstera,
@@ -908,8 +903,6 @@ export const PLANTS = [
     tip: 'Too much water and feed gives a green bush with no colour. Treat it mean.',
   },
 ];
-
-/* ------------------------------------------------------------------ helpers */
 
 /** PLANTS holds the living stock. */
 export const ALL_PLANTS = [...PLANTS, ...EXTRA_PLANTS];

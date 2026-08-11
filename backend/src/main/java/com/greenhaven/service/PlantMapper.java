@@ -20,6 +20,12 @@ import com.greenhaven.model.Plant;
 @Component
 public class PlantMapper {
 
+    private final com.greenhaven.repository.PlantImageRepository images;
+
+    public PlantMapper(com.greenhaven.repository.PlantImageRepository images) {
+        this.images = images;
+    }
+
     public PlantSummaryDto toSummary(Plant p) {
         return new PlantSummaryDto(
                 p.getCode(), p.getSlug(), p.getName(), p.getBotanicalName(),
@@ -29,7 +35,23 @@ public class PlantMapper {
                 p.getShortDescription(), p.getPetSafety(), p.getDifficulty(),
                 p.getLightNeed(), p.getWaterNeed(),
                 Boolean.TRUE.equals(p.getFeatured()), Boolean.TRUE.equals(p.getBestSeller()),
+                Boolean.TRUE.equals(p.getNewArrival()),
                 p.getCareTip(), badgeCodes(p), isMerchandise(p));
+    }
+
+    /**
+     * The primary shot followed by any extras, in the admin's chosen order.
+     * Returns a single-entry list for the great majority of products, which is
+     * what the product page already expects.
+     */
+    private java.util.List<String> galleryFor(Plant p) {
+        java.util.List<String> extras = images.findByPlantIdOrderBySortOrderAscIdAsc(p.getId())
+                .stream().map(com.greenhaven.model.PlantImage::getUrl).toList();
+        if (extras.isEmpty()) return java.util.List.of(p.getImage());
+        return java.util.stream.Stream.concat(java.util.stream.Stream.of(p.getImage()), extras.stream())
+                .filter(java.util.Objects::nonNull)
+                .distinct()
+                .toList();
     }
 
     /** Living plant, or something else? */
@@ -45,6 +67,7 @@ public class PlantMapper {
                 p.getCode(), p.getSlug(), p.getName(), p.getBotanicalName(),
                 p.getCategory().getSlug(), p.getCategory().getName(),
                 p.getPrice(), p.getMrp(), p.getImage(),
+                galleryFor(p),
                 p.getRating(), p.getReviewCount(), p.getStock(),
                 p.getShortDescription(), p.getDescription(), p.getCareTip(),
                 p.getPetSafety(), p.getDifficulty(), p.getLightNeed(), p.getWaterNeed(),

@@ -12,8 +12,10 @@ const SORTS = {
   featured: { label: 'Featured', fn: (a, b) => Number(!!b.featured) - Number(!!a.featured) },
   'price-asc': { label: 'Price: low to high', fn: (a, b) => a.price - b.price },
   'price-desc': { label: 'Price: high to low', fn: (a, b) => b.price - a.price },
-  rating: { label: 'Best rated', fn: (a, b) => b.rating - a.rating },
-  popular: { label: 'Most reviewed', fn: (a, b) => b.reviews - a.reviews },
+  // Unrated products sort last rather than first: `null - 4.8` is NaN, and a
+  // NaN comparator leaves the order to chance.
+  rating: { label: 'Best rated', fn: (a, b) => (b.rating ?? -1) - (a.rating ?? -1) },
+  popular: { label: 'Most reviewed', fn: (a, b) => (b.reviews ?? 0) - (a.reviews ?? 0) },
   name: { label: 'A – Z', fn: (a, b) => a.name.localeCompare(b.name) },
 };
 
@@ -29,9 +31,11 @@ export default function Shop() {
   const [params, setParams] = useSearchParams();
   const query = params.get('q') ?? '';
   const category = params.get('category') ?? '';
+  const newArrivalOnly = params.get('newArrival') === 'true';
 
   const [maxPrice, setMaxPrice] = useState(MAX_PRICE);
   const [petSafeOnly, setPetSafeOnly] = useState(false);
+  const [inStockOnly, setInStockOnly] = useState(false);
   const [difficulty, setDifficulty] = useState('');
   const [light, setLight] = useState('');
   const [sort, setSort] = useState('featured');
@@ -53,6 +57,9 @@ export default function Shop() {
       if (difficulty && p.difficulty !== difficulty) return false;
       if (light && p.light !== light) return false;
       if (p.price > maxPrice) return false;
+      // Unknown stock is not "in stock" — a null means nobody has counted.
+      if (inStockOnly && !(p.stock > 0)) return false;
+      if (newArrivalOnly && !p.newArrival) return false;
       if (!q) return true;
       return [p.name, p.botanical, p.short, p.category]
         .filter(Boolean)
@@ -60,9 +67,9 @@ export default function Shop() {
     }).sort(SORTS[sort].fn);
     // CATALOGUE must stay a dependency: it arrives from the API after first
     // render, and omitting it leaves this holding the empty initial array.
-  }, [CATALOGUE, query, category, petSafeOnly, difficulty, light, maxPrice, sort]);
+  }, [CATALOGUE, query, category, petSafeOnly, difficulty, light, maxPrice,
+      inStockOnly, newArrivalOnly, sort]);
 
-  /* -------------------------------------------------------- pagination */
   // Rendering all 154 cards at once mounts 154 images and 154 components on a phone.
   const PAGE_SIZE = 24;
   const [page, setPage] = useState(1);
@@ -78,7 +85,8 @@ export default function Shop() {
     setPage(1);
     // CATALOGUE must stay a dependency: it arrives from the API after first
     // render, and omitting it leaves this holding the empty initial array.
-  }, [CATALOGUE, query, category, petSafeOnly, difficulty, light, maxPrice, sort]);
+  }, [CATALOGUE, query, category, petSafeOnly, difficulty, light, maxPrice,
+      inStockOnly, newArrivalOnly, sort]);
 
   const goToPage = (next) => {
     setPage(next);
@@ -90,13 +98,18 @@ export default function Shop() {
     (category ? 1 : 0) +
     (petSafeOnly ? 1 : 0) +
     (difficulty ? 1 : 0) +
+    (inStockOnly ? 1 : 0) +
+    (newArrivalOnly ? 1 : 0) +
     (light ? 1 : 0) +
     (maxPrice < MAX_PRICE ? 1 : 0);
 
   const clearAll = () => {
+    // The URL is reset too — newArrival lives there, and leaving it behind
+    // would make "clear all" a lie.
     setParams(query ? { q: query } : {}, { replace: true });
     setMaxPrice(MAX_PRICE);
     setPetSafeOnly(false);
+    setInStockOnly(false);
     setDifficulty('');
     setLight('');
   };
@@ -156,6 +169,10 @@ export default function Shop() {
 
             <div className="filter-group">
               <h3>Maximum price</h3>
+              {/* One handle, not two. A shopper filters to a budget — "show me
+                  everything under ₹800" — and a minimum price is something
+                  almost nobody wants. Two stacked sliders also read as a
+                  mistake, because they look identical. */}
               <input
                 type="range"
                 min={199}
@@ -166,9 +183,30 @@ export default function Shop() {
                 aria-label="Maximum price"
               />
               <div className="filter-range">
-                <span>{formatPrice(199)}</span>
+                <span>Up to</span>
                 <strong>{formatPrice(maxPrice)}</strong>
+                {maxPrice >= MAX_PRICE && <span>&mdash; everything</span>}
               </div>
+            </div>
+
+            <div className="filter-group">
+              <h3>Availability</h3>
+              <label className="filter-check">
+                <input
+                  type="checkbox"
+                  checked={inStockOnly}
+                  onChange={(e) => setInStockOnly(e.target.checked)}
+                />
+                <span>In stock only</span>
+              </label>
+              <label className="filter-check">
+                <input
+                  type="checkbox"
+                  checked={newArrivalOnly}
+                  onChange={(e) => setParam('newArrival', e.target.checked ? 'true' : '')}
+                />
+                <span>New arrivals only</span>
+              </label>
             </div>
 
             <div className="filter-group">

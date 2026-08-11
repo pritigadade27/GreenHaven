@@ -17,11 +17,16 @@ export default function Testimonials() {
   const { PLANTS } = useCatalogue();
   const ref = useScrollReveal();
 
-  // Averaged from the catalogue's own review data rather than invented.
+  // Averaged across the catalogue's real reviews. Until customers have written
+  // some this is 0 of 0, so the strip below is not shown at all rather than
+  // dividing by zero or quoting a figure nobody earned.
   const totalReviews = PLANTS.reduce((sum, p) => sum + (p.reviews || 0), 0);
-  const avgRating = (
-    PLANTS.reduce((sum, p) => sum + p.rating * (p.reviews || 0), 0) / totalReviews
-  ).toFixed(1);
+  const avgRating =
+    totalReviews === 0
+      ? null
+      : (
+          PLANTS.reduce((sum, p) => sum + (p.rating || 0) * (p.reviews || 0), 0) / totalReviews
+        ).toFixed(1);
 
   return (
     <section className="testimonials section" id="testimonials" ref={ref}>
@@ -35,17 +40,28 @@ export default function Testimonials() {
           </p>
         </header>
 
-        <div className="testimonials__summary reveal">
-          <div className="testimonials__stars" aria-hidden="true">
-            {Array.from({ length: 5 }, (_, i) => (
-              <Icon key={i} name="star" size={20} filled strokeWidth={0} />
-            ))}
+        {avgRating && (
+          <div className="testimonials__summary reveal">
+            <div className="testimonials__stars" aria-hidden="true">
+              {Array.from({ length: 5 }, (_, i) => (
+                <Icon
+                  key={i}
+                  name="star"
+                  size={20}
+                  filled={i < Math.round(avgRating)}
+                  strokeWidth={i < Math.round(avgRating) ? 0 : 1.4}
+                />
+              ))}
+            </div>
+            <p>
+              <strong>{avgRating} out of 5</strong>
+              <span>
+                from {totalReviews.toLocaleString('en-IN')} review
+                {totalReviews === 1 ? '' : 's'} across the catalogue
+              </span>
+            </p>
           </div>
-          <p>
-            <strong>{avgRating} out of 5</strong>
-            <span>from {totalReviews.toLocaleString('en-IN')} reviews across the catalogue</span>
-          </p>
-        </div>
+        )}
 
         <div className="testimonials__grid">
           {TESTIMONIALS.map((item, index) => (

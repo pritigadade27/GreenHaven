@@ -33,7 +33,12 @@ public record CheckoutRequest(
         // 100,000 lines runs 100,000 lookups inside a single transaction.
         @NotEmpty(message = "Your cart is empty")
         @Size(max = 50, message = "An order can hold up to 50 different products")
-        @Valid List<Line> items) {
+        @Valid List<Line> items,
+
+        // Optional. The code only — never the discount. What it is worth is
+        // worked out on the server, from the catalogue's prices.
+        @Size(max = 40, message = "That is not a code we issue.")
+        String couponCode) {
 
     public record Line(
             @NotBlank String slug,

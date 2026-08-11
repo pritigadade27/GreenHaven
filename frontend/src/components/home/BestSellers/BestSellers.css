@@ -23,8 +23,6 @@
   box-shadow: var(--shadow-xl);
 }
 
-/* ------------------------------------------------------------- promise row */
-
 .bestsellers__promise {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

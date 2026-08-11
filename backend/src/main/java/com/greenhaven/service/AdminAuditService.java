@@ -32,6 +32,9 @@ public class AdminAuditService {
     public static final String USER_UNBLOCKED = "USER_UNBLOCKED";
     public static final String REVIEW_MODERATED = "REVIEW_MODERATED";
     public static final String REVIEW_DELETED = "REVIEW_DELETED";
+    public static final String COUPON_ADDED = "COUPON_ADDED";
+    public static final String COUPON_UPDATED = "COUPON_UPDATED";
+    public static final String RECONCILED = "PAYMENTS_RECONCILED";
 
     private final AdminActivityLogRepository logs;
     private final AppUserRepository users;

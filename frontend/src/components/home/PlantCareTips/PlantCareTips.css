@@ -6,8 +6,6 @@
   background: linear-gradient(180deg, var(--color-bg) 0%, var(--color-card-soft) 100%);
 }
 
-/* ------------------------------------------------------------ topic cards */
-
 .care__grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -69,8 +67,6 @@
   font-weight: var(--fw-light);
   line-height: 1.7;
 }
-
-/* --------------------------------------------------- real tips from data */
 
 .care__cards {
   margin-top: var(--space-3xl);
@@ -146,8 +142,6 @@
   justify-content: center;
   margin-top: var(--space-3xl);
 }
-
-/* ========================================================================== Responsive ========================================================================== */
 
 @media (max-width: 991px) {
   .care__cards ul {

@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { Link, useParams, Navigate } from 'react-router-dom';
 
 import ProductCard from '../../components/product/ProductCard/ProductCard.jsx';
+import Reviews from '../../components/product/Reviews/Reviews.jsx';
+import Stars from '../../components/common/Stars/Stars.jsx';
 import Icon from '../../components/common/Icon/Icon.jsx';
 import { useCart } from '../../context/CartContext.jsx';
 import { useWishlist } from '../../context/WishlistContext.jsx';
@@ -88,7 +90,11 @@ export default function PlantDetails() {
     : [['care', 'Care instructions'], ['about', 'About this plant'], ['specs', 'Specifications']];
   const activeTab = isMerch && tab === 'care' ? 'about' : tab;
 
-  const badges = (plant.badges ?? []).map((code) => BADGES[code]).filter(Boolean);
+  // The code is carried onto the object: entries in BADGES are keyed by it
+  // but do not contain it, so `key={b.code}` was undefined on every badge.
+  const badges = (plant.badges ?? [])
+    .map((code) => (BADGES[code] ? { code, ...BADGES[code] } : null))
+    .filter(Boolean);
 
   // Stock drives the whole buy panel: how high the stepper can go, whether the
   // button works at all, and how urgent the line above it reads.
@@ -222,15 +228,22 @@ export default function PlantDetails() {
               <h1>{plant.name}</h1>
               <p className="pdp__botanical">{plant.botanical}</p>
 
-              <div className="pdp__rating">
-                <span className="pdp__stars" aria-hidden="true">
-                  {[1, 2, 3, 4, 5].map((n) => (
-                    <Icon key={n} name="star" size={16} filled={n <= Math.round(plant.rating)} />
-                  ))}
-                </span>
-                <strong>{plant.rating.toFixed(1)}</strong>
-                <span className="pdp__reviews">{plant.reviews} reviews</span>
-              </div>
+              {/* No stars until somebody has actually given one. rating is
+                  null for a product nobody has reviewed, so .toFixed() here
+                  would also throw. */}
+              <a className="pdp__rating" href="#reviews">
+                {plant.reviews > 0 ? (
+                  <>
+                    <Stars value={plant.rating} size={16} />
+                    <strong>{Number(plant.rating).toFixed(1)}</strong>
+                    <span className="pdp__reviews">
+                      {plant.reviews} review{plant.reviews === 1 ? '' : 's'}
+                    </span>
+                  </>
+                ) : (
+                  <span className="pdp__reviews">Not yet reviewed &mdash; be the first</span>
+                )}
+              </a>
 
               <div className="pdp__price">
                 <strong>{formatPrice(plant.price)}</strong>
@@ -388,6 +401,8 @@ export default function PlantDetails() {
           </div>
         </div>
       </article>
+
+      <Reviews slug={plant.slug} name={plant.name} />
 
       {/* ----------------------------------------------------------- related */}
       {related.length > 0 && (
