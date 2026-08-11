@@ -98,7 +98,7 @@ Headings are **Playfair Display**, body is **Poppins**, both loaded in
 
 ## Build order
 
-1. ~~Folder structure, tooling, design tokens~~ ✅
+1. Folder structure, tooling, design tokens 
 2. Navbar (sticky, glass on scroll)
 3. Hero
 4. Categories
