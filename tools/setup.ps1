@@ -14,15 +14,19 @@ Write-Host ""
 # ---------------------------------------------------------------- tools ---
 $missing = @()
 
+# cmd does the redirect, not PowerShell. "java -version" writes to stderr, and
+# PowerShell 5.1 turns a native command's redirected stderr into error records
+# that throw under ErrorActionPreference Stop -- so Java looked absent whenever
+# it was in fact installed and working.
 $java = $null
-try { $java = (& java -version 2>&1) -join ' ' } catch { }
+try { $java = (cmd /c 'java -version 2>&1') -join ' ' } catch { }
 if ($java -match '"?(\d+)(\.|")') {
     $ver = [int]$Matches[1]
     if ($ver -ge 17) { Ok "Java $ver" } else { Bad "Java $ver - need 17 or newer"; $missing += 'java' }
 } else { Bad 'Java not found'; $missing += 'java' }
 
 $node = $null
-try { $node = (& node -v 2>&1) } catch { }
+try { $node = (cmd /c 'node -v 2>&1') -join ' ' } catch { }
 if ($node -match 'v(\d+)') {
     $ver = [int]$Matches[1]
     if ($ver -ge 18) { Ok "Node $node" } else { Bad "Node $node - need 18 or newer"; $missing += 'node' }
