@@ -53,8 +53,7 @@
   font-weight: var(--fw-medium);
 }
 
-/* A taller field with a clearer focus ring — this is the one form on the site
-   where a mis-keyed character costs the user a retry. */
+/* A taller field with a clearer focus ring — this is the one form on the site where a mis-keyed. */
 .field__control:focus-within {
   border-color: var(--color-primary);
   box-shadow: 0 0 0 3px rgba(244, 92, 122, 0.18);

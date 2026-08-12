@@ -11,7 +11,6 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 ADMIN_EMAIL=${ADMIN_EMAIL:?set ADMIN_EMAIL in test-env.sh}
 ADMIN_PASSWORD=${ADMIN_PASSWORD:?set ADMIN_PASSWORD in test-env.sh}
 export MYSQL_PWD
-export MYSQL_PWD='$ADMIN_PASSWORD'
 Q() { "$MYSQL" --default-character-set=utf8mb4 -u priti green_haven -N -B -e "$1"; }
 
 pass=0; fail=0

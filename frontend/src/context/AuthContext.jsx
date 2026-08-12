@@ -9,8 +9,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [ready, setReady] = useState(false);
 
-  // A stored token may be expired or from an old secret, so it is verified
-  // against /auth/me rather than trusted on sight.
+  // A stored token may be expired or from an old secret, so it is verified against /auth/me rather.
   useEffect(() => {
     if (!getToken()) {
       setReady(true);
@@ -34,8 +33,7 @@ export function AuthProvider({ children }) {
       user,
       ready,
       isSignedIn: Boolean(user),
-      // Re-reads the account after the profile page edits it, so the navbar
-      // greeting changes with the name instead of waiting for a reload.
+      // Re-reads the account after the profile page edits it, so the navbar greeting changes with the.
       refresh: async () => {
         const fresh = await authApi.me();
         setUser(fresh);
@@ -50,8 +48,7 @@ export function AuthProvider({ children }) {
         // Clears the BROWSER's copy, not the customer's.
         remove('greenhaven.cart');
         remove('greenhaven.wishlist');
-        // A reload is the honest way to reset both contexts' in-memory copies
-        // without threading a clear through each of them.
+        // A reload is the honest way to reset both contexts' in-memory copies without threading a clear.
         window.location.assign('/');
       },
     }),

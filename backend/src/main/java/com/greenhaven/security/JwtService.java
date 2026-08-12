@@ -21,16 +21,13 @@ public class JwtService {
 
     public JwtService(@Value("${greenhaven.jwt.secret}") String secret,
                       @Value("${greenhaven.jwt.expiration-ms}") long expirationMs) {
-        // HS256 needs at least 256 bits of key material. A short secret in the
-        // properties file would otherwise fail confusingly at the first sign-in
-        // rather than here at startup.
+        // HS256 needs at least 256 bits of key material.
         if (secret == null || secret.isBlank()) {
             throw new IllegalStateException(
                     "greenhaven.jwt.secret is not set. Put GREENHAVEN_JWT_SECRET in backend/.env "
                     + "or in the environment.");
         }
-        // A placeholder that ships in source is a master key that ships in
-        // source. Refuse to start rather than sign real sessions with it.
+        // A placeholder that ships in source is a master key that ships in source.
         if (secret.startsWith("change-this")) {
             throw new IllegalStateException(
                     "greenhaven.jwt.secret is still the example value. Generate a real one.");
@@ -48,15 +45,7 @@ public class JwtService {
         return issue(email, role, null, expirationMs);
     }
 
-    /**
-     * Issues a token, optionally tied to a server-side session.
-     *
-     * The `jti` is what makes an admin token revocable: the filter refuses
-     * it unless a live admin_session row still carries that id. Customer
-     * tokens pass null and stay stateless, because forcing a database read
-     * on every catalogue request to revoke a shopping session is a cost
-     * with no matching benefit.
-     */
+    /** Issues a token, optionally tied to a server-side session. */
     public String issue(String email, String role, String jti, long lifetimeMs) {
         Date now = new Date();
         var builder = Jwts.builder()

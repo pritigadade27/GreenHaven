@@ -1,4 +1,4 @@
-package com.greenhaven.model;
+package com.greenhaven.entity;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -10,14 +10,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
-/**
- * A discount code.
- *
- * The rules a code can carry are deliberately few — a share or a fixed amount,
- * a floor, a cap, a window, two kinds of usage limit, and free delivery. Each
- * one exists because a shop actually needs it, and every one of them is checked
- * on the server. Nothing here is decided by the browser.
- */
+/** A discount code. */
 @Entity
 @Table(name = "coupon")
 public class Coupon {

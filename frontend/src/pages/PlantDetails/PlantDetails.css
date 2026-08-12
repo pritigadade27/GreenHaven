@@ -122,8 +122,7 @@
   color: var(--color-green);
 }
 
-/* the value and its label need their own column — the <li> being a column
-   does not stack the children of the inner wrapper */
+/* the value and its label need their own column — the <li> being a column does not stack the. */
 .pdp__quick li > div {
   display: flex;
   flex-direction: column;
@@ -533,8 +532,7 @@
   white-space: nowrap;
 }
 
-/* Pet safety is the one a buyer with a cat needs to see first, so a warning
-   tone overrides the neutral chip. */
+/* Pet safety is the one a buyer with a cat needs to see first, so a warning tone overrides the. */
 .pdp__badge.is-warn {
   color: #fff;
   background: var(--color-secondary);
@@ -616,8 +614,7 @@
   }
 }
 
-/* Placeholder while the catalogue loads, shaped like the real page so the
-   layout does not jump when the product arrives. */
+/* Placeholder while the catalogue loads, shaped like the real page so the layout does not jump. */
 .pdp__loading {
   display: grid;
   grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);

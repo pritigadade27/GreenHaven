@@ -1,4 +1,4 @@
-package com.greenhaven.model;
+package com.greenhaven.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,23 +10,18 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
-/**
- * One photograph attached to a review.
- *
- * What a plant actually looked like on arrival is the part of a review no
- * amount of description replaces, which is the whole reason these exist.
- */
+/** One extra photograph of a product. */
 @Entity
-@Table(name = "review_image")
-public class ReviewImage {
+@Table(name = "plant_image")
+public class PlantImage {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "review_id", nullable = false)
-    private Review review;
+    @JoinColumn(name = "plant_id", nullable = false)
+    private Plant plant;
 
     @Column(nullable = false, length = 255)
     private String url;
@@ -36,8 +31,8 @@ public class ReviewImage {
 
     public Long getId() { return id; }
 
-    public Review getReview() { return review; }
-    public void setReview(Review review) { this.review = review; }
+    public Plant getPlant() { return plant; }
+    public void setPlant(Plant plant) { this.plant = plant; }
 
     public String getUrl() { return url; }
     public void setUrl(String url) { this.url = url; }

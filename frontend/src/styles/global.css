@@ -169,11 +169,7 @@ button {
   margin-bottom: var(--space-lg);
 }
 
-/* NOTE: no scroll-margin-top on anchored sections.
-   `html` already sets scroll-padding-top for the fixed navbar, and the two
-   ADD — 108px of padding plus 76px of margin put the Plant Care heading 184px
-   below the viewport top, which is the "so much space on top" that was
-   reported. One offset, in one place: scroll-padding-top on html. */
+/* NOTE: no scroll-margin-top on anchored sections. */
 
 .section-heading--center {
   margin-inline: auto;
@@ -231,11 +227,7 @@ button {
   min-height: 60vh;
 }
 
-/* ---------------------------------------------------------------- overflow
-   Belt and braces for horizontal scroll, the single most common responsive
-   defect. Grid and flex children default to a minimum size of `auto` — their
-   content — so one long word, one wide input or one unbreakable URL widens the
-   whole page. These four rules make that structurally impossible. */
+/* ---------------------------------------------------------------- overflow Belt and braces for. */
 img,
 video,
 canvas,
@@ -244,8 +236,7 @@ iframe {
   max-width: 100%;
 }
 
-/* Form controls carry a browser default `size` that is wider than most phone
-   columns, and they do not shrink below it on their own. */
+/* Form controls carry a browser default `size` that is wider than most phone columns, and they do. */
 input,
 select,
 textarea,

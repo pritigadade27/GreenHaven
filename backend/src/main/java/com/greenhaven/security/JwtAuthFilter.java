@@ -17,13 +17,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-/**
- * Reads the bearer token from the Authorization header and, if it verifies,
- * puts the user into the security context for the rest of the request.
- *
- * An invalid or expired token is treated as "not signed in" rather than an
- * error, because the public endpoints must keep serving anonymous callers.
- */
+/** Reads the bearer token from the Authorization header and, if it verifies, puts the user into. */
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter {
 

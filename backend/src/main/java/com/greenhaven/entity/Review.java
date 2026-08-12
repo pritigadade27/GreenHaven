@@ -1,4 +1,4 @@
-package com.greenhaven.model;
+package com.greenhaven.entity;
 
 import java.time.Instant;
 
@@ -22,10 +22,7 @@ public class Review {
     /** Visible on the product page. Where a verified purchase lands. */
     public static final String APPROVED = "APPROVED";
     public static final String REJECTED = "REJECTED";
-    /**
-     * Taken down by an admin. Kept rather than deleted so the decision can be
-     * undone, and excluded from the average exactly like a deleted one.
-     */
+    /** Taken down by an admin. */
     public static final String HIDDEN = "HIDDEN";
 
     @Id
@@ -45,10 +42,7 @@ public class Review {
     @JoinColumn(name = "order_id")
     private Order order;
 
-    /**
-     * Settled when the review is written, not looked up when it is read: it is
-     * a fact about that moment, and has to keep reading true afterwards.
-     */
+    /** Settled when the review is written, not looked up when it is read: it is a fact about that. */
     @Column(name = "verified_purchase", nullable = false)
     private boolean verifiedPurchase = false;
 

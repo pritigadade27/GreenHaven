@@ -154,10 +154,7 @@
   position: fixed;
   inset: 0;
   z-index: var(--z-modal);
-  /* Clip the closed panel. It is parked at translateX(100%) — 88vw beyond the
-     right edge — and because this wrapper is position:fixed, the body's
-     overflow-x:hidden cannot reach it. Without this the whole document is
-     wider than the screen on a 320px phone. */
+  /* Clip the closed panel. */
   overflow: hidden;
   background: var(--overlay-dark);
   backdrop-filter: blur(3px);
@@ -325,11 +322,7 @@
   }
 }
 
-/* ---------------------------------------------------- profile menu ---
-   Lives here, not in Profile.css: the trigger renders in this navbar on
-   every page, while Profile.css only loads once a /profile route mounts.
-   Split the two and the menu is unstyled until the customer happens to
-   visit their profile. */
+/* ---------------------------------------------------- profile menu --- Lives here, not in. */
 .profile-menu {
   position: relative;
 }
@@ -487,8 +480,7 @@
 }
 
 
-/* Below 992px the burger takes over, exactly as it does for .navbar__login.
-   The same destinations are in the drawer, so nothing is lost. */
+/* Below 992px the burger takes over, exactly as it does for .navbar__login. */
 @media (max-width: 991px) {
   .profile-menu {
     display: none;

@@ -15,10 +15,7 @@ export function SectionHead({ title, subtitle, children }) {
   );
 }
 
-/**
- * The loading state. Deliberately shaped like the content it replaces rather
- * than a spinner, so the page does not jump when the data lands.
- */
+/** The loading state. */
 export function Skeletons({ rows = 3, height = 96 }) {
   return (
     <div className="psec__skeletons" aria-hidden="true">
@@ -100,12 +97,7 @@ const WORDS = {
   DELIVERED: 'Delivered',
 };
 
-/**
- * PENDING means two different things depending on which column it came from:
- * a payment not yet made, or a parcel not yet packed. Showing "Awaiting
- * payment" beside "Paid" on the same order is nonsense, so the delivery
- * vocabulary overrides the shared one where they collide.
- */
+/** PENDING means two different things depending on which column it came from: a payment not yet. */
 const DELIVERY_WORDS = {
   PENDING: 'Preparing',
   CONFIRMED: 'Confirmed',

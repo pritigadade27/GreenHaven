@@ -1,5 +1,4 @@
-/* Design tokens. Never hard-code a hex, size or duration in a component —
-   change it here and it changes everywhere. */
+/* Design tokens. */
 
 :root {
   --color-primary: #6d0008; /* deep burgundy — headings, nav, primary buttons */
@@ -11,8 +10,7 @@
   --color-text: #333333; /* body copy */
   --color-white: #ffffff;
 
-  /* Derived tints. #F29BA8 at full strength is heavy for a large surface, so
-     cards use white with a pink border and fall back to these washes. */
+  /* Derived tints. */
   --color-card-soft: #fdeef1;
   --color-card-tint: #fbe0e6;
   --color-border: #f6dbe1;

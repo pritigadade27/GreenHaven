@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.greenhaven.model.AdminActivityLog;
-import com.greenhaven.model.AppUser;
+import com.greenhaven.entity.AdminActivityLog;
+import com.greenhaven.entity.AppUser;
 import com.greenhaven.repository.AdminActivityLogRepository;
 import com.greenhaven.repository.AppUserRepository;
 
@@ -51,8 +51,7 @@ public class AdminAuditService {
 
         AdminActivityLog entry = new AdminActivityLog();
         entry.setAdminId(admin == null ? null : admin.getId());
-        // Copied, not joined: the trail must still read correctly after the
-        // account is renamed or removed.
+        // Copied, not joined: the trail must still read correctly after the account is renamed or removed.
         entry.setAdminName(admin == null ? "(unknown)" : admin.getFullName());
         entry.setAdminEmail(adminEmail == null ? "(unknown)" : adminEmail);
         entry.setAction(action);

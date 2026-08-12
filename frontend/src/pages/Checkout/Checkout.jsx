@@ -37,18 +37,14 @@ export default function Checkout() {
   const [priceChange, setPriceChange] = useState(null);
   const [testSheet, setTestSheet] = useState(null);
 
-  // Saved addresses. `chosen` is the id being delivered to, or 'new' while the
-  // customer is typing one that is not saved.
+  // Saved addresses.
   const [addresses, setAddresses] = useState([]);
   const [chosen, setChosen] = useState('new');
   const [saveNew, setSaveNew] = useState(true);
-  // Which of the two Razorpay callbacks got there first. A ref, not state:
-  // both callbacks read it synchronously and must see the same value.
+  // Which of the two Razorpay callbacks got there first.
   const settled = useRef(false);
 
-  // A code the customer has typed, and the server's answer about it. The
-  // answer holds every figure, because what a code is worth is the server's
-  // decision — this page never works out a discount of its own.
+  // A code the customer has typed, and the server's answer about it.
   const [couponInput, setCouponInput] = useState('');
   const [coupon, setCoupon] = useState(null);
   const [couponError, setCouponError] = useState('');
@@ -59,8 +55,7 @@ export default function Checkout() {
   const delivery = coupon ? coupon.shipping : localDelivery;
   const total = coupon ? coupon.total : subtotal + localDelivery;
 
-  // Reaching checkout signed out means a stale tab or a hand-typed URL; the
-  // API would reject it anyway, so bounce to the sign-in screen with a reason.
+  // Reaching checkout signed out means a stale tab or a hand-typed URL; the API would reject it.
   useEffect(() => {
     // Wait for the auth check to finish.
     if (ready && !isSignedIn) {
@@ -71,8 +66,7 @@ export default function Checkout() {
     }
   }, [ready, isSignedIn, navigate]);
 
-  // Pull the saved addresses in and pre-select the default, so a returning
-  // customer does not retype an address the account already knows.
+  // Pull the saved addresses in and pre-select the default, so a returning customer does not retype.
   useEffect(() => {
     if (!ready || !isSignedIn) return undefined;
     let alive = true;
@@ -128,10 +122,7 @@ export default function Checkout() {
     setCouponError('');
   }
 
-  // A quote is priced against the basket it was asked about. Change the basket
-  // in another tab and the discount shown here is answering a question nobody
-  // is asking any more — so it is re-asked, and drops away if it no longer
-  // applies (a code with a minimum the smaller basket no longer meets).
+  // A quote is priced against the basket it was asked about.
   useEffect(() => {
     if (!coupon) return undefined;
     if (Math.round(coupon.subtotal * 100) === Math.round(subtotal * 100)) return undefined;
@@ -161,8 +152,7 @@ export default function Checkout() {
     event.preventDefault();
     setError('');
 
-    // Catch the obvious locally rather than spending a round trip on it. The
-    // server validates all of this again and remains the authority.
+    // Catch the obvious locally rather than spending a round trip on it.
     const local = {};
     if (form.addressLine.trim().length < 6) local.addressLine = 'Enter the full address.';
     if (!/^([+]?91[- ]?|0)?[6-9]\d{9}$/.test(form.phone.trim()))
@@ -187,8 +177,7 @@ export default function Checkout() {
         coupon?.code,
       );
 
-      // Saved only once the order exists, and never blocking it: a failure to
-      // remember an address must not lose the customer their checkout.
+      // Saved only once the order exists, and never blocking it: a failure to remember an address must.
       if (chosen === 'new' && saveNew) {
         addressApi
           .add({
@@ -221,9 +210,7 @@ export default function Checkout() {
     }
   }
 
-  // Test mode: the gateway is stood in for, so there is no sheet to open. The
-  // outcome the tester picks is signed by the server and then goes through the
-  // same verify call a real payment does.
+  // Test mode: the gateway is stood in for, so there is no sheet to open.
   async function settleSimulated(order, succeed) {
     setTestSheet(null);
     setBusy(true);
@@ -277,11 +264,9 @@ export default function Checkout() {
           },
         },
         handler: async (response) => {
-          // Claim the outcome before any await, so a dismiss that lands
-          // during verification cannot undo a real payment.
+          // Claim the outcome before any await, so a dismiss that lands during verification cannot undo a.
           settled.current = true;
-          // 3. The browser's "it worked" is only a hint. The server re-checks
-          //    the HMAC signature before a single rupee is treated as paid.
+          // 3.
           try {
             const confirmed = await orderApi.verify({
               razorpayOrderId: response.razorpay_order_id,
@@ -313,7 +298,6 @@ export default function Checkout() {
   }
 
   // Reached only when the server's total differs from the one on the button.
-  // The customer decides — we never quietly charge a number they were not shown.
   if (priceChange) {
     return (
       <>
@@ -648,8 +632,7 @@ export default function Checkout() {
               ))}
             </ul>
 
-            {/* Sits above the totals it changes, so the effect of applying a
-                code is visible in the same glance as the code itself. */}
+            {/* Sits above the totals it changes, so the effect of applying a code is visible in the same. */}
             <div className="checkout__coupon">
               {coupon ? (
                 <div className="checkout__coupon-applied">
@@ -675,9 +658,7 @@ export default function Checkout() {
                         setCouponError('');
                       }}
                       onKeyDown={(e) => {
-                        // Enter here would submit the delivery form and open
-                        // the payment sheet — emphatically not what someone
-                        // pressing Enter in a coupon box is asking for.
+                        // Enter here would submit the delivery form and open the payment sheet — emphatically not what.
                         if (e.key === 'Enter') {
                           e.preventDefault();
                           applyCoupon();
@@ -726,9 +707,7 @@ export default function Checkout() {
                   <dd>{formatPrice(coupon.tax)}</dd>
                 </div>
               )}
-              {/* Tax is only shown when some is charged. The figure the
-                  customer is actually billed comes from the server; this is
-                  the estimate the button is labelled with. */}
+              {/* Tax is only shown when some is charged. */}
               <div className="checkout__total">
                 <dt>Total</dt>
                 <dd>{formatPrice(total)}</dd>

@@ -1,4 +1,4 @@
-package com.greenhaven.model;
+package com.greenhaven.entity;
 
 import java.math.BigDecimal;
 
@@ -12,12 +12,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
-/**
- * One line of an order.
- *
- * `unitPrice` is captured at purchase time on purpose — if the catalogue price
- * changes next week, the customer's receipt must still show what they paid.
- */
+/** One line of an order. */
 @Entity
 @Table(name = "order_item")
 public class OrderItem {
@@ -34,14 +29,7 @@ public class OrderItem {
     @JoinColumn(name = "plant_id", nullable = false)
     private Plant plant;
 
-    /*
-     * The product as it was at purchase time.
-     *
-     * These duplicate what `plant` holds today, and that is the point: an
-     * invoice must not change when the catalogue does. Reading the name and
-     * image live through plant_id meant renaming a plant silently rewrote
-     * every historical invoice that contained it.
-     */
+    /* The product as it was at purchase time. */
     @Column(name = "product_name", length = 150)
     private String productName;
 

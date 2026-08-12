@@ -7,11 +7,7 @@ import './BestSellers.css';
 export default function BestSellers() {
   const { getBestSellers } = useCatalogue();
   const ref = useScrollReveal();
-  // Ranked by how many people have reviewed them — a real signal from the
-  // catalogue rather than a hand-picked order.
-  // Ordered by review count where there is one, and otherwise left in
-  // catalogue order — ranking by a count that is zero for everything would
-  // just shuffle them.
+  // Ranked by how many people have reviewed them — a real signal from the catalogue rather than a.
   const plants = [...getBestSellers()]
     .sort((a, b) => (b.reviews ?? 0) - (a.reviews ?? 0))
     .slice(0, 4);

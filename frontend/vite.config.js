@@ -6,6 +6,10 @@ export default defineConfig({
   server: {
     port: 5173,
     open: true,
+    // Listen on every interface, not just IPv6 loopback. The default bound only
+    // [::1], so http://127.0.0.1:5173 refused to connect while localhost worked,
+    // and the site was unreachable from a phone on the same network.
+    host: true,
     // Spring Boot runs on 8080; calling /api/... from React avoids CORS in dev.
     proxy: {
       '/api': {

@@ -27,6 +27,10 @@ ADMIN_PASSWORD=${ADMIN_PASSWORD:?set ADMIN_PASSWORD in test-env.sh}
 export MYSQL_PWD
 
 Q() { "$MYSQL" --default-character-set=utf8mb4 -u priti green_haven -N -B -e "$1"; }
+
+# Shared, foreign-key-ordered teardown. Each suite used to roll its own and
+# every one was incomplete, so cleanup aborted on the first FK error.
+. "$(cd "$(dirname "$0")" && pwd)/cleanup.sh"
 pass=0; fail=0
 check() {
   if [ "$2" = "$3" ]; then printf "  PASS  %-52s %s\n" "$1" "$3"; pass=$((pass+1))
@@ -64,6 +68,10 @@ STAMP=$(date +%s)
 SLUG=snake-plant
 PRICE=$(Q "SELECT price FROM plant WHERE slug='$SLUG';")
 echo "  $SLUG is ₹$PRICE"
+
+# Residue from an earlier run, cleared BEFORE this run creates anything —
+# doing it afterwards deletes the accounts the suite is about to use.
+purge_test_accounts "cpn%@example.com"
 
 reg() {
   curl -s -m 20 -X POST $API/auth/register -H 'Content-Type: application/json' \
@@ -277,9 +285,16 @@ check "TEST20 used once"        "1" "$(echo "$ROW" | cut -d' ' -f1)"
 checkm "…and what it cost"       "$EXPECTED" "$(echo "$ROW" | cut -d' ' -f2)"
 
 # ---- tidy up --------------------------------------------------------------
-Q "DELETE cr FROM coupon_redemption cr JOIN app_user u ON u.id=cr.user_id WHERE u.email IN ('$EM','$EM2');" >/dev/null
+assert_clean "cpn%@example.com"
 Q "DELETE FROM coupon WHERE code LIKE 'TEST%';" >/dev/null
 rm -f "$BODY"
+
+# Teardown. Runs at the end as well as the start, so a finished run leaves
+# the database exactly as it found it.
+purge_test_accounts "cpn%@example.com"
+assert_clean "cpn%@example.com"
+rm -f "$BODY"
+
 
 echo
 echo "  $pass passed, $fail failed"

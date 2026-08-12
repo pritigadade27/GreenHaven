@@ -10,8 +10,7 @@ export default function useScrollReveal({ threshold = 0.15, rootMargin = '0px 0p
 
     const show = (el) => el.classList.add('is-visible');
 
-    // Respect the OS setting rather than animating regardless — including for
-    // anything that arrives after this runs.
+    // Respect the OS setting rather than animating regardless — including for anything that arrives.
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       const revealAll = () => root.querySelectorAll('.reveal').forEach(show);
       revealAll();

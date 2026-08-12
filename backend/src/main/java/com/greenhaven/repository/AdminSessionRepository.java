@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.greenhaven.model.AdminSession;
+import com.greenhaven.entity.AdminSession;
 
 public interface AdminSessionRepository extends JpaRepository<AdminSession, Long> {
 

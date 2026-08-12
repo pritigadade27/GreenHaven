@@ -21,35 +21,14 @@ import org.springframework.web.bind.annotation.RestController;
 import com.greenhaven.dto.ApiMessage;
 import com.greenhaven.dto.BasketDto;
 import com.greenhaven.dto.ProfileDtos;
-import com.greenhaven.model.Order;
+import com.greenhaven.entity.Order;
 import com.greenhaven.service.InvoicePdfService;
 import com.greenhaven.service.NotificationService;
 import com.greenhaven.service.ProfileService;
 
 import jakarta.validation.Valid;
 
-/**
- * My Profile. Every route is scoped to the caller's own account — the
- * principal comes from the verified JWT, never from a path or a body, so there
- * is no id a customer could change to read someone else's orders.
- *
- *   GET    /api/profile                       personal information + counts
- *   PATCH  /api/profile                       name, phone, picture
- *   POST   /api/profile/email                 request an email change
- *   POST   /api/profile/email/confirm         confirm it
- *   DELETE /api/profile/email                 abandon it
- *   POST   /api/profile/password              change password
- *   GET    /api/profile/orders                order history
- *   GET    /api/profile/orders/{number}       one order, in full
- *   POST   /api/profile/orders/{number}/cancel
- *   GET    /api/profile/orders/{number}/reorder   lines to put back in the cart
- *   GET    /api/profile/orders/{number}/invoice   the PDF
- *   GET    /api/profile/payments              payment history
- *   GET    /api/profile/invoices              every document issued
- *   GET    /api/profile/documents/{number}    one of them, as a PDF
- *   GET    /api/profile/notifications
- *   POST   /api/profile/notifications/read
- */
+/** My Profile. */
 @RestController
 @RequestMapping("/api/profile")
 public class ProfileController {
@@ -76,11 +55,7 @@ public class ProfileController {
         return profile.updateProfile(principal.getName(), body);
     }
 
-    /**
-     * Returns the confirmation token in the response because no mail server is
-     * wired up yet. When one is, send it in the email and drop it from here —
-     * the confirm endpoint does not change.
-     */
+    /** Returns the confirmation token in the response because no mail server is wired up yet. */
     @PostMapping("/email")
     public Map<String, String> requestEmailChange(
             Principal principal, @Valid @RequestBody ProfileDtos.ChangeEmailRequest body) {
@@ -143,21 +118,15 @@ public class ProfileController {
                 .contentType(MediaType.APPLICATION_PDF)
                 .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment()
                         .filename(order.getInvoiceNumber() + ".pdf").build().toString())
-                // An invoice never changes once issued, but it is nobody else's
-                // business — private, so no shared cache keeps a copy.
+                // An invoice never changes once issued, but it is nobody else's business — private, so no shared.
                 .header(HttpHeaders.CACHE_CONTROL, "private, max-age=0, no-store")
                 .body(pdf);
     }
 
-    /**
-     * Any issued document by its number — an invoice or a credit note.
-     *
-     * By number rather than by order, because an order can carry both and the
-     * caller has to be able to say which one it wants.
-     */
+    /** Any issued document by its number — an invoice or a credit note. */
     @GetMapping(value = "/documents/{number}", produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<byte[]> document(Principal principal, @PathVariable String number) {
-        com.greenhaven.model.Invoice doc = profile.ownedDocument(principal.getName(), number);
+        com.greenhaven.entity.Invoice doc = profile.ownedDocument(principal.getName(), number);
         byte[] pdf = invoices.render(doc.getOrder(), doc);
 
         return ResponseEntity.ok()

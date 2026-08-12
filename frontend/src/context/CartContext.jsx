@@ -20,8 +20,7 @@ const isCart = (value) =>
   );
 
 function init() {
-  // Coerce the numbers: a quantity persisted as "3" would make the subtotal
-  // string-concatenate rather than add.
+  // Coerce the numbers: a quantity persisted as "3" would make the subtotal string-concatenate.
   return readJson(STORAGE_KEY, [], isCart).map((line) => ({
     ...line,
     price: Number(line.price),
@@ -29,14 +28,7 @@ function init() {
   }));
 }
 
-/**
- * A line can never hold more than the shop has.
- *
- * Enforcing it here rather than in each button means every path — the card,
- * the details page, the cart stepper, a restored localStorage line — obeys the
- * same ceiling. Without it a customer can order 400 of a plant with stock 3,
- * pay, and only then be told it cannot be fulfilled.
- */
+/** A line can never hold more than the shop has. */
 const capped = (quantity, line) => {
   const ceiling = Number.isFinite(line?.stock) && line.stock > 0 ? line.stock : 99;
   return Math.max(1, Math.min(Math.round(quantity), ceiling));

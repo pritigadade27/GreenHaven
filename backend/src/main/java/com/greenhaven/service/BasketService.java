@@ -9,10 +9,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.greenhaven.dto.BasketDto;
 import com.greenhaven.exception.ResourceNotFoundException;
-import com.greenhaven.model.AppUser;
-import com.greenhaven.model.CartItem;
-import com.greenhaven.model.Plant;
-import com.greenhaven.model.WishlistItem;
+import com.greenhaven.entity.AppUser;
+import com.greenhaven.entity.CartItem;
+import com.greenhaven.entity.Plant;
+import com.greenhaven.entity.WishlistItem;
 import com.greenhaven.repository.AppUserRepository;
 import com.greenhaven.repository.CartItemRepository;
 import com.greenhaven.repository.PlantRepository;
@@ -49,8 +49,7 @@ public class BasketService {
     public List<BasketDto.Line> replaceCart(String email, List<BasketDto.Line> lines) {
         AppUser owner = user(email);
         carts.deleteByUserId(owner.getId());
-        // Flush the delete before inserting, or the UNIQUE (user_id, plant_id)
-        // constraint fires against rows Hibernate has not removed yet.
+        // Flush the delete before inserting, or the UNIQUE (user_id, plant_id) constraint fires against.
         carts.flush();
 
         List<CartItem> rows = merge(lines).entrySet().stream()
@@ -101,13 +100,7 @@ public class BasketService {
         return rows.stream().map(r -> r.getPlant().getSlug()).toList();
     }
 
-    /**
-     * Empties the saved cart after a purchase.
-     *
-     * Failure is swallowed: this runs immediately after money has been taken,
-     * and a cart that would not clear is no reason to unwind a captured
-     * payment. The worst case is a stale basket, which the customer can empty.
-     */
+    /** Empties the saved cart after a purchase. */
     @Transactional
     public void clearCartQuietly(Long userId) {
         try {

@@ -4,21 +4,16 @@ import { readString, writeString, remove } from '../utils/storage.js';
 
 const TOKEN_KEY = 'greenhaven.token';
 
-// Storage can be unavailable (Safari Private Browsing, enterprise policy) or
-// full. Signing in must not crash the app because of it — see utils/storage.js.
+// Storage can be unavailable (Safari Private Browsing, enterprise policy) or full.
 export const getToken = () => readString(TOKEN_KEY);
 export const setToken = (t) => {
-  // Guarding against the string "undefined", which is truthy and would make
-  // every later request send `Authorization: Bearer undefined`.
+  // Guarding against the string "undefined", which is truthy and would make every later request.
   if (typeof t !== 'string' || !t) return;
   writeString(TOKEN_KEY, t);
 };
 export const clearToken = () => remove(TOKEN_KEY);
 
-/**
- * Throws an Error carrying the server's own message and, when the failure is
- * per-field validation, a `fields` map the forms can render inline.
- */
+/** Throws an Error carrying the server's own message and, when the failure is per-field. */
 async function request(path, { method = 'GET', body, auth = false } = {}) {
   const headers = { Accept: 'application/json' };
   if (body) headers['Content-Type'] = 'application/json';
@@ -35,8 +30,7 @@ async function request(path, { method = 'GET', body, auth = false } = {}) {
       body: body ? JSON.stringify(body) : undefined,
     });
   } catch {
-    // The API being down is the commonest failure while developing, and the
-    // browser's own message ("Failed to fetch") tells the user nothing.
+    // The API being down is the commonest failure while developing, and the browser's own message.
     throw new Error('Cannot reach the server. Is the Spring Boot API running on port 8080?');
   }
 
@@ -45,8 +39,7 @@ async function request(path, { method = 'GET', body, auth = false } = {}) {
   try {
     data = text ? JSON.parse(text) : null;
   } catch {
-    // A proxy error page or a challenge page is HTML, not JSON. Showing the
-    // parser's own complaint to a customer mid-payment helps nobody.
+    // A proxy error page or a challenge page is HTML, not JSON.
     if (response.ok) throw new Error('The server sent a response we could not read.');
   }
 
@@ -59,13 +52,7 @@ async function request(path, { method = 'GET', body, auth = false } = {}) {
   return data;
 }
 
-/**
- * Fetches a file rather than JSON, and hands back a Blob.
- *
- * A plain <a download> cannot carry the bearer token, and putting the token in
- * the query string would leak it into browser history and server logs — so the
- * download goes through fetch and is handed to the browser as an object URL.
- */
+/** Fetches a file rather than JSON, and hands back a Blob. */
 async function download(path) {
   const headers = {};
   const token = getToken();
@@ -107,8 +94,7 @@ export async function saveFile(path) {
   document.body.appendChild(link);
   link.click();
   link.remove();
-  // Revoked on the next tick: released synchronously, Safari cancels the
-  // download it has only just started.
+  // Revoked on the next tick: released synchronously, Safari cancels the download it has only just.
   setTimeout(() => URL.revokeObjectURL(url), 1000);
   return filename;
 }
@@ -120,21 +106,14 @@ export const authApi = {
     request('/auth/login', { method: 'POST', body: { email, password } }),
   me: () => request('/auth/me', { auth: true }),
 
-  // Always resolves the same way whether or not the address has an account —
-  // the server deliberately gives nothing away, and neither does this.
+  // Always resolves the same way whether or not the address has an account — the server.
   forgotPassword: (email) =>
     request('/auth/forgot-password', { method: 'POST', body: { email } }),
   resetPassword: (token, newPassword, confirmPassword) =>
     request('/auth/reset-password', { method: 'POST', body: { token, newPassword, confirmPassword } }),
 };
 
-/**
- * Orders and payment.
- *
- * The client sends slugs and quantities only — never prices. The server prices
- * the basket from the database, so what the customer is charged cannot be
- * edited in a browser devtools console.
- */
+/** Orders and payment. */
 export const orderApi = {
   start: (shipping, items, couponCode) =>
     request('/orders', {
@@ -155,18 +134,14 @@ export const orderApi = {
   mine: () => request('/orders', { auth: true }),
 };
 
-/**
- * My Profile. Every route is scoped server-side to the token's own account —
- * nothing here takes a user id, so there is no id to tamper with.
- */
+/** My Profile. */
 export const profileApi = {
   me: () => request('/profile', { auth: true }),
   update: (body) => request('/profile', { method: 'PATCH', auth: true, body }),
 
   requestEmailChange: (email, password) =>
     request('/profile/email', { method: 'POST', auth: true, body: { email, password } }),
-  // The reply carries a NEW token: a JWT names its subject by email, so the
-  // one in hand stops matching the account the moment the address moves.
+  // The reply carries a NEW token: a JWT names its subject by email, so the one in hand stops.
   confirmEmailChange: async (token) => {
     const session = await request(`/profile/email/confirm?token=${encodeURIComponent(token)}`, {
       method: 'POST',
@@ -205,15 +180,9 @@ export const profileApi = {
     request('/profile/notifications/read', { method: 'POST', auth: true }),
 };
 
-/**
- * Ratings and reviews.
- *
- * Reading is public and needs no token; writing is refused server-side unless
- * the caller has actually had the plant delivered.
- */
+/** Ratings and reviews. */
 export const reviewApi = {
-  // auth: true so a signed-in reader gets `mine` marked on their own review —
-  // the endpoint itself works fine without a token.
+  // auth: true so a signed-in reader gets `mine` marked on their own review — the endpoint itself.
   list: (slug, page = 0, size = 10) =>
     request(`/plants/${slug}/reviews?page=${page}&size=${size}`, { auth: true }),
   eligibility: (slug) => request(`/reviews/${slug}/eligibility`, { auth: true }),
@@ -222,10 +191,7 @@ export const reviewApi = {
   remove: (id) => request(`/reviews/${id}`, { method: 'DELETE', auth: true }),
   mine: () => request('/reviews/mine', { auth: true }),
 
-  /**
-   * Multipart, so it cannot go through request(): that sets a JSON content
-   * type, and the browser must set its own with the multipart boundary.
-   */
+  /** Multipart, so it cannot go through request(): that sets a JSON content type, and the browser. */
   uploadImage: async (file) => {
     const body = new FormData();
     body.append('file', file);
@@ -246,12 +212,7 @@ export const reviewApi = {
   },
 };
 
-/**
- * Discount codes.
- *
- * Only ever sends the code and the basket — the discount comes back from the
- * server, and this file has no arithmetic of its own to disagree with it.
- */
+/** Discount codes. */
 export const couponApi = {
   quote: (code, items) =>
     request('/coupons/quote', { method: 'POST', auth: true, body: { code, items } }),

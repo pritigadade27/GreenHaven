@@ -11,8 +11,7 @@
   display: inline-flex;
 }
 
-/* The filled glyph clipped to its left half, sitting exactly over the empty
-   one beneath it. */
+/* The filled glyph clipped to its left half, sitting exactly over the empty one beneath it. */
 .stars__half {
   position: absolute;
   inset: 0;
@@ -58,8 +57,7 @@
   height: 0;
 }
 
-/* Keyboard focus has to be visible — the input itself is hidden, and the hit
-   area is transparent, so the ring goes on the star it belongs to. */
+/* Keyboard focus has to be visible — the input itself is hidden, and the hit area is transparent. */
 .stars__slot:has(input:focus-visible) {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;

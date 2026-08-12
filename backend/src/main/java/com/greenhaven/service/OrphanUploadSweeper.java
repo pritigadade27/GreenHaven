@@ -19,25 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.greenhaven.repository.ReviewImageRepository;
 
-/**
- * Removes review photographs that were uploaded but never attached to anything.
- *
- * A photograph is uploaded the moment it is chosen, so the thumbnail appears
- * while the review is still being written. That is the right behaviour for the
- * person writing — and it means every abandoned form leaves a file behind with
- * no row anywhere pointing at it. Nothing else would ever delete those, so disk
- * use would only ever climb.
- *
- * Two rules keep this from deleting something real:
- *
- * A file is only considered once it is old enough that no form could still be
- * open on it. A review being written right now has its uploads on disk and no
- * review_image row yet — exactly the shape of an orphan — so a young file is
- * left alone regardless.
- *
- * The set of referenced paths is read fresh on each pass, inside the same
- * method, so a review saved while the sweep is running is seen.
- */
+/** Removes review photographs that were uploaded but never attached to anything. */
 @Service
 public class OrphanUploadSweeper {
 
@@ -61,11 +43,7 @@ public class OrphanUploadSweeper {
         this.enabled = enabled;
     }
 
-    /**
-     * Once an hour. There is nothing urgent about reclaiming a few megabytes,
-     * and the delay after boot keeps startup clear of a directory scan.
-     * Both are properties so a test does not have to wait five minutes.
-     */
+    /** Once an hour. */
     @Scheduled(initialDelayString = "${greenhaven.uploads.sweep-initial-delay:PT5M}",
                fixedDelayString = "${greenhaven.uploads.sweep-interval:PT1H}")
     public void scheduled() {
@@ -74,8 +52,7 @@ public class OrphanUploadSweeper {
             int removed = sweep();
             if (removed > 0) log.info("Removed {} unattached review photograph(s).", removed);
         } catch (RuntimeException e) {
-            // A scheduled task that throws can be silently unscheduled by
-            // Spring. Swallow, log, and live to run again.
+            // A scheduled task that throws can be silently unscheduled by Spring.
             log.error("Orphan upload sweep failed: {}", e.getMessage());
         }
     }

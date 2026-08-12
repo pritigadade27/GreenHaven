@@ -19,13 +19,7 @@ const SECTIONS = [
   { to: '/profile/notifications', icon: 'bell', label: 'Notifications' },
 ];
 
-/**
- * The shell every profile screen renders inside.
- *
- * It owns the one /api/profile call, and hands both the data and a reloader to
- * its children through the Outlet context — so editing an address updates the
- * counter in the header without every screen fetching the same summary again.
- */
+/** The shell every profile screen renders inside. */
 export default function ProfileLayout() {
   const { user, isSignedIn, ready, logout } = useAuth();
   const navigate = useNavigate();

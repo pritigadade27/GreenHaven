@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.greenhaven.model.CartItem;
+import com.greenhaven.entity.CartItem;
 
 public interface CartItemRepository extends JpaRepository<CartItem, Long> {
 

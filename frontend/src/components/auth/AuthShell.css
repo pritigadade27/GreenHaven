@@ -8,13 +8,11 @@
   padding: calc(var(--navbar-height) + var(--space-sm)) var(--container-pad) var(--space-lg);
   background-size: cover;
   background-position: center;
-  /* `fixed` repaints the whole backdrop on every scroll frame on iOS and is
-     simply ignored by some versions. The ::before veil is already fixed. */
+  /* `fixed` repaints the whole backdrop on every scroll frame on iOS and is simply ignored by some. */
   background-attachment: scroll;
 }
 
-/* A blush veil over the photography so the card always has contrast to sit
-   against, whatever the background image happens to be doing behind it. */
+/* A blush veil over the photography so the card always has contrast to sit against, whatever the. */
 .auth::before {
   content: '';
   position: fixed;
@@ -27,9 +25,7 @@
   position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  /* One fixed size for BOTH screens, so switching between Sign in and Sign up
-     never resizes the card. Sized to the taller of the two (sign up, four
-     fields) and capped to the viewport so it always fits. */
+  /* One fixed size for BOTH screens, so switching between Sign in and Sign up never resizes the. */
   width: min(920px, 100%);
   /* A floor rather than a fixed height: the card still looks identical between Sign in and Sign up on a normal screen, but it can grow instead of clipping its own contents on a short one. */
   min-height: min(736px, 100%);
@@ -161,8 +157,7 @@
   display: flex;
   align-items: center;
   gap: var(--space-xs);
-  /* Soft pink on a photograph measured around 2:1. White at 88% keeps the
-     tint of the brand without making the list a guessing game. */
+  /* Soft pink on a photograph measured around 2:1. */
   color: rgba(255, 255, 255, 0.9);
   font-size: var(--fs-xs);
   font-weight: var(--fw-regular);
@@ -186,8 +181,7 @@
   }
 }
 
-/* Compact field metrics inside the card — the sign-up form has four inputs
-   and still has to fit a laptop screen without scrolling. */
+/* Compact field metrics inside the card — the sign-up form has four inputs and still has to fit a. */
 .auth__card .field {
   margin-bottom: var(--space-sm);
 }
@@ -211,8 +205,7 @@
   font-size: 0.6875rem;
 }
 
-/* Sign in has two fields to sign up's four. Centring the body keeps the
-   shorter form optically balanced in the shared card height. */
+/* Sign in has two fields to sign up's four. */
 .auth__pane {
   justify-content: flex-start;
 }
@@ -225,8 +218,7 @@
   min-height: 0;
 }
 
-/* Trim the intro block so the four sign-up fields, the button and the note
-   all clear the card height without the pane needing to scroll. */
+/* Trim the intro block so the four sign-up fields, the button and the note all clear the card. */
 .auth__body {
   padding-top: var(--space-md);
 }
@@ -279,8 +271,7 @@
   font-size: var(--fs-sm);
 }
 
-/* Shown when a visitor was redirected here from an action that needs an
-   account — tells them why they were moved rather than just relocating them. */
+/* Shown when a visitor was redirected here from an action that needs an account — tells them why. */
 .auth__reason {
   display: flex;
   align-items: flex-start;

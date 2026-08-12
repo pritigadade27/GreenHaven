@@ -32,13 +32,7 @@ public final class ReviewDtos {
             List<String> images) {
     }
 
-    /**
-     * Everything above the review list: the average, how many, and how the
-     * stars are distributed.
-     *
-     * `breakdown` is keyed 5 down to 1 and always holds all five keys, so the
-     * bar chart never has to guess at a missing row.
-     */
+    /** Everything above the review list: the average, how many, and how the stars are distributed. */
     public record Summary(
             String slug,
             BigDecimal average,
@@ -46,12 +40,7 @@ public final class ReviewDtos {
             Map<Integer, Long> breakdown) {
     }
 
-    /**
-     * Whether the signed-in customer may write, and why not if they may not.
-     *
-     * The reason is returned so the page can say something useful instead of
-     * simply hiding the button and leaving people wondering.
-     */
+    /** Whether the signed-in customer may write, and why not if they may not. */
     public record Eligibility(
             boolean canReview,
             String reason,
@@ -73,11 +62,7 @@ public final class ReviewDtos {
             @Size(min = 10, max = 2000, message = "Use between 10 and 2000 characters.")
             String body,
 
-            /**
-             * Paths returned by POST /api/reviews/image. Sent whole on every
-             * write: an edit that omits one removes it, which is what "these
-             * are my photographs" should mean.
-             */
+            /** Paths returned by POST /api/reviews/image. */
             @Size(max = 4, message = "You can attach up to 4 photographs.")
             List<String> images) {
     }

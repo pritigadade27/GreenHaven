@@ -17,9 +17,7 @@ export default function Testimonials() {
   const { PLANTS } = useCatalogue();
   const ref = useScrollReveal();
 
-  // Averaged across the catalogue's real reviews. Until customers have written
-  // some this is 0 of 0, so the strip below is not shown at all rather than
-  // dividing by zero or quoting a figure nobody earned.
+  // Averaged across the catalogue's real reviews.
   const totalReviews = PLANTS.reduce((sum, p) => sum + (p.reviews || 0), 0);
   const avgRating =
     totalReviews === 0

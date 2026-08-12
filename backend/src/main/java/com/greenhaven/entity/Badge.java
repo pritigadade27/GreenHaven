@@ -1,4 +1,4 @@
-package com.greenhaven.model;
+package com.greenhaven.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -7,10 +7,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
-/**
- * One of the labels shown on a product card — Pet Friendly, Low Maintenance,
- * Toxic to Pets. `code` matches the key used in the React badge taxonomy.
- */
+/** One of the labels shown on a product card — Pet Friendly, Low Maintenance, Toxic to Pets. */
 @Entity
 @Table(name = "badge")
 public class Badge {

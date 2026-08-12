@@ -1,4 +1,4 @@
-package com.greenhaven.model;
+package com.greenhaven.entity;
 
 import java.time.Instant;
 
@@ -12,13 +12,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
-/**
- * A delivery address the customer has saved for reuse.
- *
- * This is a template, not the address an order shipped to. Orders keep their
- * own copy of where they went, so editing or deleting one of these can never
- * rewrite the record of a past delivery.
- */
+/** A delivery address the customer has saved for reuse. */
 @Entity
 @Table(name = "address")
 public class Address {

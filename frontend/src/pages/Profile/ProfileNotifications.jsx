@@ -28,8 +28,7 @@ export default function ProfileNotifications() {
       .then((list) => {
         if (!alive) return;
         setItems(list);
-        // Opening this page is what "reading" them means, so the badge clears
-        // as soon as they are on screen rather than after a separate click.
+        // Opening this page is what "reading" them means, so the badge clears as soon as they are on.
         if (list.some((n) => !n.read)) {
           profileApi
             .markNotificationsRead()

@@ -1,4 +1,4 @@
-package com.greenhaven.model;
+package com.greenhaven.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

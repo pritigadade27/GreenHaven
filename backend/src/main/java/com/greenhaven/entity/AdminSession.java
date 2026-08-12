@@ -1,4 +1,4 @@
-package com.greenhaven.model;
+package com.greenhaven.entity;
 
 import java.time.Instant;
 
@@ -12,15 +12,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
-/**
- * A live admin sign-in.
- *
- * A JWT cannot be recalled once issued — "log out" on a bearer token usually
- * means the browser forgets its copy while the token stays valid for hours.
- * Requiring a matching row here turns the token into something the server can
- * actually withdraw, which is what makes real logout, an idle timeout and
- * one-session-at-a-time possible.
- */
+/** A live admin sign-in. */
 @Entity
 @Table(name = "admin_session")
 public class AdminSession {

@@ -3,10 +3,7 @@ import { Link } from 'react-router-dom';
 import Icon from '../Icon/Icon.jsx';
 import './PageHeader.css';
 
-/**
- * The banner every inner page opens with: breadcrumb, title, optional lede.
- * Keeps the eight pages visually consistent without repeating the markup.
- */
+/** The banner every inner page opens with: breadcrumb, title, optional lede. */
 export default function PageHeader({ title, lede, crumb, children }) {
   return (
     <header className="page-header">

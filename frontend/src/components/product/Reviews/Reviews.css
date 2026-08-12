@@ -1,5 +1,4 @@
-/* Ratings and reviews. Built from the shop's own tokens — no new colours,
-   type or easing — so it reads as part of the product page. */
+/* Ratings and reviews. */
 
 .reviews {
   background: var(--color-bg);
@@ -111,8 +110,7 @@
   height: 100%;
   border-radius: var(--radius-pill);
   background: var(--color-accent);
-  /* Grows from nothing when the section first appears, so the shape of the
-     distribution is noticed rather than simply present. */
+  /* Grows from nothing when the section first appears, so the shape of the distribution is noticed. */
   animation: barGrow var(--dur-slow) var(--ease-out) both;
 }
 
@@ -191,8 +189,7 @@
   box-shadow: var(--shadow-sm);
 }
 
-/* The customer's own review is pinned at the top and marked, so they can find
-   what they wrote without hunting for it. */
+/* The customer's own review is pinned at the top and marked, so they can find what they wrote. */
 .review--mine {
   border-color: var(--color-primary);
   background: linear-gradient(180deg, var(--color-card-tint) 0%, var(--color-white) 60%);
@@ -704,8 +701,7 @@
     padding: var(--space-md);
   }
 
-  /* The arrows would sit over the photograph on a narrow screen, so the
-     swipe-sized tap targets move to the bottom corners instead. */
+  /* The arrows would sit over the photograph on a narrow screen, so the swipe-sized tap targets. */
   .rlight__step {
     top: auto;
     bottom: var(--space-md);

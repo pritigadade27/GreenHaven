@@ -4,10 +4,7 @@
 
 .contact__layout {
   display: grid;
-  /* minmax(0, …) rather than a bare fr. A grid track's default minimum is
-     `auto`, which is the content's minimum size — so a long unbreakable string
-     or a wide input pushes the track past its share and the whole page scrolls
-     sideways. This is the commonest cause of mobile horizontal scroll. */
+  /* minmax(0, …) rather than a bare fr. */
   grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
   align-items: start;
   gap: var(--space-2xl);
@@ -142,12 +139,10 @@
   border-bottom: 1px solid currentColor;
 }
 
-/* The two-column layout had no stacking rule at all, so the form and the
-   details column stayed side by side down to 320px. */
+/* The two-column layout had no stacking rule at all, so the form and the details column stayed. */
 @media (max-width: 991px) {
   .contact__layout {
-    /* minmax(0, …), not a bare 1fr: a bare fr track has an `auto` minimum, so
-       the form card sized itself to its content and overflowed the column. */
+    /* minmax(0, …), not a bare 1fr: a bare fr track has an `auto` minimum, so the form card sized. */
     grid-template-columns: minmax(0, 1fr);
     gap: var(--space-xl);
   }

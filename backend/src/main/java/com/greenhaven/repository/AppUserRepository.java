@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.greenhaven.model.AppUser;
+import com.greenhaven.entity.AppUser;
 
 public interface AppUserRepository extends JpaRepository<AppUser, Long> {
 

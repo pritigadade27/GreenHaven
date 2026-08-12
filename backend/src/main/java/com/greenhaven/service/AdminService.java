@@ -15,12 +15,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.greenhaven.dto.AdminDtos;
 import com.greenhaven.exception.ResourceNotFoundException;
-import com.greenhaven.model.AppUser;
-import com.greenhaven.model.Order;
-import com.greenhaven.model.OrderItem;
-import com.greenhaven.model.Payment;
-import com.greenhaven.model.Plant;
-import com.greenhaven.model.Review;
+import com.greenhaven.entity.AppUser;
+import com.greenhaven.entity.Order;
+import com.greenhaven.entity.OrderItem;
+import com.greenhaven.entity.Payment;
+import com.greenhaven.entity.Plant;
+import com.greenhaven.entity.Review;
 import com.greenhaven.repository.AppUserRepository;
 import com.greenhaven.repository.CategoryRepository;
 import com.greenhaven.repository.NewsletterSubscriberRepository;
@@ -119,13 +119,7 @@ public class AdminService {
                 order.getTax(), order.getDiscount(), lines, attempts);
     }
 
-    /**
-     * Moves an order along the fulfilment track.
-     *
-     * Only `delivery_status` is writable from here. Payment status is decided by
-     * the signature check and nothing else — letting an admin set an order to
-     * PAID by hand would make the whole verification chain decorative.
-     */
+    /** Moves an order along the fulfilment track. */
     @Transactional
     public AdminDtos.OrderRow updateDeliveryStatus(Long id, String status) {
         String next = status == null ? "" : status.trim().toUpperCase().replace(' ', '_');
@@ -179,8 +173,7 @@ public class AdminService {
         AppUser user = users.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No user with id " + id));
         if ("ADMIN".equals(user.getRole()) && blocked) {
-            // Locking the last admin out of the dashboard is not recoverable
-            // from inside the dashboard.
+            // Locking the last admin out of the dashboard is not recoverable from inside the dashboard.
             throw new IllegalArgumentException("An admin account cannot be blocked.");
         }
         user.setBlocked(blocked);
@@ -238,15 +231,7 @@ public class AdminService {
                 photos.getOrDefault(r.getId(), List.of())));
     }
 
-    /**
-     * Moderates a review. HIDDEN takes it off the product page while keeping
-     * the row, so the decision can be undone and the customer's words are not
-     * destroyed to settle a complaint.
-     *
-     * The plant's average is rewritten either way: a review that is no longer
-     * shown must no longer count, or hiding it would change nothing that
-     * matters.
-     */
+    /** Moderates a review. */
     @Transactional
     public void setReviewStatus(Long id, String status, String reason) {
         String next = status == null ? "" : status.trim().toUpperCase();
@@ -270,10 +255,9 @@ public class AdminService {
                 .orElseThrow(() -> new ResourceNotFoundException("No review with id " + id));
         Long plantId = review.getPlant().getId();
 
-        // Read before the delete: the FK cascade takes the rows, and with them
-        // the only record of which files are still on disk.
+        // Read before the delete: the FK cascade takes the rows, and with them the only record of which.
         List<String> files = reviewImages.findByReviewIdOrderBySortOrderAscIdAsc(id).stream()
-                .map(com.greenhaven.model.ReviewImage::getUrl)
+                .map(com.greenhaven.entity.ReviewImage::getUrl)
                 .toList();
 
         reviews.delete(review);
@@ -315,8 +299,7 @@ public class AdminService {
     }
 
     private AdminDtos.OrderDetail.Line toLine(OrderItem i) {
-        // Prefer the snapshot taken at purchase time; fall back to the live
-        // product only for rows written before snapshots existed.
+        // Prefer the snapshot taken at purchase time; fall back to the live product only for rows written.
         String name = i.getProductName() != null ? i.getProductName()
                 : i.getPlant() != null ? i.getPlant().getName() : "(removed)";
         String image = i.getProductImage() != null ? i.getProductImage()

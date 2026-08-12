@@ -10,7 +10,7 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.greenhaven.model.Order;
+import com.greenhaven.entity.Order;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {
 
@@ -28,11 +28,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     /** Scoped by owner in the query, so a wrong id is a miss and not a leak. */
     Optional<Order> findByOrderNumberAndUserId(String orderNumber, Long userId);
 
-    /**
-     * The delivered orders in which this customer actually received this plant.
-     * Both halves matter: paid, so an abandoned checkout earns nothing, and
-     * DELIVERED, so nobody reviews a plant still in a van.
-     */
+    /** The delivered orders in which this customer actually received this plant. */
     @Query("""
             SELECT o FROM Order o JOIN o.items i
              WHERE o.user.id = :userId
@@ -52,11 +48,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             """)
     boolean hasDelivered(@Param("userId") Long userId);
 
-    /**
-     * Orders still PENDING well after checkout — the ones the payment flow may
-     * have lost. Only those with a gateway order id: without one there is
-     * nothing to ask Razorpay about.
-     */
+    /** Orders still PENDING well after checkout — the ones the payment flow may have lost. */
     @Query("""
             SELECT o FROM Order o
              WHERE o.status = 'PENDING'

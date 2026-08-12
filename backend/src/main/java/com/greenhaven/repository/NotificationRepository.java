@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import com.greenhaven.model.Notification;
+import com.greenhaven.entity.Notification;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 

@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.greenhaven.model.WishlistItem;
+import com.greenhaven.entity.WishlistItem;
 
 public interface WishlistItemRepository extends JpaRepository<WishlistItem, Long> {
 

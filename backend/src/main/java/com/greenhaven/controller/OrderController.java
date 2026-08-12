@@ -21,16 +21,7 @@ import com.greenhaven.service.OrderService;
 
 import jakarta.validation.Valid;
 
-/**
- * Checkout and payment. Every route requires a signed-in caller — the
- * security config only permits anonymous GETs on the catalogue.
- *
- *   POST /api/orders            create a PENDING order + Razorpay order id
- *   POST /api/orders/verify     verify the signature and mark it PAID
- *   POST /api/orders/{id}/simulate   test mode only — sign a stand-in response
- *   POST /api/orders/{id}/cancel
- *   GET  /api/orders            the caller's own order history
- */
+/** Checkout and payment. */
 @RestController
 @RequestMapping("/api/orders")
 public class OrderController {
@@ -55,12 +46,7 @@ public class OrderController {
         return orders.confirmPayment(principal.getName(), request);
     }
 
-    /**
-     * Test-mode only. Signs a stand-in gateway response so checkout can be
-     * driven end to end before a Razorpay account exists; the caller still has
-     * to post the result to /verify, which checks it like any other payment.
-     * Refused with 503 as soon as real keys are configured.
-     */
+    /** Test-mode only. */
     @PostMapping("/{razorpayOrderId}/simulate")
     public PaymentVerificationRequest simulate(Principal principal,
                                                @PathVariable String razorpayOrderId,

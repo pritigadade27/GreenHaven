@@ -13,10 +13,10 @@ import com.greenhaven.dto.AuthResponse;
 import com.greenhaven.dto.ProfileDtos;
 import com.greenhaven.dto.UserDto;
 import com.greenhaven.exception.ResourceNotFoundException;
-import com.greenhaven.model.AppUser;
-import com.greenhaven.model.Order;
-import com.greenhaven.model.OrderItem;
-import com.greenhaven.model.Payment;
+import com.greenhaven.entity.AppUser;
+import com.greenhaven.entity.Order;
+import com.greenhaven.entity.OrderItem;
+import com.greenhaven.entity.Payment;
 import com.greenhaven.repository.AddressRepository;
 import com.greenhaven.repository.AppUserRepository;
 import com.greenhaven.repository.NotificationRepository;
@@ -28,11 +28,7 @@ import com.greenhaven.repository.WishlistItemRepository;
 @Service
 public class ProfileService {
 
-    /**
-     * The fulfilment steps, in the order they happen. CONFIRMED is not shown
-     * as its own stop — payment confirmation already covers it — but it is
-     * listed so an order sitting at CONFIRMED still resolves to a position.
-     */
+    /** The fulfilment steps, in the order they happen. */
     private static final List<String[]> STEPS = List.of(
             new String[] { "PLACED",           "Order placed" },
             new String[] { "PAID",             "Payment confirmed" },
@@ -42,15 +38,7 @@ public class ProfileService {
             new String[] { "OUT_FOR_DELIVERY", "Out for delivery" },
             new String[] { "DELIVERED",        "Delivered" });
 
-    /**
-     * Which step is happening now, for a paid order.
-     *
-     * A freshly paid order sits at PENDING or CONFIRMED, which is the nursery
-     * about to start work — so it points at Processing rather than at the
-     * payment step, and the strip always has exactly one live position.
-     * DELIVERED runs past the end deliberately: nothing is in progress once it
-     * has arrived, so every step reads as done.
-     */
+    /** Which step is happening now, for a paid order. */
     private static int reached(String deliveryStatus) {
         return switch (deliveryStatus) {
             case "PENDING", "CONFIRMED", "PROCESSING" -> 2;
@@ -118,17 +106,7 @@ public class ProfileService {
         return profile(email);
     }
 
-    /**
-     * Starts an email change.
-     *
-     * The new address is parked in pending_email and the account keeps signing
-     * in with the old one until it is confirmed. Changing the sign-in address
-     * on an unproven typo would lock someone out of their own order history,
-     * and orders are the one thing here that cannot be re-created.
-     *
-     * Re-authentication is required: a borrowed, still-open session must not be
-     * able to move the account to an attacker's inbox.
-     */
+    /** Starts an email change. */
     @Transactional
     public String requestEmailChange(String email, ProfileDtos.ChangeEmailRequest r) {
         AppUser user = user(email);
@@ -149,20 +127,11 @@ public class ProfileService {
         user.setPendingEmailExpiresAt(Instant.now().plus(java.time.Duration.ofHours(24)));
         users.save(user);
 
-        // No mail server is configured yet, so the token is returned to the
-        // caller instead of being sent. Swap this for a mailed link and the
-        // confirm step below is unchanged.
+        // No mail server is configured yet, so the token is returned to the caller instead of being sent.
         return user.getPendingEmailToken();
     }
 
-    /**
-     * Confirms the change and reissues the token.
-     *
-     * A JWT names its subject by email. Move the address without minting a new
-     * one and the customer is left holding a token for an account that no
-     * longer answers to that name — every profile call 404s until they sign in
-     * again. The new token is returned so the browser can swap it in place.
-     */
+    /** Confirms the change and reissues the token. */
     @Transactional
     public AuthResponse confirmEmailChange(String email, String token) {
         AppUser user = user(email);
@@ -177,8 +146,7 @@ public class ProfileService {
         if (!user.getPendingEmailToken().equals(token)) {
             throw new IllegalArgumentException("That confirmation link is not valid.");
         }
-        // Checked again at the last moment: someone else may have registered
-        // the address during the 24 hours this was pending.
+        // Checked again at the last moment: someone else may have registered the address during the 24.
         if (users.findByEmail(user.getPendingEmail()).isPresent()) {
             clearPendingEmail(user);
             throw new IllegalArgumentException("That email address has since been registered.");
@@ -257,15 +225,7 @@ public class ProfileService {
                 timeline(order));
     }
 
-    /**
-     * Cancels an order the customer no longer wants.
-     *
-     * Only before it is with the courier, and only on their own order. A PAID
-     * order that is cancelled keeps its payment row and invoice untouched —
-     * the refund is a separate movement of money, and rubbing out the record
-     * of what was taken is not how a refund is done. What is added instead is
-     * a credit note, so the ledger shows both the charge and what is owed back.
-     */
+    /** Cancels an order the customer no longer wants. */
     @Transactional
     public ProfileDtos.OrderDetail cancelOrder(String email, String orderNumber, String reason) {
         Order order = ownedOrder(email, orderNumber);
@@ -279,17 +239,13 @@ public class ProfileService {
         order.setCancelledAt(Instant.now());
         order.setCancelledBy("CUSTOMER");
         order.setCancelReason(blankToNull(reason));
-        // An unpaid order is simply abandoned. A paid one keeps status PAID:
-        // the money really was taken, and the books have to keep saying so.
+        // An unpaid order is simply abandoned.
         if ("PENDING".equals(order.getStatus())) {
             order.setStatus("CANCELLED");
         }
         orders.save(order);
 
-        // A paid order that is cancelled leaves the shop owing money. The
-        // invoice stands — it records what really was taken — and a credit note
-        // is issued to offset it. Nothing is issued for an unpaid order,
-        // because nothing was ever charged.
+        // A paid order that is cancelled leaves the shop owing money.
         invoiceService.creditNoteFor(order,
                 blankToNull(reason) == null ? "Cancelled by the customer" : reason.trim());
 
@@ -353,14 +309,7 @@ public class ProfileService {
                 .toList();
     }
 
-    /**
-     * Every document issued to this customer — invoices and the credit notes
-     * offsetting them, newest first.
-     *
-     * Read from the ledger rather than derived from orders: a credit note is a
-     * document in its own right and has no order column of its own to be
-     * inferred from.
-     */
+    /** Every document issued to this customer — invoices and the credit notes offsetting them, newest. */
     @Transactional(readOnly = true)
     public List<ProfileDtos.InvoiceRow> myInvoices(String email) {
         return invoiceService.forUser(user(email).getId()).stream()
@@ -372,20 +321,13 @@ public class ProfileService {
                 .toList();
     }
 
-    /**
-     * One document by its number, checked to belong to the caller.
-     *
-     * The ownership check is the load-bearing part: invoice numbers run in
-     * sequence, so without it anyone could walk the series and read every
-     * customer's name, address and order.
-     */
+    /** One document by its number, checked to belong to the caller. */
     @Transactional(readOnly = true)
-    public com.greenhaven.model.Invoice ownedDocument(String email, String number) {
-        com.greenhaven.model.Invoice doc = invoiceService.byNumber(number)
+    public com.greenhaven.entity.Invoice ownedDocument(String email, String number) {
+        com.greenhaven.entity.Invoice doc = invoiceService.byNumber(number)
                 .orElseThrow(() -> new ResourceNotFoundException("No document with that number."));
         if (!doc.getOrder().getUser().getEmail().equalsIgnoreCase(email)) {
-            // Deliberately the same message as a genuinely missing document, so
-            // this cannot be used to discover which numbers exist.
+            // Deliberately the same message as a genuinely missing document, so this cannot be used to.
             throw new ResourceNotFoundException("No document with that number.");
         }
         return doc;
@@ -429,11 +371,7 @@ public class ProfileService {
                 o != null && o.getInvoiceNumber() != null);
     }
 
-    /**
-     * The product as it was on the day, falling back to the live catalogue only
-     * where the snapshot is missing — orders placed before those columns
-     * existed have nothing else to show.
-     */
+    /** The product as it was on the day, falling back to the live catalogue only where the snapshot is. */
     private static String nameOf(OrderItem i) {
         if (i.getProductName() != null) return i.getProductName();
         return i.getPlant() == null ? "Product" : i.getPlant().getName();

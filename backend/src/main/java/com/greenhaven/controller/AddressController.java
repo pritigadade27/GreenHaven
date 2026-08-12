@@ -20,12 +20,7 @@ import com.greenhaven.service.AddressService;
 
 import jakarta.validation.Valid;
 
-/**
- * Saved delivery addresses, scoped to the caller.
- *
- * Deleting one never touches an order: each order keeps its own copy of where
- * it was sent, so history stays true whatever the customer does here.
- */
+/** Saved delivery addresses, scoped to the caller. */
 @RestController
 @RequestMapping("/api/addresses")
 public class AddressController {

@@ -12,18 +12,7 @@ import com.greenhaven.service.CouponService;
 
 import jakarta.validation.Valid;
 
-/**
- * Trying a discount code against a basket.
- *
- *   POST /api/coupons/quote   what would this code do to this basket?
- *
- * A POST rather than a GET because the basket goes in the body, and because a
- * code in a query string ends up in browser history and server logs.
- *
- * There is deliberately no endpoint that lists available codes: a shop hands
- * out a code to the people it means to have it, and an endpoint enumerating
- * every live discount would make that meaningless.
- */
+/** Trying a discount code against a basket. */
 @RestController
 @RequestMapping("/api/coupons")
 public class CouponController {

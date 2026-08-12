@@ -29,8 +29,7 @@ const About = lazy(() => import('./pages/About/About.jsx'));
 const Contact = lazy(() => import('./pages/Contact/Contact.jsx'));
 const Orders = lazy(() => import('./pages/Orders/Orders.jsx'));
 
-// My Profile. One chunk per screen, so a shopper who never signs in downloads
-// none of it.
+// My Profile.
 const ProfileLayout = lazy(() => import('./pages/Profile/ProfileLayout.jsx'));
 const ProfileOverview = lazy(() => import('./pages/Profile/ProfileOverview.jsx'));
 const ProfileOrders = lazy(() => import('./pages/Profile/ProfileOrders.jsx'));
@@ -43,8 +42,7 @@ const ProfileInvoices = lazy(() => import('./pages/Profile/ProfileInvoices.jsx')
 const ProfileNotifications = lazy(() => import('./pages/Profile/ProfileNotifications.jsx'));
 const NotFound = lazy(() => import('./pages/NotFound/NotFound.jsx'));
 
-// The dashboard is its own chunk. A shopper never downloads a byte of it,
-// and nothing in the public bundle references it.
+// The dashboard is its own chunk.
 const AdminLogin = lazy(() => import('./pages/admin/AdminLogin.jsx'));
 const AdminLayout = lazy(() => import('./pages/admin/AdminLayout.jsx'));
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard.jsx'));
@@ -59,18 +57,10 @@ const AdminActivity = lazy(() => import('./pages/admin/AdminActivity.jsx'));
 const AdminNotFound = lazy(() => import('./pages/admin/AdminNotFound.jsx'));
 
 /** Green Haven — application shell. */
-/** Login and Register are full-height split screens — a footer under them
- *  would just push the form off the fold. */
+/** Login and Register are full-height split screens — a footer under them would just push the form. */
 const CHROMELESS = ['/login', '/register', '/forgot-password'];
 
-/**
- * The dashboard branch.
- *
- * Mounted beside the storefront rather than inside it, so the customer Navbar,
- * Footer, CartProvider and WishlistProvider never render for an admin — and the
- * admin session provider never loads for a shopper. The two interfaces share
- * the backend and the database, and nothing else.
- */
+/** The dashboard branch. */
 function AdminArea() {
   return (
     <AdminAuthProvider>
@@ -173,8 +163,7 @@ function StorefrontArea() {
 
 export default function App() {
   return (
-    // Outermost on purpose: a throw inside any provider or page shows a page
-    // that explains itself instead of a blank white screen.
+    // Outermost on purpose: a throw inside any provider or page shows a page that explains itself.
     <ErrorBoundary>
       <ToastProvider>
       <Routes>

@@ -44,8 +44,7 @@ export default function Login() {
       // back to whatever they were trying to do, not the home page
       navigate(from, { replace: true });
     } catch (err) {
-      // The API deliberately returns one message for both a wrong password
-      // and an unknown email, so it cannot be used to probe for accounts.
+      // The API deliberately returns one message for both a wrong password and an unknown email, so it.
       setServerError(err.message);
     } finally {
       setBusy(false);

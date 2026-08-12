@@ -26,19 +26,7 @@ import com.greenhaven.service.UploadService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
-/**
- * Product management.
- *
- *   POST   /api/admin/products             create
- *   PUT    /api/admin/products/{id}        edit
- *   PATCH  /api/admin/products/{id}/listing  discontinue / restore
- *   DELETE /api/admin/products/{id}        delete, or discontinue if it has sold
- *   POST   /api/admin/products/image       upload a photograph
- *
- * Under /api/admin, so the existing rule already requires ROLE_ADMIN; the
- * annotation states it locally as well because this endpoint writes the
- * catalogue every customer sees.
- */
+/** Product management. */
 @RestController
 @RequestMapping("/api/admin/products")
 @PreAuthorize("hasRole('ADMIN')")
@@ -105,11 +93,7 @@ public class ProductAdminController {
         return urls;
     }
 
-    /**
-     * Uploads one photograph and returns the path to store on a product. Kept
-     * separate from create/update so an image can be attached before the
-     * product exists, and so a failed upload never loses a half-typed form.
-     */
+    /** Uploads one photograph and returns the path to store on a product. */
     @PostMapping(value = "/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ProductAdminDtos.UploadResult upload(Principal principal,
                                                 @RequestPart("file") MultipartFile file,

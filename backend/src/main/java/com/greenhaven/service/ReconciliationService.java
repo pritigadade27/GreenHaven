@@ -11,23 +11,11 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.greenhaven.model.Order;
+import com.greenhaven.entity.Order;
 import com.greenhaven.repository.OrderRepository;
+import com.greenhaven.payment.PaymentService;
 
-/**
- * Finds orders the payment flow lost track of.
- *
- * `payment_capture: 1` means Razorpay takes the money the instant the customer
- * authorises. Everything after that — the browser callback, the webhook — is a
- * message that may not arrive. An order left at PENDING with a real captured
- * payment behind it is money taken for goods nobody will ever pack, and
- * nothing else in the system will notice.
- *
- * So this asks the only party that actually knows: Razorpay. Anything it
- * confirms as captured is settled properly, through the same path a browser
- * callback uses. Anything still unpaid after a day is closed off so the books
- * are not carrying stale rows for ever.
- */
+/** Finds orders the payment flow lost track of. */
 @Service
 public class ReconciliationService {
 
@@ -54,18 +42,14 @@ public class ReconciliationService {
         this.abandonAfterHours = abandonAfterHours;
     }
 
-    /**
-     * Every ten minutes, with a one-minute delay after boot so startup is not
-     * competing with a database sweep.
-     */
+    /** Every ten minutes, with a one-minute delay after boot so startup is not competing with a. */
     @Scheduled(initialDelayString = "PT1M", fixedDelayString = "PT10M")
     public void sweep() {
         if (!enabled) return;
         try {
             reconcile();
         } catch (RuntimeException e) {
-            // A scheduled task that throws is silently unscheduled by Spring in
-            // some configurations. Swallow, log, and live to run again.
+            // A scheduled task that throws is silently unscheduled by Spring in some configurations.
             log.error("Reconciliation sweep failed: {}", e.getMessage());
         }
     }
@@ -84,8 +68,7 @@ public class ReconciliationService {
             String paymentId = payments.capturedPaymentIdFor(order.getRazorpayOrderId());
 
             if (paymentId != null) {
-                // Real money really was taken. Settle it exactly as a callback
-                // would have — invoice, stock, notification and all.
+                // Real money really was taken.
                 orderService.settleFromWebhook(order.getRazorpayOrderId(), paymentId);
                 settled++;
                 log.warn("Reconciled {}: Razorpay had a captured payment the callback never reported.",
@@ -93,9 +76,7 @@ public class ReconciliationService {
                 continue;
             }
 
-            // Nothing was captured. Once it is old enough there is no prospect
-            // of the customer completing it, so it stops sitting in the books
-            // as though it might.
+            // Nothing was captured.
             if (order.getPlacedAt() != null && order.getPlacedAt().isBefore(abandonBefore)) {
                 order.setStatus("CANCELLED");
                 order.setCancelledAt(Instant.now());

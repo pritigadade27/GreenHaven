@@ -2,11 +2,7 @@
 
 const img = (name) => new URL(`../assets/images/plants/${name}.jpg`, import.meta.url).href;
 
-/**
- * @param a.p  pet safety: 'safe' | 'caution' | 'toxic'
- * @param a.d  difficulty, a.l light, a.w water
- * @param a.c  [light, water, soil, humidity, temperature, feed, repot]
- */
+/** @param a.p pet safety: 'safe' | 'caution' | 'toxic' @param a.d difficulty, a.l light, a.w water. */
 const P = (a) => ({
   id: a.id,
   slug: a.slug,
@@ -16,8 +12,7 @@ const P = (a) => ({
   price: a.price,
   mrp: a.mrp,
   image: img(a.img ?? a.slug),
-  // No invented default. A product has the rating its reviewers gave it, or
-  // none at all.
+  // No invented default.
   rating: a.rating ?? null,
   reviews: a.reviews ?? 0,
   stock: a.stock ?? 30,

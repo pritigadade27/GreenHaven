@@ -36,8 +36,7 @@ export default function AdminLogin() {
       await login(form.email.trim(), form.password);
       navigate(location.state?.from || '/admin/dashboard', { replace: true });
     } catch (err) {
-      // The server returns one message for every kind of rejection; repeating
-      // it verbatim keeps it that way rather than helpfully narrowing it down.
+      // The server returns one message for every kind of rejection; repeating it verbatim keeps it that.
       setError(err.message);
       setBusy(false);
     }

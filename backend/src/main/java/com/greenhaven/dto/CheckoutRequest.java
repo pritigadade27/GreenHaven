@@ -29,22 +29,19 @@ public record CheckoutRequest(
         String state,
         @NotBlank(message = "Pincode is required")
         @Pattern(regexp = "[0-9]{6}", message = "Enter a 6-digit pincode") String pincode,
-        // A ceiling on the cart itself: without one, a request carrying
-        // 100,000 lines runs 100,000 lookups inside a single transaction.
+        // A ceiling on the cart itself: without one, a request carrying 100,000 lines runs 100,000.
         @NotEmpty(message = "Your cart is empty")
         @Size(max = 50, message = "An order can hold up to 50 different products")
         @Valid List<Line> items,
 
-        // Optional. The code only — never the discount. What it is worth is
-        // worked out on the server, from the catalogue's prices.
+        // Optional.
         @Size(max = 40, message = "That is not a code we issue.")
         String couponCode) {
 
     public record Line(
             @NotBlank String slug,
             @Positive(message = "Quantity must be at least 1")
-            // Also a ceiling: Integer.MAX_VALUE passes @Positive, then
-            // overflows DECIMAL(10,2) — after Razorpay has been called.
+            // Also a ceiling: Integer.MAX_VALUE passes @Positive, then overflows DECIMAL(10,2) — after.
             @Max(value = 99, message = "Quantity is limited to 99 per product")
             int quantity) {
     }

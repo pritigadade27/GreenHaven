@@ -59,10 +59,7 @@ export default function ProfileOrderDetail() {
     }
   }
 
-  /**
-   * Puts the order's lines back in the basket at today's prices, which is the
-   * only honest thing to do: the old price belongs to the old order.
-   */
+  /** Puts the order's lines back in the basket at today's prices, which is the only honest thing to. */
   async function reorder() {
     setBusy(true);
     try {
@@ -259,8 +256,7 @@ export default function ProfileOrderDetail() {
                           <span>{line.name}</span>
                         )}
                         {line.category && <small>{line.category}</small>}
-                        {/* Only once it has actually arrived. Reviewing a plant
-                            still in a van helps nobody. */}
+                        {/* Only once it has actually arrived. */}
                         {delivered && line.slug && (
                           <Link className="porder__rate" to={`/plant/${line.slug}#reviews`}>
                             <Icon name="star" size={13} /> Rate &amp; review

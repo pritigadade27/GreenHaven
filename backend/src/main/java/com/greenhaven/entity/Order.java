@@ -1,4 +1,4 @@
-package com.greenhaven.model;
+package com.greenhaven.entity;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -47,10 +47,7 @@ public class Order {
     @Column(nullable = false, length = 24)
     private String status = "PENDING";
 
-    /**
-     * Fulfilment lifecycle, deliberately separate from payment: an order is
-     * PAID and PACKED at the same time, and one column cannot say both.
-     */
+    /** Fulfilment lifecycle, deliberately separate from payment: an order is PAID and PACKED at the. */
     @Column(name = "delivery_status", nullable = false, length = 24)
     private String deliveryStatus = "PENDING";
 
@@ -63,13 +60,7 @@ public class Order {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal tax = BigDecimal.ZERO;
 
-    /**
-     * What a coupon took off, and which code did it.
-     *
-     * The code is copied onto the order rather than read back through the
-     * coupon: an invoice must still say "SPRING20, −₹240" years later, after
-     * the code has been edited, deactivated or deleted.
-     */
+    /** What a coupon took off, and which code did it. */
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal discount = BigDecimal.ZERO;
 
@@ -105,11 +96,7 @@ public class Order {
     @Column(name = "razorpay_payment_id", length = 64)
     private String razorpayPaymentId;
 
-    /**
-     * Copied from the gateway, not joined at read time. An order is a record of
-     * what happened: "UPI" has to keep reading UPI whatever becomes of the
-     * payment row later.
-     */
+    /** Copied from the gateway, not joined at read time. */
     @Column(name = "payment_method", length = 40)
     private String paymentMethod;
 

@@ -11,9 +11,12 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 ADMIN_EMAIL=${ADMIN_EMAIL:?set ADMIN_EMAIL in test-env.sh}
 ADMIN_PASSWORD=${ADMIN_PASSWORD:?set ADMIN_PASSWORD in test-env.sh}
 export MYSQL_PWD
-export MYSQL_PWD='$ADMIN_PASSWORD'
 Q() { "$MYSQL" --default-character-set=utf8mb4 -u priti green_haven -N -B -e "$1"; }
 
+
+# Shared, foreign-key-ordered teardown. Each suite used to roll its own and
+# every one was incomplete, so cleanup aborted on the first FK error.
+. "$(cd "$(dirname "$0")" && pwd)/cleanup.sh"
 go() {
   curl -s -X POST $BR -H 'Content-Type: application/json' \
     -d "{\"action\":\"navigate\",\"args\":{\"url\":\"http://localhost:5173$1\"},\"session\":\"green-haven-qa\"}" >/dev/null
@@ -105,6 +108,12 @@ go / 4
 check "no admin link on the shop" 0 "$(ev '[...document.querySelectorAll("a[href]")].filter(a=>a.getAttribute("href").includes("admin")).length')"
 go /admin/dashboard 5
 check "admin still gated" "/admin/login" "$(ev 'location.pathname')"
+
+# Shared teardown: returns consumed stock, then removes the run in
+# foreign-key order. Rolling its own left accounts behind on every run.
+purge_test_accounts "other%@example.com"
+assert_clean "other%@example.com"
+
 
 echo
 echo "  $pass passed, $fail failed"

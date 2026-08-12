@@ -1,5 +1,4 @@
-/* Shares the site's design tokens but none of its layout: the customer
-   navbar, footer and container never render under /admin. */
+/* Shares the site's design tokens but none of its layout: the customer navbar, footer and. */
 
 .admin {
   display: grid;
@@ -394,8 +393,7 @@
 
 .admin-pill.is-pending,
 .admin-pill.is-created,
-/* A code that has not started, or has been fully taken up — neither is wrong,
-   but neither is available either. */
+/* A code that has not started, or has been fully taken up — neither is wrong, but neither is. */
 .admin-pill.is-scheduled,
 .admin-pill.is-claimed,
 .admin-pill.is-low-stock { color: #8a5b00; background: #fff2d6; }
@@ -551,8 +549,7 @@
   place-items: center;
   min-height: 100dvh;
   padding: var(--space-lg);
-  /* Plain and unbranded on purpose: someone who guesses this URL should learn
-     nothing about what is behind it. */
+  /* Plain and unbranded on purpose: someone who guesses this URL should learn nothing about what is. */
   background: var(--color-primary);
 }
 
@@ -776,8 +773,7 @@
   color: var(--color-text);
 }
 
-/* Thumbnails in the inventory table — a plant is recognised by its picture
-   far faster than by its slug. */
+/* Thumbnails in the inventory table — a plant is recognised by its picture far faster than by its. */
 .admin-thumb-cell {
   width: 56px;
   padding-right: 0 !important;

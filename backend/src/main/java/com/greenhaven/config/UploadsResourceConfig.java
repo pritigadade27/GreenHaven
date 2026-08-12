@@ -7,13 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-/**
- * Serves uploaded product photographs off disk.
- *
- * Read-only and outside /api, so it needs no token: a product photograph is as
- * public as the product page it appears on. Writing is another matter and lives
- * behind ROLE_ADMIN in ProductAdminController.
- */
+/** Serves uploaded product photographs off disk. */
 @Configuration
 public class UploadsResourceConfig implements WebMvcConfigurer {
 
@@ -31,8 +25,7 @@ public class UploadsResourceConfig implements WebMvcConfigurer {
         String location = Paths.get(dir).toAbsolutePath().normalize().toUri().toString();
         registry.addResourceHandler(publicPath + "/**")
                 .addResourceLocations(location)
-                // Uploaded files are content-addressed by a random name, so a
-                // given URL never changes and can be cached hard.
+                // Uploaded files are content-addressed by a random name, so a given URL never changes and can be.
                 .setCachePeriod(60 * 60 * 24 * 30);
     }
 }

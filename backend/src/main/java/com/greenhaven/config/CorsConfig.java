@@ -4,13 +4,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-/**
- * Allows the Vite dev server to call the API directly.
- *
- * The frontend also proxies /api to :8080 (see vite.config.js), so in normal
- * development CORS never triggers. This is here for the cases where the React
- * app is opened on a different port or served from a build preview.
- */
+/** Allows the Vite dev server to call the API directly. */
 @Configuration
 public class CorsConfig implements WebMvcConfigurer {
 

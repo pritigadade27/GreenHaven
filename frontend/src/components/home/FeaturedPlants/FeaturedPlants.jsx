@@ -7,9 +7,7 @@ import './FeaturedPlants.css';
 export default function FeaturedPlants() {
   const { getFeatured, CATALOGUE } = useCatalogue();
   const ref = useScrollReveal();
-  // Four, not eight: two rows of product cards made this section 1576px tall,
-  // so it could never be seen in one screen. The "View all" link below carries
-  // anyone who wants the rest.
+  // Four, not eight: two rows of product cards made this section 1576px tall, so it could never be.
   const plants = getFeatured().slice(0, 4);
 
   return (

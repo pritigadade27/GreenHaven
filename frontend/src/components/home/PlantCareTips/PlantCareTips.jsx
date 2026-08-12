@@ -33,15 +33,13 @@ const TOPICS = [
   },
 ];
 
-// Real tips lifted straight from the care cards, so the section and the
-// product pages can never contradict each other.
+// Real tips lifted straight from the care cards, so the section and the product pages can never.
 const FROM_THE_CARDS = ['peace-lily', 'monstera-deliciosa', 'spider-plant'];
 
 export default function PlantCareTips() {
   const { getPlantBySlug } = useCatalogue();
   const ref = useScrollReveal();
-  // The care-cards panel is now its own section, so it needs its own observer
-  // — one ref cannot reveal two separate elements.
+  // The care-cards panel is now its own section, so it needs its own observer — one ref cannot.
   const cardsRef = useScrollReveal();
   const picked = FROM_THE_CARDS.map(getPlantBySlug).filter(Boolean);
 
@@ -79,8 +77,7 @@ export default function PlantCareTips() {
       </div>
     </section>
 
-    {/* A separate section, not a second half of the one above: together they
-        made a 1260px block that no laptop could show at once. */}
+    {/* A separate section, not a second half of the one above: together they made a 1260px block that. */}
     <section className="care-cards section section--tint" ref={cardsRef}>
       <div className="container">
         {/* ------------------------------------------- pulled from real data */}

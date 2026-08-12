@@ -25,6 +25,10 @@ export MYSQL_PWD
 ENV_FILE="$(dirname "$0")/../.env"
 
 Q() { "$MYSQL" --default-character-set=utf8mb4 -u priti green_haven -N -B -e "$1"; }
+
+# Shared, foreign-key-ordered teardown. Each suite used to roll its own and
+# every one was incomplete, so cleanup aborted on the first FK error.
+. "$(cd "$(dirname "$0")" && pwd)/cleanup.sh"
 pass=0; fail=0
 check() {
   if [ "$2" = "$3" ]; then printf "  PASS  %-52s %s\n" "$1" "$3"; pass=$((pass+1))
@@ -96,6 +100,12 @@ echo "== CLEANUP =="
 Q "DELETE FROM contact_message WHERE email='smoke@example.in';
    DELETE FROM newsletter_subscriber WHERE email='smoke@example.in';" >/dev/null
 echo "  test rows removed"
+
+# Shared teardown: returns consumed stock, then removes the run in
+# foreign-key order. Rolling its own left accounts behind on every run.
+purge_test_accounts "moved%@example.com"
+assert_clean "moved%@example.com"
+
 
 echo
 echo "  $pass passed, $fail failed"

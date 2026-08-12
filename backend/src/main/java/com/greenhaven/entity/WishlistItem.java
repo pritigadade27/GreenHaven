@@ -1,4 +1,6 @@
-package com.greenhaven.model;
+package com.greenhaven.entity;
+
+import java.time.Instant;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,39 +12,33 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
-/**
- * One extra photograph of a product.
- *
- * plant.image remains the primary shot — every card, order snapshot and
- * invoice already points at it. These are the additional angles the product
- * page can page through.
- */
+/** A plant a signed-in customer has saved. See {@link CartItem}. */
 @Entity
-@Table(name = "plant_image")
-public class PlantImage {
+@Table(name = "wishlist_item")
+public class WishlistItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private AppUser user;
+
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "plant_id", nullable = false)
     private Plant plant;
 
-    @Column(nullable = false, length = 255)
-    private String url;
-
-    @Column(name = "sort_order", nullable = false)
-    private int sortOrder;
+    @Column(name = "added_at", insertable = false, updatable = false)
+    private Instant addedAt;
 
     public Long getId() { return id; }
+
+    public AppUser getUser() { return user; }
+    public void setUser(AppUser user) { this.user = user; }
 
     public Plant getPlant() { return plant; }
     public void setPlant(Plant plant) { this.plant = plant; }
 
-    public String getUrl() { return url; }
-    public void setUrl(String url) { this.url = url; }
-
-    public int getSortOrder() { return sortOrder; }
-    public void setSortOrder(int sortOrder) { this.sortOrder = sortOrder; }
+    public Instant getAddedAt() { return addedAt; }
 }

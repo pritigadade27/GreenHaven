@@ -6,14 +6,7 @@ import { useCatalogue } from '../../../context/CatalogueContext.jsx';
 import useScrollReveal from '../../../hooks/useScrollReveal.js';
 import './NewArrivals.css';
 
-/**
- * The most recently added plants.
- *
- * Reads the `newArrival` flag rather than slicing the catalogue by id, so what
- * counts as new is a decision the shop owner makes in the admin, not an
- * accident of insertion order. The section hides itself entirely when nothing
- * is flagged — an empty "New Arrivals" heading is worse than none.
- */
+/** The most recently added plants. */
 export default function NewArrivals() {
   const ref = useScrollReveal();
   const { CATALOGUE } = useCatalogue();

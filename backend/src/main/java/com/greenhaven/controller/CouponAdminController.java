@@ -23,18 +23,7 @@ import com.greenhaven.service.CouponAdminService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
-/**
- * Discount codes.
- *
- *   GET   /api/admin/coupons            list, with how much each has cost
- *   POST  /api/admin/coupons            create
- *   PUT   /api/admin/coupons/{id}       edit
- *   PATCH /api/admin/coupons/{id}/state turn on or off
- *
- * Every change is written to the audit log: a discount code is money going out
- * of the door, and who created one is exactly the kind of thing a shop needs to
- * be able to answer later.
- */
+/** Discount codes. */
 @RestController
 @RequestMapping("/api/admin/coupons")
 @PreAuthorize("hasRole('ADMIN')")

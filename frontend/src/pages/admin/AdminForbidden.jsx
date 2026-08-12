@@ -1,11 +1,6 @@
 import Icon from '../../components/common/Icon/Icon.jsx';
 
-/**
- * 403 for a signed-in account without ROLE_ADMIN.
- *
- * Says only that access was refused — never what lives behind it, and never
- * whether the account, the role or the session was the problem.
- */
+/** 403 for a signed-in account without ROLE_ADMIN. */
 export default function AdminForbidden() {
   return (
     <div className="admin-login">

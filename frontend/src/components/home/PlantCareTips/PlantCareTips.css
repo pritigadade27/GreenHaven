@@ -175,8 +175,7 @@
   }
 }
 
-/* The whole card is the target, not just the plant's name — a 40px link inside
-   a 300px card is a hard thing to hit, especially on a phone. */
+/* The whole card is the target, not just the plant's name — a 40px link inside a 300px card is a. */
 .care__card-link {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;

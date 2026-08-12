@@ -18,8 +18,7 @@ export default function ProfileOverview() {
   const [flash, setFlash] = useState(null);
   const [busy, setBusy] = useState(false);
 
-  // Email lives behind its own form: it needs the password, and it does not
-  // take effect until the new address is confirmed.
+  // Email lives behind its own form: it needs the password, and it does not take effect until the.
   const [emailForm, setEmailForm] = useState({ email: '', password: '' });
   const [emailOpen, setEmailOpen] = useState(false);
   const [pendingToken, setPendingToken] = useState('');

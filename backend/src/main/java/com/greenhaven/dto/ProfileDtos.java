@@ -10,12 +10,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-/**
- * Everything the signed-in customer sees about themselves.
- *
- * Grouped in one file the way AdminDtos already is, so the profile's shapes
- * stay together rather than scattering fifteen one-record files through dto/.
- */
+/** Everything the signed-in customer sees about themselves. */
 public final class ProfileDtos {
 
     private ProfileDtos() {
@@ -92,11 +87,7 @@ public final class ProfileDtos {
         }
     }
 
-    /**
-     * One step of the tracking strip. `state` is DONE, CURRENT, PENDING or
-     * CANCELLED — the UI draws from that rather than recomputing the order of
-     * fulfilment for itself.
-     */
+    /** One step of the tracking strip. */
     public record TimelineStep(String key, String label, String state, Instant at) {
     }
 
@@ -115,11 +106,7 @@ public final class ProfileDtos {
             boolean invoiceAvailable) {
     }
 
-    /**
-     * One issued document. `docType` is INVOICE or CREDIT_NOTE — the page must
-     * be able to tell them apart, because one says money was taken and the
-     * other says it is owed back.
-     */
+    /** One issued document. */
     public record InvoiceRow(
             String invoiceNumber,
             String orderNumber,
@@ -159,8 +146,7 @@ public final class ProfileDtos {
             @Size(min = 2, max = 120, message = "Use between 2 and 120 characters.")
             String fullName,
 
-            // Optional, but must be a real number if given. An empty string is
-            // how the form says "no number", and is normalised to null.
+            // Optional, but must be a real number if given.
             @Pattern(regexp = PHONE + "|^$", message = "Enter a 10-digit Indian mobile number.")
             String phone,
 

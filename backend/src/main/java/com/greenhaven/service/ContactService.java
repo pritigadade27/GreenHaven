@@ -5,8 +5,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.greenhaven.dto.ContactRequest;
 import com.greenhaven.dto.NewsletterRequest;
-import com.greenhaven.model.ContactMessage;
-import com.greenhaven.model.NewsletterSubscriber;
+import com.greenhaven.entity.ContactMessage;
+import com.greenhaven.entity.NewsletterSubscriber;
 import com.greenhaven.repository.ContactMessageRepository;
 import com.greenhaven.repository.NewsletterSubscriberRepository;
 

@@ -23,8 +23,7 @@ export default function Newsletter() {
     setStatus('sending');
     try {
       const reply = await contactApi.subscribe(email);
-      // Subscribing twice is not an error worth scolding anyone over, so the
-      // server's own wording is used — it covers both cases gracefully.
+      // Subscribing twice is not an error worth scolding anyone over, so the server's own wording is.
       setMessage(reply?.message || 'Thank you. Look for the first letter next month.');
       setStatus('done');
       setEmail('');

@@ -9,7 +9,7 @@ import com.greenhaven.dto.LoginRequest;
 import com.greenhaven.dto.RegisterRequest;
 import com.greenhaven.dto.UserDto;
 import com.greenhaven.exception.ResourceNotFoundException;
-import com.greenhaven.model.AppUser;
+import com.greenhaven.entity.AppUser;
 import com.greenhaven.repository.AppUserRepository;
 import com.greenhaven.security.JwtService;
 
@@ -51,9 +51,7 @@ public class AuthService {
             "$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy";
 
     public AuthResponse login(LoginRequest request) {
-        // The same message is returned for an unknown email and a wrong
-        // password, so this endpoint cannot be used to discover which
-        // addresses have accounts.
+        // The same message is returned for an unknown email and a wrong password, so this endpoint cannot.
         AppUser user = users.findByEmail(request.email().trim()).orElse(null);
 
         if (user == null) {
@@ -65,11 +63,7 @@ public class AuthService {
             throw new IllegalArgumentException("Email or password is incorrect.");
         }
 
-        // Checked after the password, not before: answering differently to a
-        // blocked account than to a wrong password would tell an attacker which
-        // addresses are real. The JwtAuthFilter refuses a blocked user's token
-        // on every request anyway — this stops the browser signing them in and
-        // then failing at everything they touch.
+        // Checked after the password, not before: answering differently to a blocked account than to a.
         if (user.isBlocked()) {
             throw new IllegalArgumentException(
                     "This account has been suspended. Please contact us at hello@greenhaven.in.");

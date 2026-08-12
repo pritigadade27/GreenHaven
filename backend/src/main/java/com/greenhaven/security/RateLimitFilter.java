@@ -25,8 +25,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 /** Per-IP rate limiting on the endpoints that are worth attacking. */
 @Component
-// One step ahead of springSecurityFilterChain, so throttling happens before
-// any authentication work is done.
+// One step ahead of springSecurityFilterChain, so throttling happens before any authentication.
 @Order(SecurityProperties.DEFAULT_FILTER_ORDER - 1)
 public class RateLimitFilter extends OncePerRequestFilter {
 
@@ -36,11 +35,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
         }
     }
 
-    /**
-     * Normalises the URI before matching. Without this, cosmetic variations
-     * like a trailing slash or a `;matrix=param` segment produce a different
-     * string and slip past the rule while still reaching the same controller.
-     */
+    /** Normalises the URI before matching. */
     private static String normalise(String uri) {
         int semi = uri.indexOf(';');
         if (semi >= 0) uri = uri.substring(0, semi);
@@ -54,11 +49,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
     /** Peer addresses whose X-Forwarded-For header may be believed. */
     private final Set<String> trustedProxies;
 
-    /**
-     * Volatile because every request thread reads and writes it. A torn or
-     * stale read here only means an extra sweep, but this is a security
-     * control and it should not have a data race in it at all.
-     */
+    /** Volatile because every request thread reads and writes it. */
     private volatile Instant lastSweep = Instant.EPOCH;
 
     public RateLimitFilter(
@@ -71,25 +62,19 @@ public class RateLimitFilter extends OncePerRequestFilter {
 
         this.rules = new Rule[] {
             new Rule("POST", "/api/auth/login", loginLimit, Duration.ofMinutes(15)),
-            // The admin credential opens every order and customer record, so it
-            // gets a tighter cap than a customer's.
+            // The admin credential opens every order and customer record, so it gets a tighter cap than a.
             new Rule("POST", "/api/admin/auth/login", 5, Duration.ofMinutes(15)),
             new Rule("POST", "/api/auth/register", registerLimit, Duration.ofHours(1)),
-            // A reset both sends mail and probes for an account, so it is
-            // capped tighter than sign-in.
+            // A reset both sends mail and probes for an account, so it is capped tighter than sign-in.
             new Rule("POST", "/api/auth/forgot-password", 5, Duration.ofHours(1)),
             new Rule("POST", "/api/auth/reset-password", 10, Duration.ofHours(1)),
             new Rule("POST", "/api/contact", formLimit, Duration.ofHours(1)),
             new Rule("POST", "/api/newsletter", formLimit, Duration.ofHours(1)),
             // Every checkout opens a real order on Razorpay's side.
             new Rule("POST", "/api/orders", checkoutLimit, Duration.ofHours(1)),
-            // Uploads put bytes on our disk. Generous enough for several
-            // reviews' worth of photographs, tight enough not to be storage.
+            // Uploads put bytes on our disk.
             new Rule("POST", "/api/reviews/image", 20, Duration.ofHours(1)),
-            // Quoting a code says whether that code exists, which makes this a
-            // guessing oracle: left open, someone works through likely words
-            // until they find a live discount. Loose enough for a customer
-            // mistyping the code on their card a few times, and no looser.
+            // Quoting a code says whether that code exists, which makes this a guessing oracle: left open.
             new Rule("POST", "/api/coupons/quote", couponLimit, Duration.ofMinutes(15)),
         };
 
@@ -150,10 +135,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
                 .formatted(minutes, minutes == 1 ? "" : "s"));
     }
 
-    /**
-     * Drops keys nobody has touched in an hour, at most once a minute.
-     * Without this the map is an unbounded memory leak keyed by attacker IP.
-     */
+    /** Drops keys nobody has touched in an hour, at most once a minute. */
     private void sweep(Instant now) {
         if (Duration.between(lastSweep, now).toMinutes() < 1) return;
         lastSweep = now;

@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.greenhaven.model.Badge;
+import com.greenhaven.entity.Badge;
 
 public interface BadgeRepository extends JpaRepository<Badge, Long> {
 

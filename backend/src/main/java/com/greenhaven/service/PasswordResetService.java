@@ -15,25 +15,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.greenhaven.model.AppUser;
-import com.greenhaven.model.PasswordReset;
+import com.greenhaven.entity.AppUser;
+import com.greenhaven.entity.PasswordReset;
 import com.greenhaven.repository.AppUserRepository;
 import com.greenhaven.repository.PasswordResetRepository;
 
-/**
- * Forgotten passwords.
- *
- * Two rules shape everything here.
- *
- * The first: never reveal whether an address has an account. "No such user"
- * turns this endpoint into a free membership check, so the response is
- * identical either way and the work is simply skipped when there is nobody to
- * email.
- *
- * The second: the token is a temporary password, so only its SHA-256 is
- * stored. A leak of this table then grants nothing — the same reason the
- * password column holds a hash rather than a password.
- */
+/** Forgotten passwords. */
 @Service
 public class PasswordResetService {
 
@@ -60,14 +47,7 @@ public class PasswordResetService {
         this.exposeToken = exposeToken;
     }
 
-    /**
-     * Starts a reset. Returns the token ONLY when explicitly configured to.
-     *
-     * With no mail server connected there is otherwise no way to complete the
-     * flow, but returning a reset token to whoever asks would let anyone take
-     * any account. So it is off unless greenhaven.auth.expose-reset-token is
-     * set, and the startup log says so loudly.
-     */
+    /** Starts a reset. */
     @Transactional
     public Optional<String> request(String email, String ip) {
         String address = email == null ? "" : email.trim().toLowerCase();
@@ -85,8 +65,7 @@ public class PasswordResetService {
             return Optional.empty();
         }
 
-        // Any earlier token stops working the moment a new one is issued, so a
-        // link forwarded or left in an old inbox cannot be used later.
+        // Any earlier token stops working the moment a new one is issued, so a link forwarded or left in.
         resets.markAllUsedFor(user.getId(), Instant.now());
 
         byte[] raw = new byte[TOKEN_BYTES];
@@ -101,8 +80,7 @@ public class PasswordResetService {
         resets.save(row);
 
         if (!exposeToken) {
-            // The link belongs in an email. Until one can be sent, this is the
-            // only place it appears.
+            // The link belongs in an email.
             log.info("Password reset token for {}: {}", user.getEmail(), token);
         }
         return exposeToken ? Optional.of(token) : Optional.empty();
@@ -133,8 +111,7 @@ public class PasswordResetService {
         user.setPasswordHash(encoder.encode(newPassword));
         users.save(user);
 
-        // Single use, marked before the method returns so a double submit
-        // cannot spend the same token twice.
+        // Single use, marked before the method returns so a double submit cannot spend the same token.
         row.setUsedAt(Instant.now());
         resets.save(row);
         log.info("Password reset completed for user {}.", user.getId());

@@ -10,8 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.greenhaven.model.AdminSession;
-import com.greenhaven.model.AppUser;
+import com.greenhaven.entity.AdminSession;
+import com.greenhaven.entity.AppUser;
 import com.greenhaven.repository.AdminSessionRepository;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -43,8 +43,7 @@ public class AdminSessionService {
     @Transactional
     public String open(AppUser admin, HttpServletRequest request) {
         if (singleSession) {
-            // Revoke anything still open. A session left behind on a shared
-            // machine should not survive the next sign-in somewhere else.
+            // Revoke anything still open.
             List<AdminSession> live = sessions.findByUserIdAndRevokedFalse(admin.getId());
             for (AdminSession old : live) {
                 old.setRevoked(true);
@@ -63,13 +62,7 @@ public class AdminSessionService {
         return session.getJti();
     }
 
-    /**
-     * True when the token may still be used, and touches the idle clock.
-     *
-     * REQUIRES_NEW because this runs inside a security filter, before any
-     * request transaction exists — and because the touch must persist even if
-     * the request it belongs to later rolls back.
-     */
+    /** True when the token may still be used, and touches the idle clock. */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public boolean isLive(String jti) {
         if (jti == null || jti.isBlank()) return false;
@@ -112,14 +105,7 @@ public class AdminSessionService {
         sessions.saveAll(live);
     }
 
-    /**
-     * Best-effort client address for the audit log.
-     *
-     * X-Forwarded-For is client-supplied and is NOT trusted for anything that
-     * grants or denies access — see RateLimitFilter, where believing it defeated
-     * the whole limiter. Here it only annotates a log line, so a spoofed value
-     * misleads a reader rather than bypassing a control.
-     */
+    /** Best-effort client address for the audit log. */
     public static String clientIp(HttpServletRequest request) {
         if (request == null) return null;
         String forwarded = request.getHeader("X-Forwarded-For");

@@ -7,11 +7,7 @@ import WhyChooseUs from '../../components/home/WhyChooseUs/WhyChooseUs.jsx';
 import PlantCareTips from '../../components/home/PlantCareTips/PlantCareTips.jsx';
 import Newsletter from '../../components/home/Newsletter/Newsletter.jsx';
 
-/**
- * Home page. Sections are added one per build step, in this order:
- * Hero -> Categories -> Featured -> Best Sellers -> Why Choose Us ->
- * Plant Care Tips -> Testimonials -> Newsletter -> Footer.
- */
+/** Home page. */
 export default function Home() {
   return (
     <>

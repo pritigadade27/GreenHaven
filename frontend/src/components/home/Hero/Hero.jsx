@@ -20,7 +20,7 @@ function Leaf({ className }) {
 }
 
 export default function Hero() {
-  const { ALL_PLANTS, PLANTS, CATEGORIES } = useCatalogue();
+  const { ALL_PLANTS, CATEGORIES } = useCatalogue();
   // Figures come from the catalogue itself, so they can never drift out of date.
   const stats = [
     { value: CATEGORIES.length, label: 'Plant categories' },
@@ -75,8 +75,7 @@ export default function Hero() {
           <Leaf className="hero__leaf hero__leaf--2 float--slow" />
           <Leaf className="hero__leaf hero__leaf--3 float" />
 
-          {/* Three plants rather than one — the arch carries the hero, the two
-              discs show the range without crowding it. */}
+          {/* Three plants rather than one — the arch carries the hero, the two discs show the range without. */}
           <figure className="hero__frame">
             <img
               src={heroPlant}

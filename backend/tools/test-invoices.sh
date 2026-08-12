@@ -21,6 +21,10 @@ ADMIN_PASSWORD=${ADMIN_PASSWORD:?set ADMIN_PASSWORD in test-env.sh}
 export MYSQL_PWD
 
 Q() { "$MYSQL" --default-character-set=utf8mb4 -u priti green_haven -N -B -e "$1"; }
+
+# Shared, foreign-key-ordered teardown. Each suite used to roll its own and
+# every one was incomplete, so cleanup aborted on the first FK error.
+. "$(cd "$(dirname "$0")" && pwd)/cleanup.sh"
 pass=0; fail=0
 check() {
   if [ "$2" = "$3" ]; then printf "  PASS  %-52s %s\n" "$1" "$3"; pass=$((pass+1))
@@ -60,6 +64,10 @@ print("yes" if needle in text else "no")' "$1" "$2"; }
 STAMP=$(date +%s)
 SLUG=snake-plant
 EM="inv$STAMP@example.com"
+# Residue from an earlier run, cleared BEFORE this run creates anything —
+# doing it afterwards deletes the accounts the suite is about to use.
+purge_test_accounts "inv%@example.com"
+
 TOK=$(curl -s -m 20 -X POST $API/auth/register -H 'Content-Type: application/json' \
   -d "{\"fullName\":\"Deepa Rane\",\"email\":\"$EM\",\"password\":\"Testing@123\"}" | jq_ token)
 EM2="inv2$STAMP@example.com"
@@ -199,9 +207,19 @@ check "…separate from the invoice one" "1" \
   "$(Q "SELECT COUNT(*) FROM document_sequence WHERE name='INVOICE';")"
 
 # ---- tidy up --------------------------------------------------------------
-Q "DELETE i FROM invoice i JOIN orders o ON o.id=i.order_id
-    JOIN app_user u ON u.id=o.user_id WHERE u.email IN ('$EM','$EM2');" >/dev/null
+# The orders go too. Removing only the ledger rows left PAID orders carrying an
+# invoice number that no invoice existed for — the exact contradiction this
+# ledger is meant to make impossible.
+purge_test_accounts "inv%@example.com"
+assert_clean "inv%@example.com"
 rm -rf "$WORK" "$BODY"
+
+# Teardown. Runs at the end as well as the start, so a finished run leaves
+# the database exactly as it found it.
+purge_test_accounts "inv%@example.com"
+assert_clean "inv%@example.com"
+rm -f "$BODY"
+
 
 echo
 echo "  $pass passed, $fail failed"

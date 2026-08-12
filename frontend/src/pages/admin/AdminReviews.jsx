@@ -104,9 +104,7 @@ export default function AdminReviews() {
                           )}
                         </td>
                         <td>
-                          {/* Ratings come in halves, so the glyphs are drawn
-                              from the whole part and the remainder is stated
-                              rather than rounded away. */}
+                          {/* Ratings come in halves, so the glyphs are drawn from the whole part and the remainder is stated. */}
                           {'★'.repeat(Math.floor(row.rating))}
                           <span className="admin-muted">
                             {'★'.repeat(5 - Math.ceil(row.rating))}
@@ -117,9 +115,7 @@ export default function AdminReviews() {
                           {row.title && <strong>{row.title}</strong>}
                           <span className="admin-sub">{row.body}</span>
                           {row.images?.length > 0 && (
-                            /* Shown because a photograph is the part of a review
-                               most likely to need taking down, and it cannot be
-                               judged from the text. Opens full size in a tab. */
+                            /* Shown because a photograph is the part of a review most likely to need taking down, and it. */
                             <span className="admin-review-photos">
                               {row.images.map((url, index) => (
                                 <a key={url} href={url} target="_blank" rel="noreferrer">

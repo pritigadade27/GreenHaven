@@ -23,6 +23,10 @@ export MYSQL_PWD
 ENV_FILE="$(dirname "$0")/../.env"
 
 Q() { "$MYSQL" --default-character-set=utf8mb4 -u priti green_haven -N -B -e "$1"; }
+
+# Shared, foreign-key-ordered teardown. Each suite used to roll its own and
+# every one was incomplete, so cleanup aborted on the first FK error.
+. "$(cd "$(dirname "$0")" && pwd)/cleanup.sh"
 pass=0; fail=0
 check() {
   if [ "$2" = "$3" ]; then printf "  PASS  %-54s %s\n" "$1" "$3"; pass=$((pass+1))
@@ -52,6 +56,11 @@ postc() { json "$3"; code -X "$1" "$2" -H "Authorization: Bearer $TOK" \
 
 SLUG=snake-plant
 STAMP=$(date +%s)
+# Residue from an earlier run, cleared BEFORE this run creates anything —
+# doing it afterwards deletes the accounts the suite is about to use.
+purge_test_accounts "rev%@example.com"
+restore_plant snake-plant
+
 reg() {
   curl -s -m 20 -X POST $API/auth/register -H 'Content-Type: application/json' \
     -d "{\"fullName\":\"$2\",\"email\":\"$1\",\"password\":\"Testing@123\"}" | jq_ token
@@ -64,17 +73,18 @@ A()  { curl -s -m 20 -H "Authorization: Bearer $TOK"  "$@"; }
 Ac() { code -H "Authorization: Bearer $TOK" "$@"; }
 
 # What the plant looked like before any of this, so it can be put back.
-SEED_RATING=$(Q "SELECT rating FROM plant WHERE slug='$SLUG';")
-SEED_COUNT=$(Q "SELECT review_count FROM plant WHERE slug='$SLUG';")
+# Restored to NULL/0, NOT to whatever is in the table right now. Capturing the
+# current value made this self-poisoning: an interrupted run left a rating
+# behind, the next run adopted it as "the seed", and the bad value became
+# permanent — a product showing stars with no reviews under it.
+SEED_RATING=NULL
+SEED_COUNT=0
 
 # The assertions below are absolute — "the average is 3.5", not "it moved by
 # 1.5" — because that is what makes them worth reading. So the product has to
 # start with no reviews. Residue from an earlier run is cleared; a real
 # customer review is not, and the suite stops rather than reporting a wall of
 # failures that look like defects.
-Q "DELETE r FROM review r JOIN app_user u ON u.id = r.user_id
-    JOIN plant p ON p.id = r.plant_id
-   WHERE p.slug = '$SLUG' AND u.email LIKE '%@example.com';" >/dev/null
 EXISTING=$(Q "SELECT COUNT(*) FROM review r JOIN plant p ON p.id = r.plant_id WHERE p.slug='$SLUG';")
 if [ "$EXISTING" != "0" ]; then
   echo "  $SLUG already has $EXISTING real review(s)."
@@ -266,14 +276,14 @@ check "5.5 is refused"  400 "$(postc PUT $API/reviews/$LIVE_ID '{"rating":5.5,"b
 
 echo "== CLEANUP =="
 rm -f "$BODY"
-Q "DELETE r FROM review r JOIN app_user u ON u.id=r.user_id WHERE u.email LIKE 'rev%@example.com';
-   DELETE n FROM notification n JOIN app_user u ON u.id=n.user_id WHERE u.email LIKE 'rev%@example.com';
-   DELETE p FROM payment p JOIN orders o ON o.id=p.order_id JOIN app_user u ON u.id=o.user_id WHERE u.email LIKE 'rev%@example.com';
-   DELETE i FROM order_item i JOIN orders o ON o.id=i.order_id JOIN app_user u ON u.id=o.user_id WHERE u.email LIKE 'rev%@example.com';
-   DELETE o FROM orders o JOIN app_user u ON u.id=o.user_id WHERE u.email LIKE 'rev%@example.com';
-   DELETE FROM app_user WHERE email LIKE 'rev%@example.com';
-   UPDATE plant SET rating=$SEED_RATING, review_count=$SEED_COUNT WHERE slug='$SLUG';" >/dev/null
-echo "  test accounts removed, $SLUG restored to $SEED_RATING / $SEED_COUNT"
+
+# Teardown. Runs at the end as well as the start, so a finished run leaves
+# the database exactly as it found it.
+purge_test_accounts "rev%@example.com"
+restore_plant snake-plant
+assert_clean "rev%@example.com"
+rm -f "$BODY"
+
 
 echo
 echo "  $pass passed, $fail failed"

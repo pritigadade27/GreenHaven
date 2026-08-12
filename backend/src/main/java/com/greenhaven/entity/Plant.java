@@ -1,4 +1,4 @@
-package com.greenhaven.model;
+package com.greenhaven.entity;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -20,8 +20,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 /** A product in the catalogue. */
-// Class-level, so every ManyToOne that points at a Plant is batched too —
-// @BatchSize is illegal on a ManyToOne property itself.
+// Class-level, so every ManyToOne that points at a Plant is batched too — @BatchSize is illegal.
 @BatchSize(size = 64)
 @Entity
 @Table(name = "plant")
@@ -122,10 +121,7 @@ public class Plant {
     @Column(name = "is_best_seller")
     private Boolean bestSeller = Boolean.FALSE;
 
-    /**
-     * Retired from the shop but kept for its history. Set instead of deleting
-     * whenever a product has been ordered.
-     */
+    /** Retired from the shop but kept for its history. */
     @Column(nullable = false)
     private boolean discontinued = false;
 
@@ -135,13 +131,7 @@ public class Plant {
     @Column(name = "created_at", insertable = false, updatable = false)
     private Instant createdAt;
 
-    /**
-     * Batched, not join-fetched. A fetch join on a collection forces Hibernate
-     * to apply the page limit in memory — it would read every plant to return
-     * twenty. Batching keeps LIMIT in SQL and collapses the per-row badge
-     * lookups from one query each into one per batch: listing 100 products
-     * went from 138 SELECTs to a handful.
-     */
+    /** Batched, not join-fetched. */
     @BatchSize(size = 64)
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(

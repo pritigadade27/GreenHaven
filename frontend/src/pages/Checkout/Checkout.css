@@ -1,6 +1,4 @@
-/* Checkout — form on the left, an unchangeable summary on the right.
-   The summary is read-only on purpose: quantity edits belong on the cart page,
-   not one click from a payment sheet. */
+/* Checkout — form on the left, an unchangeable summary on the right. */
 
 .checkout__grid {
   display: grid;
@@ -192,8 +190,7 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   font-size: var(--fs-sm);
-  /* Codes are printed in capitals and matched in capitals, so showing them
-     that way keeps what is typed and what is checked looking the same. */
+  /* Codes are printed in capitals and matched in capitals, so showing them that way keeps what is. */
   text-transform: uppercase;
 }
 
@@ -271,8 +268,7 @@
   font-size: var(--fs-xs);
 }
 
-/* Money coming off reads as a gain, so it is coloured like the free-delivery
-   note rather than like an error. */
+/* Money coming off reads as a gain, so it is coloured like the free-delivery note rather than. */
 .checkout__saved dt,
 .checkout__saved dd {
   color: #3d6639 !important;
@@ -398,8 +394,7 @@
   padding-top: calc(var(--navbar-height) + var(--space-xl));
 }
 
-/* Simulated payment sheet. Deliberately unlike the rest of the shop: nobody
-   should be able to mistake it for a real Razorpay window. */
+/* Simulated payment sheet. */
 .testpay {
   position: fixed;
   inset: 0;
@@ -495,8 +490,7 @@
   color: var(--color-primary);
 }
 
-/* Saved addresses at checkout. A returning customer picks one instead of
-   retyping what the account already knows. */
+/* Saved addresses at checkout. */
 .checkout__saved {
   display: flex;
   flex-direction: column;

@@ -1,4 +1,4 @@
-package com.greenhaven.model;
+package com.greenhaven.entity;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -13,14 +13,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
-/**
- * One issued document — an invoice, or a credit note offsetting one.
- *
- * An issued invoice is not editable and not deletable; that is what makes it
- * worth anything. So when a paid order is cancelled, the invoice stands and a
- * credit note is issued against it. Both rows remain, and the pair says what
- * actually happened: this was charged, and this was owed back.
- */
+/** One issued document — an invoice, or a credit note offsetting one. */
 @Entity
 @Table(name = "invoice")
 public class Invoice {
@@ -42,10 +35,7 @@ public class Invoice {
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;
 
-    /**
-     * Always positive. A credit note's direction is carried by its type, not
-     * by a negative figure that something could sum by mistake.
-     */
+    /** Always positive. */
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal amount = BigDecimal.ZERO;
 

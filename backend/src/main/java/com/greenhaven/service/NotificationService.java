@@ -10,9 +10,9 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.greenhaven.dto.ProfileDtos;
-import com.greenhaven.model.AppUser;
-import com.greenhaven.model.Notification;
-import com.greenhaven.model.Order;
+import com.greenhaven.entity.AppUser;
+import com.greenhaven.entity.Notification;
+import com.greenhaven.entity.Order;
 import com.greenhaven.repository.AppUserRepository;
 import com.greenhaven.repository.NotificationRepository;
 
@@ -30,14 +30,7 @@ public class NotificationService {
         this.users = users;
     }
 
-    /**
-     * Writes one notice.
-     *
-     * REQUIRES_NEW and a swallowed failure on purpose: this is a courtesy
-     * message, and it must never be the reason a payment or a status change
-     * rolls back. Losing a notification is a nuisance; losing the payment that
-     * caused it is not.
-     */
+    /** Writes one notice. */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void notify(AppUser user, Order order, String type, String title, String body) {
         try {

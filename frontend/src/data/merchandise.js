@@ -1,7 +1,6 @@
 /** Green Haven — everything that is not a living plant. */
 
-// Seeds — our own packaging, shot three ways: printed front, torn open
-// with the seeds spilling, and a close-up of the seeds themselves.
+// Seeds — our own packaging, shot three ways: printed front, torn open with the seeds spilling.
 import seedMarigoldFront from '../assets/images/seeds/seed-marigold-front.jpg';
 import seedSunflowerFront from '../assets/images/seeds/seed-sunflower-front.jpg';
 import seedRoseFront from '../assets/images/seeds/seed-rose-front.jpg';
@@ -73,14 +72,7 @@ const item = ({
   botanical: subtitle,
   category, price, mrp, image, rating, reviews, stock,
   short, description,
-  // NOT a blanket 'safe'. Pest spray and fertiliser are emphatically not
-  // pet-safe, and a shop whose whole promise is honest pet labelling must not
-  // return a pesticide under "only show pet-safe". An item that is genuinely
-  // inert says so for itself; everything else stays unrated, and an unrated
-  // product is simply excluded from that filter.
-  // Light, water and care level are plant concepts. Giving a wheelbarrow
-  // 'Easy / bright indirect / low' put 54 tools and pots into the plant-care
-  // filters. null keeps them out.
+  // NOT a blanket 'safe'.
   petSafety: pet,
   difficulty,
   light: null,

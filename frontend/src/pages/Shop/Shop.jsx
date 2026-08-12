@@ -12,8 +12,7 @@ const SORTS = {
   featured: { label: 'Featured', fn: (a, b) => Number(!!b.featured) - Number(!!a.featured) },
   'price-asc': { label: 'Price: low to high', fn: (a, b) => a.price - b.price },
   'price-desc': { label: 'Price: high to low', fn: (a, b) => b.price - a.price },
-  // Unrated products sort last rather than first: `null - 4.8` is NaN, and a
-  // NaN comparator leaves the order to chance.
+  // Unrated products sort last rather than first: `null - 4.8` is NaN, and a NaN comparator leaves.
   rating: { label: 'Best rated', fn: (a, b) => (b.rating ?? -1) - (a.rating ?? -1) },
   popular: { label: 'Most reviewed', fn: (a, b) => (b.reviews ?? 0) - (a.reviews ?? 0) },
   name: { label: 'A – Z', fn: (a, b) => a.name.localeCompare(b.name) },
@@ -65,8 +64,7 @@ export default function Shop() {
         .filter(Boolean)
         .some((field) => String(field).toLowerCase().includes(q));
     }).sort(SORTS[sort].fn);
-    // CATALOGUE must stay a dependency: it arrives from the API after first
-    // render, and omitting it leaves this holding the empty initial array.
+    // CATALOGUE must stay a dependency: it arrives from the API after first render, and omitting it.
   }, [CATALOGUE, query, category, petSafeOnly, difficulty, light, maxPrice,
       inStockOnly, newArrivalOnly, sort]);
 
@@ -79,12 +77,10 @@ export default function Shop() {
   const safePage = Math.min(page, pageCount);
   const visible = results.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
-  // Any change to the result set must return to page one, or a customer who
-  // filters while on page 5 lands on an empty grid.
+  // Any change to the result set must return to page one, or a customer who filters while on page 5.
   useEffect(() => {
     setPage(1);
-    // CATALOGUE must stay a dependency: it arrives from the API after first
-    // render, and omitting it leaves this holding the empty initial array.
+    // CATALOGUE must stay a dependency: it arrives from the API after first render, and omitting it.
   }, [CATALOGUE, query, category, petSafeOnly, difficulty, light, maxPrice,
       inStockOnly, newArrivalOnly, sort]);
 
@@ -104,8 +100,7 @@ export default function Shop() {
     (maxPrice < MAX_PRICE ? 1 : 0);
 
   const clearAll = () => {
-    // The URL is reset too — newArrival lives there, and leaving it behind
-    // would make "clear all" a lie.
+    // The URL is reset too — newArrival lives there, and leaving it behind would make "clear all" a.
     setParams(query ? { q: query } : {}, { replace: true });
     setMaxPrice(MAX_PRICE);
     setPetSafeOnly(false);
@@ -116,8 +111,7 @@ export default function Shop() {
 
   return (
     <>
-      {/* The visible header band was removed by design; a document still needs
-          exactly one h1 for screen readers and for search engines. */}
+      {/* The visible header band was removed by design; a document still needs exactly one h1 for screen. */}
       <h1 className="sr-only">
         {category
           ? `Shop ${CATEGORIES.find((c) => c.slug === category)?.name ?? category}`
@@ -169,10 +163,7 @@ export default function Shop() {
 
             <div className="filter-group">
               <h3>Maximum price</h3>
-              {/* One handle, not two. A shopper filters to a budget — "show me
-                  everything under ₹800" — and a minimum price is something
-                  almost nobody wants. Two stacked sliders also read as a
-                  mistake, because they look identical. */}
+              {/* One handle, not two. */}
               <input
                 type="range"
                 min={199}
@@ -307,10 +298,7 @@ export default function Shop() {
               )}
             </p>
 
-            {/* Loading is not the same as "nothing matches". Showing the empty
-                state while the catalogue is still in flight tells the customer
-                the shop is empty, which is the one thing it must never say by
-                mistake. */}
+            {/* Loading is not the same as "nothing matches". */}
             {!ready ? (
               <div className="shop__grid" aria-hidden="true">
                 {Array.from({ length: 8 }, (_, i) => (
@@ -351,8 +339,7 @@ export default function Shop() {
                     </button>
 
                     {Array.from({ length: pageCount }, (_, i) => i + 1)
-                      // Show the ends and a window around the current page, so
-                      // 30 pages do not produce 30 buttons on a phone.
+                      // Show the ends and a window around the current page, so 30 pages do not produce 30 buttons on a.
                       .filter(
                         (n) =>
                           n === 1 ||

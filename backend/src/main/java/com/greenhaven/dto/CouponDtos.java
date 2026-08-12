@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
-import com.greenhaven.model.Coupon;
+import com.greenhaven.entity.Coupon;
 import com.greenhaven.service.PricingService;
 
 import jakarta.validation.Valid;
@@ -22,12 +22,7 @@ public final class CouponDtos {
     private CouponDtos() {
     }
 
-    /**
-     * A basket to price, plus the code to try on it.
-     *
-     * Slugs and quantities, exactly as checkout takes them — never a subtotal.
-     * The server works out what the basket is worth.
-     */
+    /** A basket to price, plus the code to try on it. */
     public record QuoteRequest(
             @NotBlank(message = "Enter a code.")
             @Size(max = 40, message = "That is not a code we issue.")
@@ -43,13 +38,7 @@ public final class CouponDtos {
         }
     }
 
-    /**
-     * What the basket costs with the code applied — or why it does not apply.
-     *
-     * The totals come back either way, so the page can show the real figures
-     * whichever answer it got, rather than keeping its own copy of the
-     * arithmetic to fall back on.
-     */
+    /** What the basket costs with the code applied — or why it does not apply. */
     public record QuoteResponse(
             boolean applied,
             String code,

@@ -68,22 +68,14 @@ export function useCatalogue() {
   return ctx;
 }
 
-/**
- * Fetches the whole catalogue, one page at a time.
- *
- * The API caps a page at 100 rows on purpose, so a crafted request cannot ask
- * for the entire table in one go. Asking for 500 silently returned 100 — the
- * shop showed 100 of 154 products and every category count was wrong, with no
- * error anywhere. Respect the cap and page through it instead of raising it.
- */
+/** Fetches the whole catalogue, one page at a time. */
 async function fetchEveryProduct() {
   const SIZE = 100;
   const first = await request(`/plants?page=0&size=${SIZE}`);
   const products = [...first.content];
 
   for (let page = 1; page < first.totalPages; page += 1) {
-    // Sequential rather than parallel: three requests against a local API is
-    // nothing, and it keeps the order stable and the server unhurried.
+    // Sequential rather than parallel: three requests against a local API is nothing, and it keeps.
     const next = await request(`/plants?page=${page}&size=${SIZE}`);
     products.push(...next.content);
   }
@@ -98,8 +90,7 @@ function adapt(dto) {
     short: dto.shortDescription ?? dto.short ?? '',
     tip: dto.careTip ?? dto.tip ?? '',
     image: resolveImage(dto.image),
-    // Each shot goes through the same resolver as the primary, so a
-    // bundled asset and an uploaded file both work.
+    // Each shot goes through the same resolver as the primary, so a bundled asset and an uploaded.
     gallery: (dto.gallery ?? []).map(resolveImage).filter(Boolean),
     badges: dto.badges ?? [],
     isMerchandise: Boolean(dto.merchandise ?? dto.isMerchandise),

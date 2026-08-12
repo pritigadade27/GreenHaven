@@ -1,6 +1,4 @@
-/* My Profile. Uses the shop's tokens throughout — no new colours, type or
-   easing are introduced here, so it reads as part of Green Haven rather than a
-   panel bolted on. */
+/* My Profile. */
 
 .profile {
   padding-top: calc(var(--navbar-height) + var(--space-xl));
@@ -466,8 +464,7 @@
   font-size: 0.85em;
 }
 
-/* Marks a credit note in the documents list. Muted rather than alarming: it
-   is a normal document, not a problem. */
+/* Marks a credit note in the documents list. */
 .pcredit {
   display: block;
   margin-top: 3px;
@@ -740,8 +737,7 @@
   text-align: center;
 }
 
-/* The connector, drawn from each dot to the next rather than as a bar behind
-   the row — so it inherits the step's own state colour. */
+/* The connector, drawn from each dot to the next rather than as a bar behind the row — so it. */
 .ptrack__step::before {
   content: '';
   position: absolute;
@@ -834,9 +830,7 @@
 .ptable-wrap {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
-  /* Belt and braces: a flex or grid item's automatic minimum is its content,
-     and the table below is 560px wide. Without this a phone-width page is
-     pushed sideways by a table that was supposed to scroll inside its own box. */
+  /* Belt and braces: a flex or grid item's automatic minimum is its content, and the table below is. */
   min-width: 0;
 }
 
@@ -1152,10 +1146,7 @@
 }
 
 @media (max-width: 1024px) {
-  /* minmax(0, 1fr), not 1fr: a bare `1fr` track takes its minimum from the
-     content, so the 560px-wide table inside .ptable-wrap sizes the whole
-     column and pushes the page sideways — the scroll box never gets the
-     chance to scroll. */
+  /* minmax(0, 1fr), not 1fr: a bare `1fr` track takes its minimum from the content, so the. */
   .profile__grid {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -1241,18 +1232,14 @@
   }
 }
 
-/* Below 640px the tables stop being tables. Six columns cannot be read on a
-   phone whichever way they are scrolled, so each row becomes its own stacked
-   card with the column heading carried in data-label. It also removes the
-   560px floor that was pushing the page sideways. */
+/* Below 640px the tables stop being tables. */
 @media (max-width: 640px) {
   .ptable {
     min-width: 0;
   }
 
   .ptable thead {
-    /* Hidden from sight, not from screen readers' reading order — the labels
-       are repeated per cell below. */
+    /* Hidden from sight, not from screen readers' reading order — the labels are repeated per cell. */
     position: absolute;
     width: 1px;
     height: 1px;
@@ -1288,8 +1275,7 @@
     text-align: right;
   }
 
-  /* The secondary line (payment method, invoice number) drops under its value
-     rather than competing with it for the same row. */
+  /* The secondary line (payment method, invoice number) drops under its value rather than competing. */
   .ptable td small {
     flex-basis: 100%;
     text-align: right;
@@ -1372,8 +1358,7 @@
   }
 }
 
-/* "Rate & review" on a delivered order's line. Only rendered once the parcel
-   has arrived, so it never appears as a promise the API would refuse. */
+/* "Rate & review" on a delivered order's line. */
 .porder__rate {
   display: inline-flex;
   align-items: center;

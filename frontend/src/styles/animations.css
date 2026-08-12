@@ -115,19 +115,13 @@
   will-change: opacity, transform;
 }
 
-/* Release the promoted layer once the animation is done — ~30 of these were
-   being held permanently on the home page. */
+/* Release the promoted layer once the animation is done — ~30 of these were being held. */
 .reveal.is-visible {
   will-change: auto;
 }
 
 .reveal.is-visible {
-  /* opacity: 1 explicitly, NOT only via the animation's forwards fill.
-     Content that is invisible unless an animation completes is content the
-     customer may never see: a dropped animation frame, a throttled background
-     tab, or a browser that skips the keyframes leaves the base `opacity: 0`
-     standing and the section renders blank. The animation is decoration; this
-     line is what actually guarantees the product is on screen. */
+  /* opacity: 1 explicitly, NOT only via the animation's forwards fill. */
   opacity: 1;
   animation: fadeUp var(--dur-reveal) var(--ease-out) forwards;
 }

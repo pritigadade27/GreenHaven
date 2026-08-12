@@ -79,8 +79,7 @@ export default function AdminCoupons() {
         description: form.description.trim() || null,
         discountType: form.discountType,
         discountValue: Number(form.discountValue),
-        // Empty means "no ceiling", which is not the same as zero — so these
-        // go as null rather than being coerced into a number.
+        // Empty means "no ceiling", which is not the same as zero — so these go as null rather than being.
         maxDiscount: form.maxDiscount === '' ? null : Number(form.maxDiscount),
         minOrderValue: form.minOrderValue === '' ? 0 : Number(form.minOrderValue),
         freeShipping: form.freeShipping,

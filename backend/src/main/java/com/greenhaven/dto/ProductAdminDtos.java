@@ -47,8 +47,7 @@ public final class ProductAdminDtos {
             @Size(max = 150, message = "Keep the name under 150 characters.")
             String name,
 
-            // Derived from the name when left empty. Sent explicitly only when
-            // the admin means to change a live URL.
+            // Derived from the name when left empty.
             @Size(max = 120) String slug,
 
             @Size(max = 150) String botanicalName,
@@ -82,10 +81,7 @@ public final class ProductAdminDtos {
             Boolean discontinued) {
     }
 
-    /**
-     * What actually happened to a delete request. The two are different enough
-     * that the admin needs to be told which one they got.
-     */
+    /** What actually happened to a delete request. */
     public record DeleteOutcome(boolean deleted, boolean discontinued, String message) {
     }
 

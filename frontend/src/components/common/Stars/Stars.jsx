@@ -8,17 +8,7 @@ const STEPS = [0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5];
 
 const label = (n) => `${n} star${n === 1 ? '' : 's'}`;
 
-/**
- * A row of stars.
- *
- * Read-only by default. Pass `onChange` and it becomes a radio group the
- * keyboard can drive — arrow keys and Tab both work, because a rating control
- * that only responds to a mouse excludes people for no reason.
- *
- * Ratings are given and drawn to the half star: 4.3 reads as four and a half
- * rather than being rounded to four, which is what shoppers expect and what
- * every other shop does.
- */
+/** A row of stars. */
 export default function Stars({
   value = 0,
   size = 18,
@@ -28,8 +18,6 @@ export default function Stars({
 }) {
   const interactive = typeof onChange === 'function';
   // What the pointer is over, so the row previews the rating under the cursor.
-  // With halves this is not decoration: the left and right halves of one star
-  // mean different things and nothing else says which one you are on.
   const [hovered, setHovered] = useState(null);
 
   if (interactive) {
@@ -51,9 +39,7 @@ export default function Stars({
                 </span>
               )}
 
-              {/* Two hit areas over each star, left half and right. They carry
-                  the radios, so the control is a real radio group underneath
-                  and the arrow keys step through it half a star at a time. */}
+              {/* Two hit areas over each star, left half and right. */}
               {[n - 0.5, n].map((step) => (
                 <label
                   key={step}
@@ -85,8 +71,7 @@ export default function Stars({
   return (
     <span className="stars" role="img" aria-label={`${value} out of 5 stars`}>
       {[1, 2, 3, 4, 5].map((n) => {
-        // A half star is the filled glyph clipped down the middle, laid over
-        // the empty one — no second icon and no fractional path maths.
+        // A half star is the filled glyph clipped down the middle, laid over the empty one — no second.
         const half = rounded === n - 0.5;
         return (
           <span key={n} className={`stars__one ${half ? 'is-half' : ''}`} aria-hidden="true">

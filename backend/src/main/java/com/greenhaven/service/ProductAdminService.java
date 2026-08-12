@@ -9,8 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.greenhaven.dto.ProductAdminDtos;
 import com.greenhaven.exception.ResourceNotFoundException;
-import com.greenhaven.model.Category;
-import com.greenhaven.model.Plant;
+import com.greenhaven.entity.Category;
+import com.greenhaven.entity.Plant;
 import com.greenhaven.repository.CategoryRepository;
 import com.greenhaven.repository.OrderItemRepository;
 import com.greenhaven.repository.PlantRepository;
@@ -50,8 +50,7 @@ public class ProductAdminService {
 
         Plant plant = new Plant();
         plant.setSlug(slug);
-        // The catalogue code is unique and never edited afterwards — it is what
-        // an invoice or a stock sheet refers to.
+        // The catalogue code is unique and never edited afterwards — it is what an invoice or a stock.
         plant.setCode(nextCode());
         apply(plant, r);
         return toRow(plants.save(plant));
@@ -62,8 +61,7 @@ public class ProductAdminService {
         Plant plant = plants.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No product with id " + id));
 
-        // A changed slug breaks every link anyone has ever shared, so it is
-        // only honoured when the admin explicitly sends a different one.
+        // A changed slug breaks every link anyone has ever shared, so it is only honoured when the admin.
         if (r.slug() != null && !r.slug().isBlank()) {
             String slug = slugify(r.slug());
             if (!slug.equals(plant.getSlug()) && plants.findBySlug(slug).isPresent()) {
@@ -83,14 +81,7 @@ public class ProductAdminService {
         return toRow(saved);
     }
 
-    /**
-     * Removes a product, or retires it if that is the only safe option.
-     *
-     * A product that has ever been ordered cannot be deleted: order_item points
-     * at it with ON DELETE NO ACTION, and an invoice that loses the thing it
-     * was for stops being an invoice. Those are discontinued instead — gone
-     * from the shop, still attached to their history, and restorable.
-     */
+    /** Removes a product, or retires it if that is the only safe option. */
     @Transactional
     public ProductAdminDtos.DeleteOutcome delete(Long id) {
         Plant plant = plants.findById(id)
@@ -121,13 +112,7 @@ public class ProductAdminService {
         return toRow(plants.save(plant));
     }
 
-    /**
-     * Replaces a product's extra photographs.
-     *
-     * Wholesale rather than add/remove endpoints: the admin drags the list into
-     * the order they want and saves it, and a single replace cannot leave the
-     * gallery half-updated. Files no longer referenced are removed from disk.
-     */
+    /** Replaces a product's extra photographs. */
     @Transactional
     public java.util.List<String> setGallery(Long id, java.util.List<String> urls) {
         Plant plant = plants.findById(id)
@@ -140,16 +125,15 @@ public class ProductAdminService {
         }
 
         java.util.List<String> previous = images.findByPlantIdOrderBySortOrderAscIdAsc(id)
-                .stream().map(com.greenhaven.model.PlantImage::getUrl).toList();
+                .stream().map(com.greenhaven.entity.PlantImage::getUrl).toList();
 
         images.deleteByPlantId(id);
-        // Flushed before the inserts, or the UNIQUE (plant_id, url) fires
-        // against rows the delete has not yet reached.
+        // Flushed before the inserts, or the UNIQUE (plant_id, url) fires against rows the delete has not.
         images.flush();
 
         int order = 0;
         for (String url : wanted) {
-            com.greenhaven.model.PlantImage row = new com.greenhaven.model.PlantImage();
+            com.greenhaven.entity.PlantImage row = new com.greenhaven.entity.PlantImage();
             row.setPlant(plant);
             row.setUrl(url);
             row.setSortOrder(order++);

@@ -29,8 +29,7 @@ export default function ProductCard({ plant, rank }) {
   const discount = discountPercent(plant.price, plant.mrp);
   const categoryName = CATEGORIES.find((c) => c.slug === plant.category)?.name ?? '';
 
-  // `?? []` rather than assuming the field: a line restored from an older
-  // localStorage shape can reach this component without one.
+  // `??
   const badgeCodes = plant.badges ?? [];
   const petBadge = badgeCodes.find((b) => b.startsWith('pet'));
   const otherBadge = badgeCodes.find((b) => !b.startsWith('pet'));

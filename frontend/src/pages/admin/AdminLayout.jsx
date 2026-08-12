@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet } from 'react-router-dom';
 
 import Icon from '../../components/common/Icon/Icon.jsx';
 import ConfirmDialog from '../../components/common/ConfirmDialog/ConfirmDialog.jsx';
@@ -21,10 +21,8 @@ const NAV = [
 export default function AdminLayout() {
   const { admin, logout } = useAdminAuth();
   const [menuOpen, setMenuOpen] = useState(false);
-  // Signing out here revokes the server-side session, so a mis-click means
-  // signing in again — worth one question.
+  // Signing out here revokes the server-side session, so a mis-click means signing in again — worth.
   const [confirmingLogout, setConfirmingLogout] = useState(false);
-  const navigate = useNavigate();
 
   return (
     <div className={`admin ${menuOpen ? 'admin--menu' : ''}`}>

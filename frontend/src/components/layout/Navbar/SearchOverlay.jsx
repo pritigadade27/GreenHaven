@@ -14,11 +14,7 @@ const SUGGESTIONS = [
   'Air Purifying Plants',
 ];
 
-/**
- * Full-width search panel that drops down from the navbar.
- * Closes on Escape or on a click outside the panel; submitting hands the
- * query to the Shop page as ?q=
- */
+/** Full-width search panel that drops down from the navbar. */
 export default function SearchOverlay({ open, onClose }) {
   const [query, setQuery] = useState('');
   const inputRef = useRef(null);
@@ -32,8 +28,7 @@ export default function SearchOverlay({ open, onClose }) {
 
   useLockBodyScroll(open);
 
-  // Focus the field as it opens, keep Tab inside the panel, and put focus
-  // back where it came from on close.
+  // Focus the field as it opens, keep Tab inside the panel, and put focus back where it came from.
   useEffect(() => {
     if (!open) return undefined;
 
@@ -68,8 +63,7 @@ export default function SearchOverlay({ open, onClose }) {
     return () => {
       clearTimeout(timer);
       window.removeEventListener('keydown', onKeyDown);
-      // Dropping focus to <body> leaves a keyboard user at the top of the
-      // document with no idea where they were.
+      // Dropping focus to <body> leaves a keyboard user at the top of the document with no idea where.
       if (opener.current instanceof HTMLElement) opener.current.focus();
     };
   }, [open]);

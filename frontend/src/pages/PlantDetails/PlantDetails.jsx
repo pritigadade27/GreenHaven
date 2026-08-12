@@ -33,7 +33,7 @@ const PET_COPY = {
 };
 
 export default function PlantDetails() {
-  const { getPlantBySlug, getRelated, CATEGORIES, ready, error } = useCatalogue();
+  const { getPlantBySlug, getRelated, CATEGORIES, ready } = useCatalogue();
   const { id } = useParams();
   const plant = getPlantBySlug(id);
   const [quantity, setQuantity] = useState(1);
@@ -41,8 +41,7 @@ export default function PlantDetails() {
   const [tab, setTab] = useState('care');
   const [added, setAdded] = useState(false);
 
-  // Reset the "Added" confirmation, and clear the timer if the customer
-  // navigates away first — otherwise it fires against an unmounted component.
+  // Reset the "Added" confirmation, and clear the timer if the customer navigates away first.
   useEffect(() => {
     if (!added) return undefined;
     const t = setTimeout(() => setAdded(false), 1800);
@@ -82,22 +81,19 @@ export default function PlantDetails() {
   const related = getRelated(plant, 4);
   const gallery = plant.gallery?.length ? plant.gallery : [plant.image];
 
-  // Seeds, pots and tools have no watering schedule. They carry a `specs`
-  // object instead, so the Care tab is dropped rather than shown empty.
+  // Seeds, pots and tools have no watering schedule.
   const isMerch = Boolean(plant.isMerchandise);
   const tabs = isMerch
     ? [['about', 'About this product'], ['specs', 'Specifications']]
     : [['care', 'Care instructions'], ['about', 'About this plant'], ['specs', 'Specifications']];
   const activeTab = isMerch && tab === 'care' ? 'about' : tab;
 
-  // The code is carried onto the object: entries in BADGES are keyed by it
-  // but do not contain it, so `key={b.code}` was undefined on every badge.
+  // The code is carried onto the object: entries in BADGES are keyed by it but do not contain it.
   const badges = (plant.badges ?? [])
     .map((code) => (BADGES[code] ? { code, ...BADGES[code] } : null))
     .filter(Boolean);
 
-  // Stock drives the whole buy panel: how high the stepper can go, whether the
-  // button works at all, and how urgent the line above it reads.
+  // Stock drives the whole buy panel: how high the stepper can go, whether the button works at all.
   const stock = plant.stock ?? 0;
   const inStock = stock > 0;
   const maxQty = Math.max(1, Math.min(stock, 10));
@@ -108,8 +104,7 @@ export default function PlantDetails() {
       ? `Only ${stock} left in stock`
       : 'In stock, ships in 1–2 days';
 
-  // A plant's specs are assembled from its own fields; merchandise carries a
-  // ready-made specs object instead.
+  // A plant's specs are assembled from its own fields; merchandise carries a ready-made specs.
   const specs = isMerch
     ? (plant.specs ?? {})
     : {
@@ -123,8 +118,7 @@ export default function PlantDetails() {
         'Pet safety': pet.text,
       };
 
-  // Switching product (or a stock change) must not leave a quantity the new
-  // product cannot satisfy.
+  // Switching product (or a stock change) must not leave a quantity the new product cannot satisfy.
   if (quantity > maxQty) setQuantity(maxQty);
 
   const handleAdd = () => {
@@ -154,8 +148,7 @@ export default function PlantDetails() {
                 {discount && <span className="pdp__save">{discount}% off</span>}
               </figure>
 
-              {/* Thumbnails only appear when a product actually has more than
-                  one shot — most plants have a single photograph. */}
+              {/* Thumbnails only appear when a product actually has more than one shot — most plants have a. */}
               {gallery.length > 1 && (
                 <ul className="pdp__thumbs">
                   {gallery.map((src, i) => (
@@ -228,9 +221,7 @@ export default function PlantDetails() {
               <h1>{plant.name}</h1>
               <p className="pdp__botanical">{plant.botanical}</p>
 
-              {/* No stars until somebody has actually given one. rating is
-                  null for a product nobody has reviewed, so .toFixed() here
-                  would also throw. */}
+              {/* No stars until somebody has actually given one. */}
               <a className="pdp__rating" href="#reviews">
                 {plant.reviews > 0 ? (
                   <>
@@ -268,8 +259,7 @@ export default function PlantDetails() {
                 </ul>
               )}
 
-              {/* Stock is stated before the customer commits, not discovered at
-                  checkout after they have typed a full delivery address. */}
+              {/* Stock is stated before the customer commits, not discovered at checkout after they have typed a. */}
               <p className={`pdp__stock ${stockTone}`}>
                 <Icon name={inStock ? 'check' : 'close'} size={15} />
                 {stockLabel}

@@ -8,13 +8,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 
-/**
- * What the browser sends and receives for a saved cart or wishlist.
- *
- * Slugs and quantities only — deliberately the same shape as checkout. The
- * basket records what the customer wants, never what it costs; prices come
- * from the catalogue when the order is priced.
- */
+/** What the browser sends and receives for a saved cart or wishlist. */
 public final class BasketDto {
 
     private BasketDto() { }

@@ -12,8 +12,7 @@
   display: flex;
 }
 
-/* Cards sit on the tinted section, so give them a touch more lift than the
-   plain-background Featured grid. */
+/* Cards sit on the tinted section, so give them a touch more lift than the plain-background. */
 .bestsellers .product-card {
   border-color: transparent;
   box-shadow: var(--shadow-sm);
@@ -35,16 +34,13 @@
 .bestsellers__promise li {
   display: flex;
   align-items: center;
-  /* Centre the icon-and-text block inside its column rather than pinning it to
-     the left edge. With three wide columns, left-pinned content reads as a row
-     that ran out halfway; centred, it reads as a deliberate three-up strip. */
+  /* Centre the icon-and-text block inside its column rather than pinning it to the left edge. */
   justify-content: center;
   gap: var(--space-md);
   color: var(--color-primary);
 }
 
-/* The text inside each block stays left-aligned — centring two lines of
-   different lengths against each other looks accidental. */
+/* The text inside each block stays left-aligned — centring two lines of different lengths against. */
 .bestsellers__promise li > div {
   text-align: left;
 }

@@ -13,16 +13,17 @@ import com.greenhaven.dto.CheckoutRequest;
 import com.greenhaven.dto.OrderDto;
 import com.greenhaven.dto.PaymentVerificationRequest;
 import com.greenhaven.exception.ResourceNotFoundException;
-import com.greenhaven.model.AppUser;
-import com.greenhaven.model.Coupon;
-import com.greenhaven.model.Order;
-import com.greenhaven.model.OrderItem;
-import com.greenhaven.model.Plant;
+import com.greenhaven.entity.AppUser;
+import com.greenhaven.entity.Coupon;
+import com.greenhaven.entity.Order;
+import com.greenhaven.entity.OrderItem;
+import com.greenhaven.entity.Plant;
 import com.greenhaven.repository.AppUserRepository;
 import com.greenhaven.repository.OrderRepository;
-import com.greenhaven.model.Payment;
+import com.greenhaven.entity.Payment;
 import com.greenhaven.repository.PaymentRepository;
 import com.greenhaven.repository.PlantRepository;
+import com.greenhaven.payment.PaymentService;
 
 @Service
 public class OrderService {
@@ -59,12 +60,7 @@ public class OrderService {
         this.baskets = baskets;
     }
 
-    /**
-     * Builds a PENDING order and asks Razorpay for a payment order id.
-     *
-     * Prices come from the database, never from the request. The client sends
-     * only slugs and quantities — it cannot dictate what anything costs.
-     */
+    /** Builds a PENDING order and asks Razorpay for a payment order id. */
     @Transactional
     public OrderDto startCheckout(String email, CheckoutRequest request) throws Exception {
         AppUser user = users.findByEmail(email)
@@ -108,8 +104,7 @@ public class OrderService {
             item.setPlant(plant);
             item.setQuantity(qty);
             item.setUnitPrice(plant.getPrice());
-            // Copy the product as it is NOW. The invoice must still read
-            // correctly after the catalogue is edited or the plant delisted.
+            // Copy the product as it is NOW.
             item.setProductName(plant.getName());
             item.setProductImage(plant.getImage());
             item.setProductCategory(
@@ -119,13 +114,10 @@ public class OrderService {
             subtotal = subtotal.add(plant.getPrice().multiply(BigDecimal.valueOf(qty)));
         }
 
-        // Claimed under a row lock, and re-validated here even though the page
-        // already previewed it: the basket may have changed since, the code may
-        // have run out in the meantime, and a preview is not a promise.
+        // Claimed under a row lock, and re-validated here even though the page already previewed it: the.
         Coupon coupon = couponService.claim(user, request.couponCode(), subtotal);
 
-        // The same arithmetic the preview used — one implementation, so the
-        // figure quoted and the figure charged cannot drift apart.
+        // The same arithmetic the preview used — one implementation, so the figure quoted and the figure.
         PricingService.Totals totals = pricing.price(subtotal, coupon);
 
         order.setSubtotal(totals.subtotal());
@@ -134,15 +126,12 @@ public class OrderService {
         order.setShipping(totals.shipping());
         order.setTax(totals.tax());
         order.setTotal(totals.total());
-        // Set at checkout rather than on despatch, so the customer has a date
-        // to plan around from the moment they pay.
+        // Set at checkout rather than on despatch, so the customer has a date to plan around from the.
         order.setEstimatedDelivery(java.time.LocalDate.now(java.time.ZoneId.of("Asia/Kolkata"))
                 .plusDays(5));
         order.setRazorpayOrderId(payments.createOrder(order.getTotal(), order.getOrderNumber()));
 
-        // A payment row from the moment Razorpay has an order, not just on
-        // success. An attempt that is never completed is exactly what has to
-        // be visible when reconciling a captured payment against the books.
+        // A payment row from the moment Razorpay has an order, not just on success.
         Payment attempt = new Payment();
         attempt.setOrder(order);
         attempt.setRazorpayOrderId(order.getRazorpayOrderId());
@@ -160,18 +149,11 @@ public class OrderService {
         return OrderDto.from(saved, payments.getKeyId(), payments.isSimulated());
     }
 
-    /**
-     * Stands in for the gateway callback while no Razorpay account is connected.
-     * It only signs a response — the order still has to survive confirmPayment,
-     * signature check included, so this exercises the real path rather than a
-     * shortcut around it.
-     */
+    /** Stands in for the gateway callback while no Razorpay account is connected. */
     @Transactional(readOnly = true)
     public PaymentVerificationRequest simulateGateway(String email, String razorpayOrderId,
                                                       boolean succeed) {
-        // Mode first, before anything about this particular order is looked up
-        // or reported. Once a live key is set the endpoint says only that it is
-        // off, whoever asks.
+        // Mode first, before anything about this particular order is looked up or reported.
         if (!payments.isSimulated()) {
             throw new IllegalStateException("Payment simulation is off. Payments go through Razorpay.");
         }
@@ -195,8 +177,7 @@ public class OrderService {
             throw new IllegalArgumentException("This order does not belong to you.");
         }
 
-        // Idempotency: Razorpay can fire a callback more than once, and a user
-        // can refresh the confirmation page. Paying twice must be impossible.
+        // Idempotency: Razorpay can fire a callback more than once, and a user can refresh the.
         if ("PAID".equals(order.getStatus())) {
             return OrderDto.from(order, payments.getKeyId(), payments.isSimulated());
         }
@@ -227,15 +208,7 @@ public class OrderService {
         return OrderDto.from(settled, payments.getKeyId(), payments.isSimulated());
     }
 
-    /**
-     * Marks an order paid, once.
-     *
-     * Both the browser callback and the Razorpay webhook end up here, because
-     * either can arrive first and neither can be relied on alone: the customer
-     * may close the tab before the callback fires, and a webhook may be
-     * delayed or retried. Whichever arrives first does the work; the second
-     * finds the order already PAID and changes nothing.
-     */
+    /** Marks an order paid, once. */
     @Transactional
     public Order markPaid(Order order, String razorpayPaymentId, String signature, String source) {
         return markPaid(order, razorpayPaymentId, signature, source, null);
@@ -251,14 +224,11 @@ public class OrderService {
 
         order.setRazorpayPaymentId(razorpayPaymentId);
         order.setStatus("PAID");
-        // The invoice number is allocated HERE, not at checkout: an invoice is
-        // a financial document, and issuing one for an order nobody paid for
-        // would leave numbered gaps against nothing.
+        // The invoice number is allocated HERE, not at checkout: an invoice is a financial document, and.
         if (order.getInvoiceNumber() == null) {
             order.setInvoiceNumber(documents.nextInvoiceNumber());
         }
-        // The webhook payload already names the method; only ask the gateway
-        // when nobody has told us.
+        // The webhook payload already names the method; only ask the gateway when nobody has told us.
         order.setPaymentMethod(methodHint != null && !methodHint.isBlank()
                 ? methodHint : payments.methodOf(razorpayPaymentId));
         recordAttempt(order,
@@ -267,13 +237,6 @@ public class OrderService {
                 Payment.CAPTURED, Payment.VERIFIED, null, source);
 
         // Only now is stock committed — never on an unpaid order.
-        // Each plant is re-read under a write lock. The check in startCheckout
-        // ran before the customer even opened the payment sheet, so it is a
-        // courtesy rather than a guarantee: without the lock, two buyers of the
-        // last plant both pass it and the read-modify-write below silently
-        // loses one of the two decrements.
-        // Deliberately no Math.max(0, ...) clamp. Clamping hid the oversell:
-        // the books read a tidy zero while stock we never had was sold.
         for (OrderItem item : order.getItems()) {
             Plant plant = plants.findByIdForUpdate(item.getPlant().getId())
                     .orElseThrow(() -> new ResourceNotFoundException(
@@ -283,8 +246,7 @@ public class OrderService {
 
             int remaining = plant.getStock() - item.getQuantity();
             if (remaining < 0) {
-                // The money is already captured, so rejecting the order now
-                // would be worse than recording the shortfall.
+                // The money is already captured, so rejecting the order now would be worse than recording the.
                 remaining = 0;
                 order.setStatus("PAID_SHORT");
             }
@@ -294,23 +256,15 @@ public class OrderService {
 
         Order settled = orders.saveAndFlush(order);
 
-        // The document ledger entry, once the order is definitely saved and
-        // has an id. Idempotent, because the browser callback and the webhook
-        // race by design and only one invoice may exist for one payment.
+        // The document ledger entry, once the order is definitely saved and has an id.
         invoiceService.issueFor(settled, settled.getInvoiceNumber());
-        // Emptied server-side rather than trusting the browser to do it. A tab
-        // closed on the payment screen used to leave the paid items sitting in
-        // the saved cart, ready to be bought twice.
+        // Emptied server-side rather than trusting the browser to do it.
         baskets.clearCartQuietly(settled.getUser().getId());
         notifier.paymentSuccessful(settled);
         return settled;
     }
 
-    /**
-     * Settles from the webhook. There is no signed-in caller, so ownership is
-     * not checked here — Razorpay's signature over the payload is the
-     * authority, and it is verified before this is reached.
-     */
+    /** Settles from the webhook. */
     @Transactional
     public boolean settleFromWebhook(String razorpayOrderId, String razorpayPaymentId) {
         return settleFromWebhook(razorpayOrderId, razorpayPaymentId, null);
@@ -365,11 +319,7 @@ public class OrderService {
 
         record.setOrder(order);
         record.setRazorpayOrderId(request.razorpayOrderId());
-        // razorpay_payment_id is UNIQUE, which is right for a real payment but
-        // wrong for a claimed one: the same forged id posted against two orders
-        // would raise a constraint violation, and that rolls back the very
-        // transaction marking the order FAILED. An unverified id is evidence,
-        // not an identifier, so it is kept as text instead.
+        // razorpay_payment_id is UNIQUE, which is right for a real payment but wrong for a claimed one.
         boolean verified = Payment.VERIFIED.equals(verification);
         record.setRazorpayPaymentId(verified ? request.razorpayPaymentId() : null);
         record.setRazorpaySignature(request.razorpaySignature());

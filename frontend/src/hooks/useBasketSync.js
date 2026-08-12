@@ -20,8 +20,7 @@ export default function useBasketSync({ path, local, onRestore, toPayload, enabl
         if (alive) onRestore(remote);
       })
       .catch(() => {
-        // A basket that will not load must not block shopping; the local copy
-        // carries on and the next change re-syncs it.
+        // A basket that will not load must not block shopping; the local copy carries on and the next.
       });
 
     return () => {
@@ -45,8 +44,7 @@ export default function useBasketSync({ path, local, onRestore, toPayload, enabl
     const timer = setTimeout(() => {
       lastSent.current = serialised;
       request(path, { method: 'PUT', auth: true, body: payload }).catch(() => {
-        // Let the next change try again rather than surfacing a failed sync as
-        // an error over the shop.
+        // Let the next change try again rather than surfacing a failed sync as an error over the shop.
         lastSent.current = null;
       });
     }, 600);

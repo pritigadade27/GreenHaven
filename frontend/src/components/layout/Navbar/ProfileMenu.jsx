@@ -12,13 +12,7 @@ const ITEMS = [
   { to: '/profile/password', icon: 'lock', label: 'Change Password' },
 ];
 
-/**
- * The signed-in customer's menu.
- *
- * A button rather than a link on purpose: the profile has seven destinations,
- * and making the avatar itself navigate would hide six of them behind a page
- * load. Sign out stays in here too, so it is never a stray click away.
- */
+/** The signed-in customer's menu. */
 export default function ProfileMenu({ user, unread = 0, onSignOut }) {
   const [open, setOpen] = useState(false);
   const wrapRef = useRef(null);

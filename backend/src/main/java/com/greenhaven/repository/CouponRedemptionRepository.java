@@ -6,21 +6,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import com.greenhaven.model.CouponRedemption;
+import com.greenhaven.entity.CouponRedemption;
 
 public interface CouponRedemptionRepository extends JpaRepository<CouponRedemption, Long> {
 
     Optional<CouponRedemption> findByOrderId(Long orderId);
 
-    /**
-     * How many times this coupon has been taken, ignoring orders that came to
-     * nothing.
-     *
-     * The status filter is what releases a code when a checkout is abandoned or
-     * an order is cancelled: the row stays for the audit trail, but it stops
-     * counting against either limit. No separate release step means no release
-     * step to forget.
-     */
+    /** How many times this coupon has been taken, ignoring orders that came to nothing. */
     @Query("""
             SELECT COUNT(r) FROM CouponRedemption r
              WHERE r.coupon.id = :couponId

@@ -1,4 +1,4 @@
-package com.greenhaven.model;
+package com.greenhaven.entity;
 
 import java.time.Instant;
 
@@ -12,12 +12,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
-/**
- * One outstanding password reset.
- *
- * Holds the SHA-256 of the token, never the token. Anyone with the token can
- * take the account, so it is treated exactly like a password.
- */
+/** One outstanding password reset. */
 @Entity
 @Table(name = "password_reset")
 public class PasswordReset {

@@ -38,8 +38,7 @@ export default function Navbar() {
   const scrolled = useScrolled(40);
   const { pathname, hash } = useLocation();
   const panelRef = useRef(null);
-  // Signing out is easy to hit by accident, and on this site it also puts the
-  // basket away — so it asks first.
+  // Signing out is easy to hit by accident, and on this site it also puts the basket away — so it.
   const [confirmingLogout, setConfirmingLogout] = useState(false);
   const { user, isSignedIn, logout } = useAuth();
   const { totalItems: cartCount } = useCart();
@@ -98,8 +97,7 @@ export default function Navbar() {
           <ul className="navbar__links">
             {LINKS.map(({ label, to }) => (
               <li key={label}>
-                {/* Plant Care is a section of the home page, not its own route,
-                    so it uses a plain Link and never shows an active state. */}
+                {/* Plant Care is a section of the home page, not its own route, so it uses a plain Link and never. */}
                 {to.includes('#') ? (
                   <Link className="navbar__link" to={to}>
                     {label}
@@ -176,8 +174,7 @@ export default function Navbar() {
           ref={panelRef}
           tabIndex={-1}
           onClick={(event) => event.stopPropagation()}
-          // Only a dialog while it is actually open. Left on permanently, a
-          // screen reader announces a modal that is not on screen.
+          // Only a dialog while it is actually open.
           role={menuOpen ? 'dialog' : undefined}
           aria-modal={menuOpen ? 'true' : undefined}
           aria-label="Menu"
@@ -198,10 +195,7 @@ export default function Navbar() {
           <ul className="mobile-menu__links">
             {LINKS.map(({ label, to }, index) => (
               <li key={label} style={{ '--i': index }}>
-                {/* Closing explicitly, not relying on the route change: tapping
-                    the link for the page you are already on produces no
-                    navigation, so the effect above never fires and the drawer
-                    stays open over the page it just "went" to. */}
+                {/* Closing explicitly, not relying on the route change: tapping the link for the page you are. */}
                 <Link to={to} tabIndex={menuOpen ? 0 : -1} onClick={() => setMenuOpen(false)}>
                   <span>{label}</span>
                   <Icon name="chevronRight" size={18} />

@@ -16,33 +16,24 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.greenhaven.dto.ReviewDtos;
 import com.greenhaven.exception.ResourceNotFoundException;
-import com.greenhaven.model.AppUser;
-import com.greenhaven.model.Order;
-import com.greenhaven.model.Plant;
-import com.greenhaven.model.Review;
-import com.greenhaven.model.ReviewImage;
+import com.greenhaven.entity.AppUser;
+import com.greenhaven.entity.Order;
+import com.greenhaven.entity.Plant;
+import com.greenhaven.entity.Review;
+import com.greenhaven.entity.ReviewImage;
 import com.greenhaven.repository.AppUserRepository;
 import com.greenhaven.repository.OrderRepository;
 import com.greenhaven.repository.PlantRepository;
 import com.greenhaven.repository.ReviewImageRepository;
 import com.greenhaven.repository.ReviewRepository;
 
-/**
- * Ratings and reviews.
- *
- * The rule that matters: only a customer who paid for a plant AND had it
- * delivered may rate it. Everything else here follows from that — the verified
- * badge, the one-review-per-plant limit, and the average being worth trusting.
- */
+/** Ratings and reviews. */
 @Service
 public class ReviewService {
 
     private static final int MAX_PAGE = 50;
 
-    /**
-     * Four is plenty to show a plant from every angle, and it bounds what one
-     * account can put on disk.
-     */
+    /** Four is plenty to show a plant from every angle, and it bounds what one account can put on disk. */
     private static final int MAX_IMAGES = 4;
 
     private final ReviewRepository reviews;
@@ -88,8 +79,7 @@ public class ReviewService {
 
     @Transactional(readOnly = true)
     public ReviewDtos.Summary summary(String slug) {
-        // Every key present, always — a bar chart should not have to guess at a
-        // star nobody has given yet.
+        // Every key present, always — a bar chart should not have to guess at a star nobody has given yet.
         Map<Integer, Long> breakdown = new LinkedHashMap<>();
         for (int star = 5; star >= 1; star--) {
             breakdown.put(star, 0L);
@@ -103,10 +93,7 @@ public class ReviewService {
             total += count;
         }
 
-        // From the ratings themselves, not from the bars above. The bars round
-        // half stars into whole rows to stay five rows tall, so averaging them
-        // would report 4.0 for a single 3.5 — and contradict the figure on the
-        // product card, which is computed the honest way.
+        // From the ratings themselves, not from the bars above.
         BigDecimal average = total == 0 ? BigDecimal.ZERO
                 : BigDecimal.valueOf(reviews.averageForSlug(slug))
                         .setScale(1, RoundingMode.HALF_UP);
@@ -114,13 +101,7 @@ public class ReviewService {
         return new ReviewDtos.Summary(slug, average, total, breakdown);
     }
 
-    /**
-     * May this customer write about this plant, and if not, why not.
-     *
-     * Answered in full rather than as a bare yes/no so the page can explain
-     * itself — "only customers who have received this plant can review it"
-     * beats a button that silently is not there.
-     */
+    /** May this customer write about this plant, and if not, why not. */
     @Transactional(readOnly = true)
     public ReviewDtos.Eligibility eligibility(String email, String slug) {
         Plant plant = plant(slug);
@@ -165,8 +146,7 @@ public class ReviewService {
                     "You have already reviewed this plant. Edit your review instead.");
         }
 
-        // Checked here and not only in the UI. Hiding the button is a courtesy;
-        // this is the rule.
+        // Checked here and not only in the UI.
         List<Order> delivered = orders.deliveredContaining(user.getId(), slug);
         if (delivered.isEmpty()) {
             throw new IllegalArgumentException(
@@ -179,9 +159,7 @@ public class ReviewService {
         review.setOrder(delivered.get(0));
         review.setVerifiedPurchase(true);
         apply(review, request);
-        // A verified purchase goes straight up. There is nothing to screen for
-        // that the delivery record has not already established, and holding
-        // honest reviews in a queue nobody empties helps no one.
+        // A verified purchase goes straight up.
         review.setStatus(Review.APPROVED);
 
         Review saved = reviews.save(review);
@@ -197,8 +175,7 @@ public class ReviewService {
 
         apply(review, request);
         review.setUpdatedAt(Instant.now());
-        // An edit un-hides nothing: if an admin took it down, changing the words
-        // does not put it back up.
+        // An edit un-hides nothing: if an admin took it down, changing the words does not put it back up.
         Review saved = reviews.save(review);
         List<String> photos = syncImages(saved, request.images());
         recompute(saved.getPlant());
@@ -211,8 +188,7 @@ public class ReviewService {
         Review review = owned(user, id);
         Plant plant = review.getPlant();
 
-        // Read the file paths before the rows go, or the FK cascade takes the
-        // only record of what is still sitting on disk.
+        // Read the file paths before the rows go, or the FK cascade takes the only record of what is.
         List<String> files = imagesOf(review.getId());
         reviews.delete(review);
         reviews.flush();     // the average is read back below
@@ -220,14 +196,7 @@ public class ReviewService {
         recompute(plant);
     }
 
-    /**
-     * Stores one photograph for a customer who is entitled to review something.
-     *
-     * The delivery check is the gate. It is not about this particular product —
-     * pictures are often uploaded before the review form knows which review it
-     * belongs to — it is about only letting people who have actually bought
-     * from us write files to the server at all.
-     */
+    /** Stores one photograph for a customer who is entitled to review something. */
     @Transactional(readOnly = true)
     public ReviewDtos.UploadedImage uploadImage(String email,
                                                 org.springframework.web.multipart.MultipartFile file) {
@@ -239,17 +208,7 @@ public class ReviewService {
         return new ReviewDtos.UploadedImage(uploads.storeReviewImage(file));
     }
 
-    /**
-     * Replaces a review's photographs with exactly the list given.
-     *
-     * Wholesale rather than add/remove, matching the product gallery: the form
-     * shows what is attached, the customer removes one and saves, and the
-     * request says what should be there afterwards.
-     *
-     * Only paths this project stored are accepted. Without that check the body
-     * of the request decides what image a public product page loads, which
-     * turns every review into an off-site link of the author's choosing.
-     */
+    /** Replaces a review's photographs with exactly the list given. */
     private List<String> syncImages(Review review, List<String> urls) {
         List<String> wanted = urls == null ? List.of()
                 : urls.stream()
@@ -270,8 +229,7 @@ public class ReviewService {
 
         List<String> previous = imagesOf(review.getId());
         images.deleteByReviewId(review.getId());
-        // Flushed before the inserts, or UNIQUE (review_id, url) fires against
-        // rows the delete has not yet reached.
+        // Flushed before the inserts, or UNIQUE (review_id, url) fires against rows the delete has not.
         images.flush();
 
         int order = 0;
@@ -303,17 +261,7 @@ public class ReviewService {
         return byReview;
     }
 
-    /**
-     * Rewrites the plant's rating and review count from its visible reviews.
-     *
-     * Called after every add, edit, delete and moderation change, so the number
-     * on the shelf is never stale.
-     *
-     * Dropping to no reviews clears the rating rather than leaving the last
-     * figure standing. Keeping it would have the product page claim "4.0 from
-     * 1 review" directly above a section showing none — and once an admin has
-     * hidden the only review, the whole point was that it stops counting.
-     */
+    /** Rewrites the plant's rating and review count from its visible reviews. */
     @Transactional
     public void recompute(Plant plant) {
         long count = reviews.countByPlantIdAndStatus(plant.getId(), Review.APPROVED);
@@ -347,10 +295,7 @@ public class ReviewService {
                 me != null && me.equals(r.getUser().getId()), photos);
     }
 
-    /**
-     * First name and last initial — "Aarti D." Reviews are public, and a full
-     * name beside a delivery town is more than a customer signed up to publish.
-     */
+    /** First name and last initial — "Aarti D." Reviews are public, and a full name beside a delivery. */
     private static String displayName(AppUser user) {
         String full = user.getFullName() == null ? "" : user.getFullName().trim();
         if (full.isEmpty()) return "A customer";
@@ -375,14 +320,7 @@ public class ReviewService {
                 .orElseThrow(() -> new ResourceNotFoundException("Not signed in."));
     }
 
-    /**
-     * Ratings go in half stars and nothing finer.
-     *
-     * Checked here as well as by the column, so a 3.7 gets a message a person
-     * can act on rather than a constraint violation. Refused rather than
-     * silently rounded: quietly turning someone's 3.7 into a 3.5 is changing
-     * what they said about a product.
-     */
+    /** Ratings go in half stars and nothing finer. */
     private static java.math.BigDecimal halfStar(java.math.BigDecimal rating) {
         java.math.BigDecimal scaled = rating.setScale(1, java.math.RoundingMode.UNNECESSARY);
         if (scaled.movePointRight(1).remainder(java.math.BigDecimal.valueOf(5))

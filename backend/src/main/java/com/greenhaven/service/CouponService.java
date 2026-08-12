@@ -10,28 +10,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.greenhaven.dto.CouponDtos;
 import com.greenhaven.exception.ResourceNotFoundException;
-import com.greenhaven.model.AppUser;
-import com.greenhaven.model.Coupon;
-import com.greenhaven.model.CouponRedemption;
-import com.greenhaven.model.Order;
-import com.greenhaven.model.Plant;
+import com.greenhaven.entity.AppUser;
+import com.greenhaven.entity.Coupon;
+import com.greenhaven.entity.CouponRedemption;
+import com.greenhaven.entity.Order;
+import com.greenhaven.entity.Plant;
 import com.greenhaven.repository.AppUserRepository;
 import com.greenhaven.repository.CouponRedemptionRepository;
 import com.greenhaven.repository.CouponRepository;
 import com.greenhaven.repository.PlantRepository;
 
-/**
- * Discount codes: checking them, quoting them, and taking them.
- *
- * The rule everything here serves: the browser sends a code and nothing else.
- * It never sends the discount, and the server never believes a figure it did
- * not work out itself. A discount is money, and a client-supplied discount is
- * the same class of mistake as a client-supplied price.
- *
- * Quoting and redeeming deliberately share one validation path. If the two ever
- * diverged, a code could pass the preview and fail at checkout — or worse, the
- * other way round.
- */
+/** Discount codes: checking them, quoting them, and taking them. */
 @Service
 public class CouponService {
 
@@ -55,13 +44,7 @@ public class CouponService {
         return code == null ? "" : code.trim().toUpperCase(Locale.ROOT);
     }
 
-    /**
-     * Prices a basket with a code applied, without taking anything.
-     *
-     * Used by the checkout page as the customer types. Returns the failure as a
-     * message rather than throwing, because "that code has expired" is a normal
-     * thing to tell someone, not an error condition.
-     */
+    /** Prices a basket with a code applied, without taking anything. */
     @Transactional(readOnly = true)
     public CouponDtos.QuoteResponse quote(String email, CouponDtos.QuoteRequest request) {
         BigDecimal subtotal = subtotalOf(request);
@@ -83,13 +66,7 @@ public class CouponService {
         return CouponDtos.QuoteResponse.accepted(coupon, pricing.price(subtotal, coupon));
     }
 
-    /**
-     * Validates a code at checkout and returns the coupon to price the order
-     * with, or throws with a message the customer can act on.
-     *
-     * Takes the row lock: two checkouts reading "9 of 10 used" in the same
-     * instant would otherwise both proceed.
-     */
+    /** Validates a code at checkout and returns the coupon to price the order with, or throws with a. */
     @Transactional
     public Coupon claim(AppUser user, String rawCode, BigDecimal subtotal) {
         String code = normalise(rawCode);
@@ -115,13 +92,7 @@ public class CouponService {
         redemptions.save(redemption);
     }
 
-    /**
-     * Why this customer may not use this coupon right now, or null if they may.
-     *
-     * Ordered from the least to the most specific so the message is the most
-     * useful one available: telling somebody a code has expired is more helpful
-     * than telling them they have already used it, when both are true.
-     */
+    /** Why this customer may not use this coupon right now, or null if they may. */
     private String whyNot(Coupon coupon, AppUser user, BigDecimal subtotal) {
         Instant now = Instant.now();
 
@@ -151,14 +122,7 @@ public class CouponService {
         return null;
     }
 
-    /**
-     * Re-prices the basket from the catalogue rather than trusting the request.
-     *
-     * The quote endpoint takes slugs and quantities exactly as checkout does.
-     * Accepting a subtotal from the browser would let anyone quote a ₹100,000
-     * basket to see what a code is worth — and, more to the point, would train
-     * the code to believe client figures.
-     */
+    /** Re-prices the basket from the catalogue rather than trusting the request. */
     private BigDecimal subtotalOf(CouponDtos.QuoteRequest request) {
         if (request.items() == null || request.items().isEmpty()) {
             throw new IllegalArgumentException("Your cart is empty.");

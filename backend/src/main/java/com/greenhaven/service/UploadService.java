@@ -20,19 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.annotation.PostConstruct;
 
-/**
- * Uploaded photographs, on local disk.
- *
- * Deliberately not "save whatever was posted". An upload endpoint that trusts
- * the client is a file-drop for anyone who reaches it, so the filename is
- * discarded, the extension is decided from the content, and the bytes have to
- * actually decode as an image before anything is written.
- *
- * Two kinds of image live here — the catalogue's, uploaded by an admin, and
- * customers' review photographs. They share every rule above; only the folder
- * differs, which keeps a customer upload from ever landing among the product
- * shots.
- */
+/** Uploaded photographs, on local disk. */
 @Service
 public class UploadService {
 
@@ -45,11 +33,7 @@ public class UploadService {
     public static final String PRODUCTS = "products";
     public static final String REVIEWS = "reviews";
 
-    /**
-     * The only folders that may be written or deleted. A fixed set rather than
-     * a validated string: the folder is never customer-supplied, so anything
-     * outside this list is a programming error and should not reach the disk.
-     */
+    /** The only folders that may be written or deleted. */
     private static final Set<String> FOLDERS = Set.of(PRODUCTS, REVIEWS);
 
     private final Path root;
@@ -81,14 +65,7 @@ public class UploadService {
         return store(file, REVIEWS);
     }
 
-    /**
-     * Stores one image and returns the path the storefront should use.
-     *
-     * The returned name is random: keeping the client's filename would let a
-     * caller overwrite an existing product's photograph by uploading
-     * "aloe-vera.jpg" a second time, and would carry whatever path separators
-     * or unicode tricks the name contained into the filesystem.
-     */
+    /** Stores one image and returns the path the storefront should use. */
     private String store(MultipartFile file, String folder) {
         if (file == null || file.isEmpty()) {
             throw new IllegalArgumentException("Choose an image to upload.");
@@ -103,9 +80,7 @@ public class UploadService {
             throw new IllegalArgumentException("Upload a JPEG, PNG or WebP image.");
         }
 
-        // The declared type is just a header the client chose. Decoding proves
-        // the bytes really are an image, which is what stops a script being
-        // stored under an image's content type.
+        // The declared type is just a header the client chose.
         try (InputStream probe = file.getInputStream()) {
             if (ImageIO.read(probe) == null) {
                 throw new IllegalArgumentException("That file is not a readable image.");
@@ -122,8 +97,7 @@ public class UploadService {
         String name = UUID.randomUUID().toString().replace("-", "") + extension;
         Path target = root.resolve(folder).resolve(name).normalize();
 
-        // Belt and braces against traversal: whatever the name resolved to, it
-        // must still sit inside the uploads directory.
+        // Belt and braces against traversal: whatever the name resolved to, it must still sit inside the.
         if (!target.startsWith(root)) {
             throw new IllegalArgumentException("That filename is not allowed.");
         }
@@ -137,15 +111,7 @@ public class UploadService {
         return publicPrefix + "/" + folder + "/" + name;
     }
 
-    /**
-     * Whether a path names a review photograph this service actually stored.
-     *
-     * Both halves matter. The prefix keeps the value on a public page pointing
-     * at this site; the existence check means a caller cannot attach a path to
-     * a file that was never uploaded. Guessing the random name of somebody
-     * else's upload is not worth defending against beyond that — the file is
-     * already served publicly to anyone with the link.
-     */
+    /** Whether a path names a review photograph this service actually stored. */
     public boolean isStoredReviewImage(String publicPath) {
         String prefix = publicPrefix + "/" + REVIEWS + "/";
         if (publicPath == null || !publicPath.startsWith(prefix)) return false;
@@ -158,14 +124,7 @@ public class UploadService {
         return target.startsWith(root.resolve(REVIEWS)) && Files.isRegularFile(target);
     }
 
-    /**
-     * Removes a previously uploaded file. Quiet on failure: a product update
-     * must not fail because an old photograph had already been cleaned up.
-     *
-     * Only paths this service handed out are touched. A seeded catalogue image
-     * shipped with the project, or anything else pointing outside the uploads
-     * folder, is left alone — deleting it would take a file no upload created.
-     */
+    /** Removes a previously uploaded file. */
     public void deleteQuietly(String publicPath) {
         if (publicPath == null) return;
         for (String folder : FOLDERS) {

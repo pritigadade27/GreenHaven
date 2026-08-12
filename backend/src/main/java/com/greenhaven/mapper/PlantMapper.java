@@ -1,4 +1,4 @@
-package com.greenhaven.service;
+package com.greenhaven.mapper;
 
 import java.util.List;
 
@@ -7,16 +7,10 @@ import org.springframework.stereotype.Component;
 import com.greenhaven.dto.CareDto;
 import com.greenhaven.dto.PlantDetailDto;
 import com.greenhaven.dto.PlantSummaryDto;
-import com.greenhaven.model.Badge;
-import com.greenhaven.model.Plant;
+import com.greenhaven.entity.Badge;
+import com.greenhaven.entity.Plant;
 
-/**
- * Entity -> DTO translation lives here so controllers stay thin and JPA
- * entities never leak out of the service layer.
- *
- * Field names deliberately match the React catalogue (`short`, `tip`, `light`)
- * so the frontend can swap plants.js for the API with minimal churn.
- */
+/** Entity -> DTO translation lives here so controllers stay thin and JPA entities never leak out. */
 @Component
 public class PlantMapper {
 
@@ -39,14 +33,10 @@ public class PlantMapper {
                 p.getCareTip(), badgeCodes(p), isMerchandise(p));
     }
 
-    /**
-     * The primary shot followed by any extras, in the admin's chosen order.
-     * Returns a single-entry list for the great majority of products, which is
-     * what the product page already expects.
-     */
+    /** The primary shot followed by any extras, in the admin's chosen order. */
     private java.util.List<String> galleryFor(Plant p) {
         java.util.List<String> extras = images.findByPlantIdOrderBySortOrderAscIdAsc(p.getId())
-                .stream().map(com.greenhaven.model.PlantImage::getUrl).toList();
+                .stream().map(com.greenhaven.entity.PlantImage::getUrl).toList();
         if (extras.isEmpty()) return java.util.List.of(p.getImage());
         return java.util.stream.Stream.concat(java.util.stream.Stream.of(p.getImage()), extras.stream())
                 .filter(java.util.Objects::nonNull)

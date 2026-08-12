@@ -8,8 +8,8 @@ import java.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.greenhaven.model.Order;
-import com.greenhaven.model.OrderItem;
+import com.greenhaven.entity.Order;
+import com.greenhaven.entity.OrderItem;
 import com.lowagie.text.Chunk;
 import com.lowagie.text.Document;
 import com.lowagie.text.Element;
@@ -23,13 +23,7 @@ import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
 
-/**
- * Renders an order as a downloadable invoice.
- *
- * Every figure is read from the order row, never recalculated: an invoice is a
- * record of what was charged, and a document that quietly re-prices itself
- * against today's catalogue is worse than no document at all.
- */
+/** Renders an order as a downloadable invoice. */
 @Service
 public class InvoicePdfService {
 
@@ -74,15 +68,8 @@ public class InvoicePdfService {
         return render(order, null);
     }
 
-    /**
-     * Renders one document for an order.
-     *
-     * `issued` names which — the invoice, or a credit note offsetting it. Null
-     * means the invoice, so every existing caller keeps working. A credit note
-     * shares the whole layout on purpose: it is the same transaction seen from
-     * the other side, and a reader should be able to lay the two side by side.
-     */
-    public byte[] render(Order order, com.greenhaven.model.Invoice issued) {
+    /** Renders one document for an order. */
+    public byte[] render(Order order, com.greenhaven.entity.Invoice issued) {
         boolean credit = issued != null && issued.isCreditNote();
         String number = issued != null ? issued.getNumber() : order.getInvoiceNumber();
 
@@ -113,20 +100,14 @@ public class InvoicePdfService {
 
             doc.close();
         } catch (Exception e) {
-            // The caller is a download endpoint; there is no partial PDF worth
-            // sending, so this surfaces as a 503 rather than a broken file.
+            // The caller is a download endpoint; there is no partial PDF worth sending, so this surfaces as a.
             throw new IllegalStateException("Could not produce the invoice PDF.", e);
         }
         return out.toByteArray();
     }
 
-    /**
-     * The line that stops a credit note being mistaken for a bill.
-     *
-     * Without it the document looks exactly like an invoice with a different
-     * number at the top, and somebody will pay it twice.
-     */
-    private PdfPTable creditBanner(com.greenhaven.model.Invoice note, Order order) {
+    /** The line that stops a credit note being mistaken for a bill. */
+    private PdfPTable creditBanner(com.greenhaven.entity.Invoice note, Order order) {
         PdfPTable t = new PdfPTable(1);
         t.setWidthPercentage(100);
         PdfPCell cell = tinted();
@@ -142,7 +123,7 @@ public class InvoicePdfService {
         return t;
     }
 
-    private PdfPTable header(Order order, com.greenhaven.model.Invoice issued) {
+    private PdfPTable header(Order order, com.greenhaven.entity.Invoice issued) {
         boolean credit = issued != null && issued.isCreditNote();
         PdfPTable t = new PdfPTable(new float[] { 1.4f, 1f });
         t.setWidthPercentage(100);
@@ -158,9 +139,7 @@ public class InvoicePdfService {
 
         PdfPCell right = bare();
         right.setHorizontalAlignment(Element.ALIGN_RIGHT);
-        // "TAX INVOICE" is a claim about the document, so it is only made when
-        // tax was actually charged. Calling a zero-tax receipt a tax invoice
-        // misrepresents it to anyone who files it.
+        // "TAX INVOICE" is a claim about the document, so it is only made when tax was actually charged.
         right.addElement(right(new Paragraph(
                 credit ? "CREDIT NOTE" : isPositive(order.getTax()) ? "TAX INVOICE" : "INVOICE",
                 FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, ROSE))));
@@ -246,8 +225,7 @@ public class InvoicePdfService {
         t.setWidthPercentage(100);
         totalRow(t, "Subtotal", money(order.getSubtotal()), false);
         if (isPositive(order.getDiscount())) {
-            // Named, not just deducted. An invoice showing an unexplained
-            // deduction is the kind of thing that gets queried a year later.
+            // Named, not just deducted.
             String label = order.getCouponCode() == null || order.getCouponCode().isBlank()
                     ? "Discount"
                     : "Discount (" + order.getCouponCode() + ")";
@@ -346,10 +324,7 @@ public class InvoicePdfService {
         return p;
     }
 
-    /**
-     * Rupees with an ASCII prefix rather than ₹. The base-14 PDF fonts are
-     * Latin-1 only, and the glyph would silently drop out of the document.
-     */
+    /** Rupees with an ASCII prefix rather than ₹. */
     private static String money(BigDecimal amount) {
         return "Rs. " + (amount == null ? BigDecimal.ZERO : amount).setScale(2,
                 java.math.RoundingMode.HALF_UP).toPlainString();

@@ -1,4 +1,4 @@
-package com.greenhaven.service;
+package com.greenhaven.payment;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -55,12 +55,7 @@ public class PaymentService {
         this.webhookSecret = webhookSecret;
     }
 
-    /**
-     * Simulation stands in for the gateway when no account is connected yet.
-     * It is refused outright once a live key is present: the one thing that
-     * must never happen is a real customer's order being settled by a payment
-     * this server signed for itself.
-     */
+    /** Simulation stands in for the gateway when no account is connected yet. */
     public boolean isSimulated() {
         return SIMULATED.equals(mode) && !hasLiveKeys();
     }
@@ -108,8 +103,7 @@ public class PaymentService {
         request.put("amount", paise);
         request.put("currency", currency);
         request.put("receipt", receipt);
-        // Let Razorpay capture automatically; a manual capture step is one more
-        // place for a paid-but-uncaptured order to get stranded.
+        // Let Razorpay capture automatically; a manual capture step is one more place for a.
         request.put("payment_capture", 1);
 
         return client().orders.create(request).get("id").toString();
@@ -129,21 +123,12 @@ public class PaymentService {
         return local;
     }
 
-    /**
-     * Verifies the HMAC-SHA256 signature Razorpay returns with a payment.
-     *
-     * This is the only thing standing between the shop and a forged
-     * "payment successful" request. It must be called server-side, on every
-     * payment, before an order is marked PAID.
-     */
+    /** Verifies the HMAC-SHA256 signature Razorpay returns with a payment. */
     public boolean isSignatureValid(String razorpayOrderId, String razorpayPaymentId,
                                     String signature) {
         try {
             if (isSimulated()) {
-                // Same algorithm, same comparison, only the secret differs. The
-                // verification step is exercised rather than skipped, so a
-                // simulated payment with a bad signature fails exactly as a real
-                // one does — which is what makes the test worth running.
+                // Same algorithm, same comparison, only the secret differs.
                 return constantTimeEquals(
                         sign(razorpayOrderId + "|" + razorpayPaymentId, simulationSecret),
                         signature);
@@ -154,23 +139,12 @@ public class PaymentService {
             payload.put("razorpay_signature", signature);
             return Utils.verifyPaymentSignature(payload, keySecret);
         } catch (Exception e) {
-            // A malformed signature is a failed verification, never an error
-            // the caller has to handle differently.
+            // A malformed signature is a failed verification, never an error the caller has to handle.
             return false;
         }
     }
 
-    /**
-     * Verifies a webhook payload.
-     *
-     * The signature is an HMAC over the RAW body, so the caller must hand over
-     * the bytes exactly as they arrived — re-serialising the parsed JSON
-     * changes whitespace and key order and the digest stops matching.
-     *
-     * A different secret from the API key: Razorpay signs webhooks with the
-     * secret set on the webhook itself, and until one is configured this
-     * refuses everything rather than trusting an unsigned caller.
-     */
+    /** Verifies a webhook payload. */
     public boolean isWebhookSignatureValid(String rawBody, String headerSignature) {
         if (webhookSecret == null || webhookSecret.isBlank()) return false;
         if (rawBody == null || headerSignature == null || headerSignature.isBlank()) return false;
@@ -181,13 +155,7 @@ public class PaymentService {
         return webhookSecret != null && !webhookSecret.isBlank();
     }
 
-    /**
-     * How the customer actually paid — card, upi, netbanking, wallet.
-     *
-     * Razorpay only reveals this when the payment is fetched back, so it is a
-     * second call and a best-effort one: an order that is verifiably paid must
-     * not fail because a label could not be looked up.
-     */
+    /** How the customer actually paid — card, upi, netbanking, wallet. */
     public String methodOf(String razorpayPaymentId) {
         if (isSimulated()) return "SIMULATED";
         if (razorpayPaymentId == null || razorpayPaymentId.isBlank()) return null;
@@ -201,14 +169,7 @@ public class PaymentService {
         }
     }
 
-    /**
-     * Asks Razorpay whether an order was in fact paid, and returns the captured
-     * payment id if so.
-     *
-     * This is the authority the reconciliation sweep leans on. In simulated
-     * mode it always answers "no": there is no gateway to ask, and inventing a
-     * payment would settle orders that were never paid for.
-     */
+    /** Asks Razorpay whether an order was in fact paid, and returns the captured payment id if so. */
     public String capturedPaymentIdFor(String razorpayOrderId) {
         if (isSimulated() || razorpayOrderId == null || razorpayOrderId.isBlank()) return null;
         try {
@@ -221,18 +182,13 @@ public class PaymentService {
             }
             return null;
         } catch (Exception e) {
-            // Not knowing is not the same as knowing it was not paid. Leaving
-            // the order alone and retrying next sweep is the safe answer.
+            // Not knowing is not the same as knowing it was not paid.
             log.warn("Could not ask Razorpay about {}: {}", razorpayOrderId, e.getMessage());
             return null;
         }
     }
 
-    /**
-     * Signs a would-be gateway response. Simulation only — with a live key
-     * configured isSimulated() is false and this throws, so no deployment can
-     * reach a code path that mints its own payment signatures.
-     */
+    /** Signs a would-be gateway response. */
     public String[] simulateGatewayResponse(String razorpayOrderId, boolean succeed) {
         if (!isSimulated()) {
             throw new IllegalStateException("Payment simulation is off. Payments go through Razorpay.");

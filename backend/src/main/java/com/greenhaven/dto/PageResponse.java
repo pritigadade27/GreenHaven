@@ -4,10 +4,7 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 
-/**
- * A trimmed page envelope. Spring's own Page serialises a lot of internals the
- * client neither needs nor should depend on.
- */
+/** A trimmed page envelope. */
 public record PageResponse<T>(List<T> content, int page, int size, long totalElements, int totalPages) {
 
     public static <T> PageResponse<T> of(Page<T> page) {

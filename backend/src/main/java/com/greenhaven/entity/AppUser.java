@@ -1,4 +1,4 @@
-package com.greenhaven.model;
+package com.greenhaven.entity;
 
 import java.time.Instant;
 
@@ -9,10 +9,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
-/**
- * A customer account. Named AppUser rather than User because `user` is a
- * reserved word in several databases and makes for painful queries.
- */
+/** A customer account. */
 @Entity
 @Table(name = "app_user")
 public class AppUser {
@@ -37,11 +34,7 @@ public class AppUser {
     @Column(name = "avatar_url", length = 255)
     private String avatarUrl;
 
-    /**
-     * A requested email change, not yet proved. Sign-in keeps using `email`
-     * until the customer confirms, so a mistyped address cannot lock anyone
-     * out of their own account.
-     */
+    /** A requested email change, not yet proved. */
     @Column(name = "pending_email", length = 160)
     private String pendingEmail;
 
@@ -84,10 +77,7 @@ public class AppUser {
     public Instant getPendingEmailExpiresAt() { return pendingEmailExpiresAt; }
     public void setPendingEmailExpiresAt(Instant at) { this.pendingEmailExpiresAt = at; }
 
-    /**
-     * Set by an admin. A blocked account keeps its order history but is
-     * refused a token at sign-in, so it cannot buy or check out.
-     */
+    /** Set by an admin. */
     @Column(name = "is_blocked", nullable = false)
     private boolean blocked = false;
 

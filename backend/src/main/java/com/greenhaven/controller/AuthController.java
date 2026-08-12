@@ -20,11 +20,7 @@ import com.greenhaven.service.AuthService;
 
 import jakarta.validation.Valid;
 
-/**
- *   POST /api/auth/register
- *   POST /api/auth/login
- *   GET  /api/auth/me     (requires the bearer token)
- */
+/** POST /api/auth/register POST /api/auth/login GET /api/auth/me (requires the bearer token) */
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -47,12 +43,7 @@ public class AuthController {
         return auth.login(request);
     }
 
-    /**
-     * Starts a password reset.
-     *
-     * Always 200, whether or not the address has an account: a different answer
-     * would turn this into a free way to discover who shops here.
-     */
+    /** Starts a password reset. */
     @PostMapping("/forgot-password")
     public java.util.Map<String, String> forgotPassword(
             @RequestBody java.util.Map<String, String> body,

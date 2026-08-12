@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import com.greenhaven.model.Plant;
+import com.greenhaven.entity.Plant;
 
 import jakarta.persistence.LockModeType;
 
@@ -18,15 +18,7 @@ public interface PlantRepository extends JpaRepository<Plant, Long> {
 
     Optional<Plant> findBySlug(String slug);
 
-    /**
-     * Reads a plant with a row-level write lock (SELECT ... FOR UPDATE).
-     *
-     * Used only when committing stock after a verified payment. Two
-     * concurrent buyers of the last unit otherwise both read the same
-     * value, both compute the same new one, and the second write erases
-     * the first — a classic lost update that InnoDB's row locks cannot
-     * prevent, because the arithmetic happens in the JVM.
-     */
+    /** Reads a plant with a row-level write lock (SELECT ... */
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT p FROM Plant p WHERE p.id = :id")
     Optional<Plant> findByIdForUpdate(@Param("id") Long id);
@@ -39,15 +31,7 @@ public interface PlantRepository extends JpaRepository<Plant, Long> {
 
     long countByStockBetween(int low, int high);
 
-    /**
-     * Both of these end on id, and so does searchForAdmin below.
-     *
-     * Paging a sort with ties has no defined order between the tied rows, so a
-     * product can be returned on two consecutive pages while another is never
-     * returned at all. Sixty plants share a stock level and names are unique
-     * only by accident, so a unique last key is what makes these pages
-     * trustworthy rather than lucky.
-     */
+    /** Both of these end on id, and so does searchForAdmin below. */
     Page<Plant> findByStockLessThanEqualOrderByNameAscIdAsc(int stock, Pageable pageable);
 
     Page<Plant> findByStockBetweenOrderByStockAscIdAsc(int low, int high, Pageable pageable);

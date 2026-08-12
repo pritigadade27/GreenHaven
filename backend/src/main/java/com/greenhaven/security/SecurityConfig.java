@@ -31,8 +31,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            // No cookies and no server session: the client holds a bearer
-            // token, so CSRF has nothing to forge and STATELESS is correct.
+            // No cookies and no server session: the client holds a bearer token, so CSRF has nothing to forge.
             .csrf(AbstractHttpConfigurer::disable)
             .cors(cors -> { })
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -42,20 +41,13 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.POST,
                             "/api/auth/**", "/api/contact", "/api/newsletter").permitAll()
                     .requestMatchers("/error", "/actuator/health").permitAll()
-                    // Product photographs are as public as the pages they
-                    // appear on. Uploading them is not, and stays behind
-                    // ROLE_ADMIN under /api/admin.
+                    // Product photographs are as public as the pages they appear on.
                     .requestMatchers(HttpMethod.GET, "/uploads/**").permitAll()
-                    // Checking whether a reset link is still good happens
-                    // before anyone can possibly be signed in.
+                    // Checking whether a reset link is still good happens before anyone can possibly be signed in.
                     .requestMatchers(HttpMethod.GET, "/api/auth/reset-password").permitAll()
-                    // Razorpay carries no bearer token. The HMAC over the raw
-                    // body is the authentication, and WebhookController
-                    // refuses anything unsigned or wrongly signed.
+                    // Razorpay carries no bearer token.
                     .requestMatchers(HttpMethod.POST, "/api/webhooks/razorpay").permitAll()
-                    // Sign-in has to be reachable without a token, or there is
-                    // no way to obtain one. It is listed BEFORE the catch-all
-                    // because Spring applies the first matching rule.
+                    // Sign-in has to be reachable without a token, or there is no way to obtain one.
                     .requestMatchers(HttpMethod.POST, "/api/admin/auth/login").permitAll()
                     // Every other admin endpoint, in one place.
                     .requestMatchers("/api/admin/**").hasRole("ADMIN")
@@ -63,9 +55,7 @@ public class SecurityConfig {
             .httpBasic(AbstractHttpConfigurer::disable)
             .formLogin(AbstractHttpConfigurer::disable)
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
-        // RateLimitFilter is NOT registered here on purpose. It is an ordered
-        // servlet filter that runs ahead of the whole Spring Security chain, so
-        // a blocked request costs a map lookup rather than a BCrypt round.
+        // RateLimitFilter is NOT registered here on purpose.
 
         return http.build();
     }

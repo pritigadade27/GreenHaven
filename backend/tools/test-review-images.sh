@@ -24,6 +24,10 @@ export MYSQL_PWD
 UPLOADS="$(cd "$(dirname "$0")/.." && pwd)/uploads"
 
 Q() { "$MYSQL" --default-character-set=utf8mb4 -u priti green_haven -N -B -e "$1"; }
+
+# Shared, foreign-key-ordered teardown. Each suite used to roll its own and
+# every one was incomplete, so cleanup aborted on the first FK error.
+. "$(cd "$(dirname "$0")" && pwd)/cleanup.sh"
 pass=0; fail=0
 check() {
   if [ "$2" = "$3" ]; then printf "  PASS  %-54s %s\n" "$1" "$3"; pass=$((pass+1))
@@ -84,6 +88,11 @@ open(os.path.join(work, 'notreally.png'), 'wb').write(
 PY
 echo "  fixtures in $WORK"
 
+# Residue from an earlier run, cleared BEFORE this run creates anything —
+# doing it afterwards deletes the accounts the suite is about to use.
+purge_test_accounts "img%@example.com"
+restore_plant peace-lily
+
 reg() {
   curl -s -m 20 -X POST $API/auth/register -H 'Content-Type: application/json' \
     -d "{\"fullName\":\"$2\",\"email\":\"$1\",\"password\":\"Testing@123\"}" | jq_ token
@@ -106,9 +115,6 @@ up()  { curl -s -m 30 -X POST $API/reviews/image -H "Authorization: Bearer $1" -
 upc() { code -X POST $API/reviews/image -H "Authorization: Bearer $1" -F "file=@$WIN/$2"; }
 
 # The suite asserts absolute counts, so the product must start clean.
-Q "DELETE r FROM review r JOIN app_user u ON u.id = r.user_id
-    JOIN plant p ON p.id = r.plant_id
-   WHERE p.slug = '$SLUG' AND u.email LIKE '%@example.com';" >/dev/null
 EXISTING=$(Q "SELECT COUNT(*) FROM review r JOIN plant p ON p.id=r.plant_id WHERE p.slug='$SLUG';")
 if [ "$EXISTING" != "0" ]; then
   echo "  $SLUG already has $EXISTING real review(s). Point SLUG at another product."
@@ -269,9 +275,15 @@ check "the admin removed it" "0"  "$(Q "SELECT COUNT(*) FROM review WHERE id=$SI
 check "the file went as well" "no" "$([ -f "$F6" ] && echo yes || echo no)"
 
 # ---- tidy up --------------------------------------------------------------
-Q "DELETE r FROM review r JOIN app_user u ON u.id=r.user_id WHERE u.email IN ('$EM','$EM2');" >/dev/null
-Q "UPDATE plant SET rating=NULL, review_count=0 WHERE slug='$SLUG';" >/dev/null
 rm -rf "$WORK" "$BODY"
+
+# Teardown. Runs at the end as well as the start, so a finished run leaves
+# the database exactly as it found it.
+purge_test_accounts "img%@example.com"
+restore_plant peace-lily
+assert_clean "img%@example.com"
+rm -f "$BODY"
+
 
 echo
 echo "  $pass passed, $fail failed"

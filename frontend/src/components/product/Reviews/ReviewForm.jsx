@@ -13,13 +13,7 @@ const WORDS = {
   5: 'I would buy it again',
 };
 
-/**
- * The words for a rating, halves included.
- *
- * A half step lands between two sentiments, so it borrows the lower one and
- * says so — "It is fine, nearly" is honest about 3.5 in a way that silently
- * showing either neighbour's wording would not be.
- */
+/** The words for a rating, halves included. */
 function words(rating) {
   if (!rating) return 'Tap a star — halves count';
   if (Number.isInteger(rating)) return WORDS[rating];
@@ -31,13 +25,7 @@ const MAX_IMAGES = 4;
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
-/**
- * Write or edit a review.
- *
- * A dialog rather than an inline form: it is a deliberate act, and putting it
- * over the page keeps the product details underneath rather than pushing the
- * whole page around while someone types.
- */
+/** Write or edit a review. */
 export default function ReviewForm({ slug, productName, existing, orderNumber, onClose, onSaved }) {
   const [rating, setRating] = useState(existing?.rating ?? 0);
   const [title, setTitle] = useState(existing?.title ?? '');
@@ -52,8 +40,7 @@ export default function ReviewForm({ slug, productName, existing, orderNumber, o
   const cardRef = useRef(null);
   const fileRef = useRef(null);
 
-  // Escape closes, focus moves in on open and back to the opener on close, and
-  // Tab stays inside — the same treatment ConfirmDialog gets.
+  // Escape closes, focus moves in on open and back to the opener on close, and Tab stays inside.
   useEffect(() => {
     const opener = document.activeElement;
     const onKeyDown = (event) => {
@@ -79,8 +66,7 @@ export default function ReviewForm({ slug, productName, existing, orderNumber, o
     };
 
     document.addEventListener('keydown', onKeyDown);
-    // Focus the first star: that is where the form starts, and it is the one
-    // field that cannot be left blank.
+    // Focus the first star: that is where the form starts, and it is the one field that cannot be.
     const timer = setTimeout(
       () => cardRef.current?.querySelector('.stars--input input')?.focus(),
       60
@@ -96,13 +82,7 @@ export default function ReviewForm({ slug, productName, existing, orderNumber, o
     };
   }, [onClose]);
 
-  /**
-   * Uploads each chosen file and keeps the paths.
-   *
-   * Uploading on selection rather than on submit means the thumbnails appear
-   * while the review is still being written, and a rejected file is caught
-   * before anyone has typed a paragraph.
-   */
+  /** Uploads each chosen file and keeps the paths. */
   async function addFiles(fileList) {
     const chosen = Array.from(fileList ?? []);
     if (!chosen.length) return;
@@ -120,8 +100,7 @@ export default function ReviewForm({ slug, productName, existing, orderNumber, o
     }
 
     for (const file of taking) {
-      // Checked here as well as on the server, so the answer is instant and
-      // nobody waits for a 5 MB upload to be told it was 5 MB.
+      // Checked here as well as on the server, so the answer is instant and nobody waits for a 5 MB.
       if (!IMAGE_TYPES.includes(file.type)) {
         setImageError('Photographs must be JPEG, PNG or WebP.');
         continue;
@@ -289,8 +268,7 @@ export default function ReviewForm({ slug, productName, existing, orderNumber, o
           )}
 
           <div className="rform__actions">
-            {/* Held back while a photograph is still uploading, or the review
-                saves without the picture that is halfway to the server. */}
+            {/* Held back while a photograph is still uploading, or the review saves without the picture that. */}
             <Button type="submit" size="lg" icon="check" disabled={busy || uploading > 0}>
               {busy ? 'Saving…' : existing ? 'Save changes' : 'Post review'}
             </Button>

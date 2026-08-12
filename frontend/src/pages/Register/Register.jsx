@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import Button from '../../components/common/Button/Button.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
@@ -40,8 +40,7 @@ export default function Register() {
     setBusy(true);
     try {
       await register(form.name, form.email, form.password, form.phone.trim());
-      // Honour where the customer was headed, exactly as Login does. Without
-      // this, someone sent here from the cart is dropped on the home page.
+      // Honour where the customer was headed, exactly as Login does.
       navigate(from, { replace: true });
     } catch (err) {
       // Server-side bean validation comes back per field; surface it there.
@@ -125,9 +124,7 @@ export default function Register() {
                   autoComplete="tel"
                 />
               </div>
-              {/* Not required here on purpose: an email address is enough to
-                  open an account, and checkout asks for a number anyway, where
-                  the courier actually needs it. */}
+              {/* Not required here on purpose: an email address is enough to open an account, and checkout asks. */}
               {errors.phone && <p className="field__error">{errors.phone}</p>}
             </div>
 

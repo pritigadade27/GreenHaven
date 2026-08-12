@@ -39,8 +39,7 @@
 .featured__more {
   display: flex;
   justify-content: center;
-  /* --space-3xl (4rem) put this section 5px over a 900px viewport on its own.
-     The grid above already provides plenty of separation. */
+  /* --space-3xl (4rem) put this section 5px over a 900px viewport on its own. */
   margin-top: var(--space-xl);
 }
 

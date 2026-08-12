@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.greenhaven.dto.CouponDtos;
 import com.greenhaven.exception.ResourceNotFoundException;
-import com.greenhaven.model.Coupon;
+import com.greenhaven.entity.Coupon;
 import com.greenhaven.repository.CouponRedemptionRepository;
 import com.greenhaven.repository.CouponRepository;
 
@@ -54,10 +54,7 @@ public class CouponAdminService {
         Coupon coupon = coupons.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No coupon with id " + id));
 
-        // The code is what customers have been given. Changing it silently
-        // breaks every email and card it was printed on, so it only moves when
-        // the admin sends a genuinely different one, and never onto a code that
-        // already exists.
+        // The code is what customers have been given.
         String code = CouponService.normalise(r.code());
         if (!code.equals(coupon.getCode())) {
             if (coupons.existsByCode(code)) {
@@ -69,14 +66,7 @@ public class CouponAdminService {
         return toRow(coupons.save(coupon));
     }
 
-    /**
-     * Turns a coupon off. There is no delete.
-     *
-     * Orders point at the code they used, and the redemption rows are how both
-     * usage limits are answered. Deleting the coupon would leave paid orders
-     * referring to a discount nobody can look up, which is the same reason a
-     * product that has sold is discontinued rather than removed.
-     */
+    /** Turns a coupon off. */
     @Transactional
     public CouponDtos.CouponRow setActive(Long id, boolean active) {
         Coupon coupon = coupons.findById(id)

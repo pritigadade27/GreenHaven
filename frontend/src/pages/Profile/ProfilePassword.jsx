@@ -43,8 +43,7 @@ export default function ProfilePassword() {
     event.preventDefault();
     setFlash(null);
 
-    // Caught here as well as on the server, so the round trip is not spent on
-    // something the form can already see.
+    // Caught here as well as on the server, so the round trip is not spent on something the form can.
     if (mismatch) {
       setFlash({ tone: 'bad', message: 'The two new passwords do not match.' });
       return;

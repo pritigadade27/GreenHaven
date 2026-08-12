@@ -12,23 +12,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.greenhaven.service.OrderService;
-import com.greenhaven.service.PaymentService;
+import com.greenhaven.payment.PaymentService;
 
-/**
- * Razorpay's own notification of what happened to a payment.
- *
- * This exists because the browser callback cannot be trusted to arrive. The
- * money is captured the moment the customer pays; if they then close the tab,
- * lose signal, or the redirect fails, nothing tells the shop. The webhook is
- * Razorpay telling us directly, and it retries until we answer 2xx.
- *
- * Unauthenticated on purpose — Razorpay has no bearer token. The HMAC over the
- * raw body IS the authentication, and an unsigned or wrongly signed call is
- * refused. Point the dashboard at:
- *
- *     POST https://your-host/api/webhooks/razorpay
- *     events: payment.captured, payment.failed
- */
+/** Razorpay's own notification of what happened to a payment. */
 @RestController
 @RequestMapping("/api/webhooks")
 public class WebhookController {
@@ -43,19 +29,14 @@ public class WebhookController {
         this.orders = orders;
     }
 
-    /**
-     * Takes the body as a String, not a parsed object: the signature covers the
-     * exact bytes Razorpay sent, and letting Jackson parse and re-serialise
-     * would change whitespace and key order and break the digest.
-     */
+    /** Takes the body as a String, not a parsed object: the signature covers the exact bytes Razorpay. */
     @PostMapping("/razorpay")
     public ResponseEntity<String> razorpay(
             @RequestBody String rawBody,
             @RequestHeader(value = "X-Razorpay-Signature", required = false) String signature) {
 
         if (!payments.isWebhookConfigured()) {
-            // Refusing beats accepting unsigned calls: an open endpoint that
-            // marks orders paid is worse than no endpoint at all.
+            // Refusing beats accepting unsigned calls: an open endpoint that marks orders paid is worse than.
             log.warn("Webhook received but RAZORPAY_WEBHOOK_SECRET is not set — refused.");
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("not configured");
         }
@@ -72,8 +53,7 @@ public class WebhookController {
             event = payload.optString("event", "");
             entity = payload.getJSONObject("payload").getJSONObject("payment").getJSONObject("entity");
         } catch (RuntimeException e) {
-            // Signed but unreadable. 200 anyway: Razorpay would retry forever,
-            // and a retry cannot fix a payload we do not understand.
+            // Signed but unreadable.
             log.warn("Webhook payload could not be read: {}", e.getMessage());
             return ResponseEntity.ok("ignored");
         }
@@ -85,8 +65,7 @@ public class WebhookController {
             return ResponseEntity.ok("no order id");
         }
 
-        // Idempotency lives in the service: a webhook is retried until it is
-        // acknowledged, and Razorpay may well send the same event twice.
+        // Idempotency lives in the service: a webhook is retried until it is acknowledged, and Razorpay.
         String result = switch (event) {
             case "payment.captured" ->
                     orders.settleFromWebhook(razorpayOrderId, razorpayPaymentId,

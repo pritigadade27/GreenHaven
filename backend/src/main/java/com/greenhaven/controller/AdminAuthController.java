@@ -17,9 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.greenhaven.dto.ApiMessage;
 import com.greenhaven.dto.LoginRequest;
 import com.greenhaven.dto.PageResponse;
-import com.greenhaven.model.AdminActivityLog;
-import com.greenhaven.model.AdminSession;
-import com.greenhaven.model.AppUser;
+import com.greenhaven.entity.AdminActivityLog;
+import com.greenhaven.entity.AdminSession;
+import com.greenhaven.entity.AppUser;
 import com.greenhaven.repository.AppUserRepository;
 import com.greenhaven.security.JwtService;
 import com.greenhaven.service.AdminAuditService;
@@ -48,13 +48,7 @@ public class AdminAuthController {
         this.audit = audit;
     }
 
-    /**
-     * Signs an admin in.
-     *
-     * Every rejection returns the same message and takes the same time, so this
-     * cannot be used to discover which addresses are admin accounts — the most
-     * valuable thing an attacker could learn from it.
-     */
+    /** Signs an admin in. */
     @PostMapping("/login")
     public Map<String, Object> login(@Valid @RequestBody LoginRequest request,
                                      HttpServletRequest http) {
@@ -67,8 +61,7 @@ public class AdminAuthController {
                 && !user.isBlocked();
 
         if (!ok) {
-            // Burn the same BCrypt time on the miss, so a non-existent address
-            // cannot be told apart from a wrong password by the clock.
+            // Burn the same BCrypt time on the miss, so a non-existent address cannot be told apart from a.
             if (user == null) {
                 encoder.matches(request.password(),
                         "$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy");
@@ -93,14 +86,7 @@ public class AdminAuthController {
                         "role", user.getRole()));
     }
 
-    /**
-     * Signs out for real.
-     *
-     * Revoking the session is what makes this meaningful: without it, "logout"
-     * only clears the browser's copy while the token stays valid, and anyone
-     * holding it — including whoever presses the back button on a shared
-     * machine — can carry on using the dashboard.
-     */
+    /** Signs out for real. */
     @PostMapping("/logout")
     @PreAuthorize("hasRole('ADMIN')")
     public ApiMessage logout(@RequestHeader(value = "Authorization", required = false) String header,

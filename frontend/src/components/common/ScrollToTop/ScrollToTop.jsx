@@ -20,22 +20,13 @@ export default function ScrollToTop() {
       }
     };
 
-    // Honour the same preference the CSS does: scrollIntoView with
-    // behavior:'smooth' otherwise overrides the reduced-motion media query.
+    // Honour the same preference the CSS does: scrollIntoView with behavior:'smooth' otherwise.
     const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     // Scroll, then settle.
     const timers = [];
 
-    /**
-     * Where the page should end up, computed rather than delegated.
-     *
-     * scrollIntoView applies BOTH the element's scroll-margin and the
-     * scrollport's scroll-padding, which is easy to double up by accident and
-     * impossible to verify afterwards — you cannot tell a correct position from
-     * an overshoot. Working out the number here means the check below compares
-     * like with like.
-     */
+    /** Where the page should end up, computed rather than delegated. */
     const wantedScrollY = (target) => {
       const padding = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0;
       const top = target.getBoundingClientRect().top + window.scrollY;
@@ -48,8 +39,7 @@ export default function ScrollToTop() {
       if (!target) return;
 
       const wanted = wantedScrollY(target);
-      // Already there, to within a few pixels. Re-scrolling would only fight a
-      // smooth scroll that has not finished.
+      // Already there, to within a few pixels.
       if (Math.abs(window.scrollY - wanted) < 8) return;
 
       window.scrollTo({ top: wanted, behavior });
@@ -57,8 +47,7 @@ export default function ScrollToTop() {
 
     // First attempt once the destination page has painted its sections.
     timers.push(setTimeout(() => aim(still ? 'instant' : 'smooth'), 80));
-    // Then correct for whatever reflowed underneath it. Instant, so it reads as
-    // the scroll arriving rather than as a second animation.
+    // Then correct for whatever reflowed underneath it.
     timers.push(setTimeout(() => aim('instant'), 700));
     timers.push(setTimeout(() => aim('instant'), 1400));
 

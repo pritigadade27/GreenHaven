@@ -35,8 +35,7 @@ public class PlantController {
             @RequestParam(required = false) String water,
             @RequestParam(required = false) BigDecimal minPrice,
             @RequestParam(required = false) BigDecimal maxPrice,
-            // Availability and recency. Boxed so "absent" and "false" stay
-            // distinguishable — the query treats null as no filter at all.
+            // Availability and recency.
             @RequestParam(required = false) Boolean inStock,
             @RequestParam(required = false) Boolean newArrival,
             @RequestParam(defaultValue = "featured") String sort,

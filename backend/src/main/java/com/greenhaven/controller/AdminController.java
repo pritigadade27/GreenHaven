@@ -132,10 +132,7 @@ public class AdminController {
         return updated;
     }
 
-    /**
-     * Runs the payment reconciliation sweep now rather than waiting for the
-     * timer. Useful after a gateway outage, and it makes the sweep testable.
-     */
+    /** Runs the payment reconciliation sweep now rather than waiting for the timer. */
     @PostMapping("/reconcile")
     public com.greenhaven.service.ReconciliationService.Result reconcile(
             Principal principal, HttpServletRequest http) {

@@ -4,7 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.greenhaven.model.AdminActivityLog;
+import com.greenhaven.entity.AdminActivityLog;
 
 public interface AdminActivityLogRepository extends JpaRepository<AdminActivityLog, Long> {
 

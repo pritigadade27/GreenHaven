@@ -13,12 +13,7 @@ import './Reviews.css';
 const formatDate = (iso) =>
   iso ? new Date(iso).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
 
-/**
- * The photographs on a review, if there are any.
- *
- * Thumbnails rather than full-width images: several reviews with pictures
- * would otherwise turn the list into a scroll no one reads to the end of.
- */
+/** The photographs on a review, if there are any. */
 function Photos({ images, onOpen }) {
   if (!images?.length) return null;
   return (
@@ -34,13 +29,7 @@ function Photos({ images, onOpen }) {
   );
 }
 
-/**
- * One photograph, enlarged.
- *
- * Worth the extra component because the detail people want from a review
- * picture — how full the pot was, what the leaves looked like on arrival — is
- * exactly what a 72px thumbnail cannot show.
- */
+/** One photograph, enlarged. */
 function Lightbox({ images, index, onClose }) {
   const [at, setAt] = useState(index);
 
@@ -105,13 +94,7 @@ function Lightbox({ images, index, onClose }) {
   );
 }
 
-/**
- * Ratings and reviews for one product.
- *
- * Everything shown here comes from the API, not from the catalogue's seeded
- * numbers: the average, the count and the star breakdown are all computed from
- * reviews people actually wrote.
- */
+/** Ratings and reviews for one product. */
 export default function Reviews({ slug, name }) {
   const { isSignedIn, ready } = useAuth();
 
@@ -146,8 +129,7 @@ export default function Reviews({ slug, name }) {
     load(0);
   }, [load]);
 
-  // Asked separately, and only when signed in: an anonymous reader has nothing
-  // to check and should not be sent a 403 for reading a product page.
+  // Asked separately, and only when signed in: an anonymous reader has nothing to check and should.
   const checkEligibility = useCallback(() => {
     if (!isSignedIn) return Promise.resolve(null);
     return reviewApi

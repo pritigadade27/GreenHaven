@@ -1,4 +1,4 @@
-package com.greenhaven.model;
+package com.greenhaven.entity;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -14,17 +14,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
-/**
- * One use of a coupon, on one order.
- *
- * Both usage limits are answered by counting these rows rather than by keeping
- * a tally on the coupon: a counter can drift, and once it has, there is no way
- * to tell what it should have been. Rows can always be recounted.
- *
- * A cancelled or abandoned order still has its row, and the counting query
- * ignores it — so releasing a code back to the customer needs no separate
- * bookkeeping step that could be missed.
- */
+/** One use of a coupon, on one order. */
 @Entity
 @Table(name = "coupon_redemption")
 public class CouponRedemption {

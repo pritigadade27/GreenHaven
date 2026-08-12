@@ -26,8 +26,7 @@ export default function Contact() {
     setErrors((err) => ({ ...err, [key]: undefined }));
   };
 
-  // Browser checks catch obvious typos before a round trip; the server
-  // validates again and is the one that decides.
+  // Browser checks catch obvious typos before a round trip; the server validates again and is the.
   const submit = async (e) => {
     e.preventDefault();
     const next = {};

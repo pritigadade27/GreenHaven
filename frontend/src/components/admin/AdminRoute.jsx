@@ -17,8 +17,7 @@ export default function AdminRoute({ children }) {
   }
 
   if (!isAdmin) {
-    // `from` so a deep link survives the sign-in, and replace so the back
-    // button cannot return to the protected screen.
+    // `from` so a deep link survives the sign-in, and replace so the back button cannot return to the.
     return <Navigate to="/admin/login" replace state={{ from: location.pathname }} />;
   }
 

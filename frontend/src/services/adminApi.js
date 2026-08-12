@@ -1,11 +1,4 @@
-/**
- * The admin dashboard's own API client.
- *
- * Deliberately separate from services/api.js, with its own token key. A shopper
- * and an admin can be signed in on the same machine without one clobbering the
- * other, and — more importantly — signing out of the shop never leaves an admin
- * token behind, or the reverse.
- */
+/** The admin dashboard's own API client. */
 import { readString, writeString, remove } from '../utils/storage.js';
 
 const TOKEN_KEY = 'greenhaven.admin.token';
@@ -17,10 +10,7 @@ export const setAdminToken = (t) => {
 };
 export const clearAdminToken = () => remove(TOKEN_KEY);
 
-/**
- * Throws an Error carrying the server's message. A 401/403 is marked so the
- * route guard can tell "your session ended" apart from "that failed".
- */
+/** Throws an Error carrying the server's message. */
 async function request(path, { method = 'GET', body, auth = true } = {}) {
   const headers = { Accept: 'application/json' };
   if (body) headers['Content-Type'] = 'application/json';
@@ -51,8 +41,7 @@ async function request(path, { method = 'GET', body, auth = true } = {}) {
   if (!response.ok) {
     const error = new Error(data?.message || `Request failed (${response.status})`);
     error.status = response.status;
-    // The session may have been revoked by a logout elsewhere, an idle timeout,
-    // or a sign-in on another machine. The guard turns this into a redirect.
+    // The session may have been revoked by a logout elsewhere, an idle timeout, or a sign-in on.
     error.sessionEnded = response.status === 401 || response.status === 403;
     throw error;
   }
@@ -95,10 +84,7 @@ export const adminApi = {
   setProductListing: (id, discontinued) =>
     request(`/products/${id}/listing?discontinued=${discontinued}`, { method: 'PATCH' }),
 
-  /**
-   * Multipart, so it cannot go through request(): that sets a JSON content
-   * type, and the browser must set its own with the multipart boundary.
-   */
+  /** Multipart, so it cannot go through request(): that sets a JSON content type, and the browser. */
   uploadProductImage: async (file) => {
     const body = new FormData();
     body.append('file', file);

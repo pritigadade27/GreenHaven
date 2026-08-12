@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.greenhaven.model.NewsletterSubscriber;
+import com.greenhaven.entity.NewsletterSubscriber;
 
 public interface NewsletterSubscriberRepository extends JpaRepository<NewsletterSubscriber, Long> {
 

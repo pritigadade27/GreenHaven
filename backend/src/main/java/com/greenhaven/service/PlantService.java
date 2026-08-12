@@ -13,8 +13,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.greenhaven.dto.PlantDetailDto;
 import com.greenhaven.dto.PlantSummaryDto;
 import com.greenhaven.exception.ResourceNotFoundException;
-import com.greenhaven.model.Plant;
+import com.greenhaven.entity.Plant;
 import com.greenhaven.repository.PlantRepository;
+import com.greenhaven.mapper.PlantMapper;
 
 @Service
 @Transactional(readOnly = true)
@@ -28,24 +29,13 @@ public class PlantService {
         this.mapper = mapper;
     }
 
-    /**
-     * Maps the client's sort key onto a real Sort, defaulting safely.
-     *
-     * Every sort ends with id, and that is not decoration. LIMIT/OFFSET over a
-     * sort with ties has no defined order between the tied rows, so the same
-     * product can come back on two consecutive pages while another is never
-     * returned at all. With ratings now coming from real reviews, most rows
-     * tie on every other column, and paging the catalogue was duplicating 29
-     * of 154 products and silently dropping 29 more. A unique last key removes
-     * the ambiguity for good.
-     */
+    /** Maps the client's sort key onto a real Sort, defaulting safely. */
     private Sort sortFor(String key) {
         Sort byId = Sort.by(Sort.Direction.ASC, "id");
         return switch (key == null ? "featured" : key) {
             case "price-asc"  -> Sort.by(Sort.Direction.ASC, "price").and(byId);
             case "price-desc" -> Sort.by(Sort.Direction.DESC, "price").and(byId);
-            // Unrated products last rather than first — NULL sorts low in
-            // MySQL, so DESC would otherwise float them to the top.
+            // Unrated products last rather than first — NULL sorts low in MySQL, so DESC would otherwise.
             case "rating"     -> Sort.by(Sort.Order.desc("rating").nullsLast()).and(byId);
             case "popular"    -> Sort.by(Sort.Direction.DESC, "reviewCount").and(byId);
             case "name"       -> Sort.by(Sort.Direction.ASC, "name").and(byId);
@@ -66,8 +56,7 @@ public class PlantService {
                                         BigDecimal minPrice, BigDecimal maxPrice,
                                         Boolean inStock, Boolean newArrival,
                                         String sort, int page, int size) {
-        // Blank strings arrive from empty query params; the query treats only
-        // null as "no filter", so normalise here rather than in every clause.
+        // Blank strings arrive from empty query params; the query treats only null as "no filter", so.
         return plants.search(escapeLike(blankToNull(q)), minPrice, inStock, newArrival,
                         blankToNull(category), blankToNull(petSafety),
                         blankToNull(difficulty), blankToNull(light), blankToNull(water), maxPrice,
@@ -97,10 +86,7 @@ public class PlantService {
                 .limit(limit).map(mapper::toSummary).toList();
     }
 
-    /**
-     * Same category first, then anything sharing a badge — mirrors getRelated()
-     * in the React data layer so both sides recommend the same plants.
-     */
+    /** Same category first, then anything sharing a badge — mirrors getRelated() in the React data. */
     public List<PlantSummaryDto> related(String slug, int limit) {
         Plant plant = plants.findBySlug(slug)
                 .orElseThrow(() -> new ResourceNotFoundException("No plant with slug '" + slug + "'"));

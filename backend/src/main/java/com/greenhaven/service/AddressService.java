@@ -7,8 +7,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.greenhaven.dto.ProfileDtos;
 import com.greenhaven.exception.ResourceNotFoundException;
-import com.greenhaven.model.Address;
-import com.greenhaven.model.AppUser;
+import com.greenhaven.entity.Address;
+import com.greenhaven.entity.AppUser;
 import com.greenhaven.repository.AddressRepository;
 import com.greenhaven.repository.AppUserRepository;
 
@@ -45,9 +45,7 @@ public class AddressService {
         row.setUser(owner);
         apply(row, request);
 
-        // The first address saved is the default whether or not the box was
-        // ticked — an account with addresses and no default has nothing to
-        // prefill the checkout with.
+        // The first address saved is the default whether or not the box was ticked — an account with.
         boolean first = addresses.countByUserId(owner.getId()) == 0;
         row.setDefaultAddress(first || request.makeDefault());
 
@@ -74,10 +72,7 @@ public class AddressService {
         return toDto(saved);
     }
 
-    /**
-     * Removes a saved address. Past orders are untouched: each one carries its
-     * own copy of where it was sent, so deleting this cannot rewrite history.
-     */
+    /** Removes a saved address. */
     @Transactional
     public void delete(String email, Long id) {
         AppUser owner = user(email);

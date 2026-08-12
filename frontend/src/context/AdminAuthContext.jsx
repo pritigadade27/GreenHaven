@@ -36,9 +36,7 @@ export function AdminAuthProvider({ children }) {
   }, []);
 
   const logout = useCallback(async () => {
-    // Tell the server first. Clearing localStorage alone would leave the token
-    // valid, so anyone holding it — including the back button on a shared
-    // machine — could carry on using the dashboard.
+    // Tell the server first.
     try {
       await adminAuthApi.logout();
     } catch {
