@@ -6,6 +6,11 @@
 
 # The test suites' credentials. test-env.example.sh is the committed template.
 backend/tools/test-env.sh
+
+# Database dumps. A mysqldump of this schema contains the app_user table —
+# real email addresses and BCrypt password hashes. Never publish one.
+backend/db/backups/*.sql
+!backend/db/backups/seeded-ratings-restore.sql
 *.pem
 *.key
 
