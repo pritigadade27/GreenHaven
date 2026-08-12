@@ -1,3 +1,4 @@
+/* Reviews section */
 .reviews {
   background: var(--color-bg);
   border-top: 1px solid var(--color-border);
@@ -37,6 +38,7 @@
   align-items: start;
 }
 
+/* Rating summary */
 .reviews__summary {
   position: sticky;
   top: calc(var(--navbar-height-scrolled) + var(--space-md));
@@ -124,6 +126,7 @@
   text-align: right;
 }
 
+/* Empty state */
 .reviews__none {
   display: flex;
   flex-direction: column;
@@ -174,6 +177,7 @@
   text-align: center;
 }
 
+/* Review card */
 .review {
   padding: var(--space-lg);
   border-radius: var(--radius-lg);
@@ -280,6 +284,7 @@
   text-decoration: underline;
 }
 
+/* Pagination */
 .reviews__pager {
   display: flex;
   align-items: center;
@@ -313,6 +318,7 @@
   cursor: not-allowed;
 }
 
+/* Review form */
 .rform {
   position: fixed;
   inset: 0;
@@ -473,6 +479,7 @@
   color: var(--color-primary);
 }
 
+/* Tablet layout */
 @media (max-width: 900px) {
   .reviews__grid {
     grid-template-columns: minmax(0, 1fr);
@@ -491,6 +498,7 @@
   }
 }
 
+/* Review photos */
 .review__photos {
   display: flex;
   flex-wrap: wrap;
@@ -524,6 +532,7 @@
   object-fit: cover;
 }
 
+/* Photo lightbox */
 .rlight {
   position: fixed;
   inset: 0;
@@ -596,6 +605,7 @@
   letter-spacing: 0.06em;
 }
 
+/* Photo upload */
 .rform__photos {
   display: grid;
   gap: 6px;
@@ -677,6 +687,7 @@
   font-style: normal;
 }
 
+/* Mobile layout */
 @media (max-width: 560px) {
   .reviews__head {
     flex-direction: column;
@@ -724,6 +735,7 @@
   }
 }
 
+/* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .reviews__bar i,
   .rform,

@@ -1,3 +1,4 @@
+/* Auth layout */
 .auth {
   display: flex;
   align-items: center;
@@ -94,6 +95,7 @@
   font-weight: var(--fw-light);
 }
 
+/* Artwork panel */
 .auth__art {
   position: relative;
   overflow: hidden;
@@ -160,6 +162,7 @@
   color: var(--color-white);
 }
 
+/* Responsive layout */
 @media (max-width: 767px) {
   .auth__card {
     grid-template-columns: minmax(0, 1fr);
@@ -173,6 +176,7 @@
   }
 }
 
+/* Form density */
 .auth__card .field {
   margin-bottom: var(--space-sm);
 }
@@ -228,6 +232,7 @@
   font-size: 0.625rem;
 }
 
+/* Login variant */
 .auth__card--login .auth__body {
   padding-top: var(--space-xl);
 }

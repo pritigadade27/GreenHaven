@@ -1,3 +1,5 @@
+/* Cart layout */
+
 .cart.section {
   padding-top: var(--space-xl);
 }
@@ -24,6 +26,8 @@
 .cart__nudge svg {
   color: var(--color-green);
 }
+
+/* Cart line item */
 
 .cart-line {
   display: grid;
@@ -156,6 +160,8 @@
   color: var(--color-secondary);
 }
 
+/* Order summary */
+
 .cart__summary {
   position: sticky;
   top: calc(var(--navbar-height-scrolled) + var(--space-lg));
@@ -244,6 +250,8 @@
 .cart__trust svg {
   color: var(--color-green);
 }
+
+/* Responsive layout */
 
 @media (max-width: 991px) {
   .cart__layout {

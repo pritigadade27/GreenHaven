@@ -1,3 +1,5 @@
+/* Checkout layout */
+
 .checkout__grid {
   display: grid;
   grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
@@ -10,6 +12,8 @@
   font-size: var(--fs-h4);
   margin-bottom: var(--space-lg);
 }
+
+/* Form fields */
 
 .checkout__form .field {
   display: block;
@@ -80,6 +84,8 @@
   flex: none;
   margin-top: 2px;
 }
+
+/* Order summary */
 
 .checkout__summary {
   position: sticky;
@@ -158,6 +164,8 @@
   font-style: normal;
   color: var(--color-green);
 }
+
+/* Coupon */
 
 .checkout__coupon {
   margin-bottom: var(--space-md);
@@ -268,6 +276,8 @@
   color: #3d6639 !important;
 }
 
+/* Totals */
+
 .checkout__total {
   margin-top: 6px;
   padding-top: var(--space-md) !important;
@@ -292,6 +302,8 @@
 .checkout__back:hover {
   color: var(--color-primary);
 }
+
+/* Order confirmation */
 
 .checkout__done {
   max-width: 620px;
@@ -348,6 +360,8 @@
   word-break: break-all;
 }
 
+/* Responsive layout */
+
 @media (max-width: 991px) {
   .checkout__grid {
     grid-template-columns: minmax(0, 1fr);
@@ -386,6 +400,8 @@
 .section:first-of-type {
   padding-top: calc(var(--navbar-height) + var(--space-xl));
 }
+
+/* Test payment modal */
 
 .testpay {
   position: fixed;
@@ -481,6 +497,8 @@
 .testpay__cancel:hover {
   color: var(--color-primary);
 }
+
+/* Saved addresses */
 
 .checkout__saved {
   display: flex;

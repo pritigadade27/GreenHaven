@@ -3,6 +3,7 @@
   padding-bottom: var(--space-3xl);
 }
 
+/* Breadcrumb */
 .pdp__crumb {
   display: flex;
   align-items: center;
@@ -22,6 +23,7 @@
   font-weight: var(--fw-medium);
 }
 
+/* Product layout */
 .pdp__top {
   display: grid;
   grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
@@ -97,6 +99,7 @@
   border-color: var(--color-primary);
 }
 
+/* Quick facts */
 .pdp__quick {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -144,6 +147,7 @@
   color: var(--color-text-light);
 }
 
+/* Product info */
 .pdp__category {
   font-size: var(--fs-xs);
   font-weight: var(--fw-medium);
@@ -237,6 +241,7 @@
   margin-top: var(--space-lg);
 }
 
+/* Buy actions */
 .pdp__actions {
   display: flex;
   align-items: center;
@@ -325,6 +330,7 @@
   font-size: var(--fs-xs);
 }
 
+/* Detail tabs */
 .pdp__tabs {
   margin-top: var(--space-2xl);
 }
@@ -379,6 +385,7 @@
   line-height: 1.8;
 }
 
+/* Care and specs */
 .pdp__care > div {
   display: grid;
   grid-template-columns: 150px 1fr;
@@ -474,6 +481,7 @@
   gap: clamp(0.9rem, 1.6vw, 1.5rem);
 }
 
+/* Responsive layout */
 @media (max-width: 991px) {
   .pdp__top {
     grid-template-columns: minmax(0, 1fr);

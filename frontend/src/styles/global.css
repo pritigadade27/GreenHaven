@@ -1,3 +1,5 @@
+/* Reset */
+
 *,
 *::before,
 *::after {
@@ -24,6 +26,8 @@ body {
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 }
+
+/* Base typography */
 
 h1,
 h2,
@@ -90,6 +94,8 @@ button {
   cursor: pointer;
 }
 
+/* Selection and focus */
+
 ::selection {
   background-color: var(--color-accent);
   color: var(--color-white);
@@ -130,6 +136,8 @@ button {
 .skip-link:focus {
   top: var(--space-md);
 }
+
+/* Layout containers */
 
 .container {
   width: 100%;
@@ -180,6 +188,8 @@ button {
   font-size: var(--fs-lg);
   font-weight: var(--fw-light);
 }
+
+/* Utilities */
 
 .glass {
   background: var(--glass-bg);
@@ -243,6 +253,8 @@ h3,
 h4 {
   overflow-wrap: break-word;
 }
+
+/* Form fields */
 
 .field {
   margin-bottom: var(--space-md);
@@ -310,6 +322,8 @@ h4 {
 .auth__card .field__control {
   padding: 0.95rem var(--space-md);
 }
+
+/* Empty state */
 
 .empty-state {
   display: grid;

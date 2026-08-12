@@ -1,3 +1,5 @@
+/* Navbar */
+
 .navbar {
   position: fixed;
   top: 0;
@@ -30,6 +32,8 @@
 .navbar--scrolled .navbar__inner {
   height: var(--navbar-height-scrolled);
 }
+
+/* Nav links */
 
 .navbar__links {
   display: flex;
@@ -71,6 +75,8 @@
 .navbar__link--active {
   color: var(--color-secondary);
 }
+
+/* Nav actions */
 
 .navbar__actions {
   display: flex;
@@ -148,6 +154,8 @@
 .navbar__burger:hover {
   background: var(--color-card-tint);
 }
+
+/* Mobile menu */
 
 .mobile-menu {
   position: fixed;
@@ -273,6 +281,8 @@
   color: var(--color-green);
 }
 
+/* Responsive layout */
+
 @media (max-width: 991px) {
   .navbar__links,
   .navbar__login {
@@ -316,6 +326,8 @@
     height: 34px;
   }
 }
+
+/* Profile menu */
 
 .profile-menu {
   position: relative;
@@ -460,6 +472,8 @@
   border-radius: 0 0 var(--radius-md) var(--radius-md);
   color: var(--color-secondary);
 }
+
+/* Mobile account links */
 
 .mobile-menu__links--account {
   margin-top: var(--space-md);

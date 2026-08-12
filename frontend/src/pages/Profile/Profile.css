@@ -1,3 +1,4 @@
+/* Profile hero */
 .profile {
   padding-top: calc(var(--navbar-height) + var(--space-xl));
 }
@@ -77,6 +78,7 @@
   font-size: var(--fs-sm);
 }
 
+/* Page layout */
 .profile__grid {
   display: grid;
   grid-template-columns: minmax(210px, 250px) minmax(0, 1fr);
@@ -85,6 +87,7 @@
   align-items: start;
 }
 
+/* Side nav */
 .profile__nav {
   position: sticky;
   top: calc(var(--navbar-height-scrolled) + var(--space-md));
@@ -166,6 +169,7 @@
   min-width: 0;
 }
 
+/* Section shell */
 .psec {
   display: flex;
   flex-direction: column;
@@ -293,6 +297,7 @@
   gap: var(--space-md);
 }
 
+/* Flash and pills */
 .psec__flash {
   display: flex;
   align-items: center;
@@ -359,6 +364,7 @@
   color: var(--color-text-muted);
 }
 
+/* Cards */
 .pcard {
   padding: var(--space-lg);
   border-radius: var(--radius-lg);
@@ -413,6 +419,7 @@
   color: var(--color-text-muted);
 }
 
+/* Fact lists */
 .pfacts {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));

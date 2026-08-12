@@ -1,3 +1,4 @@
+/* Admin shell */
 .admin {
   display: grid;
   grid-template-columns: 260px minmax(0, 1fr);
@@ -139,6 +140,7 @@
   display: none;
 }
 
+/* Page header */
 .admin-head {
   margin-bottom: var(--space-lg);
 }
@@ -164,6 +166,7 @@
   margin-top: var(--space-2xl);
 }
 
+/* Stat cards */
 .admin-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
@@ -217,6 +220,7 @@
   min-height: 116px;
 }
 
+/* Filters and search */
 .admin-filters {
   display: flex;
   flex-wrap: wrap;
@@ -273,6 +277,7 @@
   color: var(--color-primary);
 }
 
+/* Data tables */
 .admin-scroll {
   overflow-x: auto;
   background: var(--color-white);
@@ -361,6 +366,7 @@
   border-radius: var(--radius-sm);
 }
 
+/* Status pills */
 .admin-pill {
   display: inline-block;
   padding: 4px 10px;
@@ -439,6 +445,7 @@
   margin-top: var(--space-md);
 }
 
+/* Empty states */
 .admin-empty {
   display: grid;
   place-items: center;
@@ -489,6 +496,7 @@
   cursor: not-allowed;
 }
 
+/* Buttons */
 .admin-btn {
   display: inline-flex;
   align-items: center;
@@ -540,6 +548,7 @@
   cursor: not-allowed;
 }
 
+/* Login screen */
 .admin-login {
   display: grid;
   place-items: center;
@@ -664,6 +673,7 @@
   animation: spin 700ms linear infinite;
 }
 
+/* Responsive layout */
 @media (max-width: 991px) {
   .admin {
     grid-template-columns: minmax(0, 1fr);
@@ -701,6 +711,7 @@
   .admin-boot__dot  { animation-duration: 2s; }
 }
 
+/* Product cards */
 .admin-strip {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 210px), 1fr));
@@ -790,6 +801,7 @@
 .admin-note.is-good { background: rgba(75, 122, 71, 0.14); color: #3d6639; }
 .admin-note.is-bad  { background: rgba(191, 5, 19, 0.1); color: var(--color-secondary); }
 
+/* Product form */
 .admin-product-form {
   margin-bottom: var(--space-lg);
 }
@@ -889,6 +901,7 @@
   border-radius: var(--radius-sm);
 }
 
+/* Modals */
 .admin-modal {
   position: fixed;
   inset: 0;
