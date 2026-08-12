@@ -7,6 +7,12 @@
 # The test suites' credentials. test-env.example.sh is the committed template.
 backend/tools/test-env.sh
 
+# Runtime uploads — product photographs and customer review images written by
+# the application at run time. Not source, and review photos are customer
+# content that has no business in a public repository. UploadService recreates
+# the folders on startup, so nothing needs to be committed to hold the place.
+backend/uploads/
+
 # Database dumps. A mysqldump of this schema contains the app_user table —
 # real email addresses and BCrypt password hashes. Never publish one.
 backend/db/backups/*.sql

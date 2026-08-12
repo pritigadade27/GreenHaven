@@ -58,8 +58,13 @@ check "newsletter accepted" 200 "$(code -X POST $API/newsletter -H 'Content-Type
 check "contact row in MySQL" 1 "$(Q "SELECT COUNT(*) FROM contact_message WHERE email='smoke@example.in';")"
 
 echo "== CUSTOMER AUTH =="
-CUST=$(curl -s -m 20 -X POST $API/auth/login -H 'Content-Type: application/json' \
-  -d '{"email":"priti@greenhaven.in","password":"GreenHaven2026"}' \
+# The suite creates its own customer rather than signing in as a seeded one.
+# Depending on a pre-existing account meant that deleting it — a reasonable
+# thing for the shop owner to do — broke six checks that had nothing to do
+# with the account itself.
+SMOKE_EM="moved$(date +%s)@example.com"
+CUST=$(curl -s -m 20 -X POST $API/auth/register -H 'Content-Type: application/json' \
+  -d "{\"fullName\":\"Smoke Customer\",\"email\":\"$SMOKE_EM\",\"password\":\"Testing@123\"}" \
   | python -c "import json,sys;print(json.load(sys.stdin).get('token',''))")
 check "customer signs in" "yes" "$([ -n "$CUST" ] && echo yes || echo no)"
 check "/auth/me with token" 200 "$(code $API/auth/me -H "Authorization: Bearer $CUST")"

@@ -2,6 +2,26 @@ import { readString, writeString, remove } from '../utils/storage.js';
 
 /** Green Haven — the single place the app talks to the Spring Boot API. */
 
+/**
+ * Where the backend lives.
+ *
+ * Empty in development, so every call stays a relative "/api/..." and Vite's
+ * proxy forwards it to localhost:8080 — no CORS involved. In production the
+ * frontend and backend sit on different domains, so VITE_API_BASE_URL is set at
+ * build time to the deployed API's origin.
+ */
+const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
+
+/** Absolute in production, relative in development. */
+export const apiUrl = (path) => `${API_BASE}${path}`;
+
+/**
+ * Uploaded images are served by the backend, so they need the same base.
+ * A path that is already absolute (http...) is left alone.
+ */
+export const fileUrl = (path) =>
+  !path || /^https?:\/\//.test(path) ? path : `${API_BASE}${path}`;
+
 const TOKEN_KEY = 'greenhaven.token';
 
 // Storage can be unavailable (Safari Private Browsing, enterprise policy) or full.
@@ -24,7 +44,7 @@ async function request(path, { method = 'GET', body, auth = false } = {}) {
 
   let response;
   try {
-    response = await fetch(`/api${path}`, {
+    response = await fetch(apiUrl(`/api${path}`), {
       method,
       headers,
       body: body ? JSON.stringify(body) : undefined,
@@ -60,7 +80,7 @@ async function download(path) {
 
   let response;
   try {
-    response = await fetch(`/api${path}`, { headers });
+    response = await fetch(apiUrl(`/api${path}`), { headers });
   } catch {
     throw new Error('Cannot reach the server. Is the Spring Boot API running on port 8080?');
   }
@@ -202,7 +222,7 @@ export const reviewApi = {
 
     let response;
     try {
-      response = await fetch('/api/reviews/image', { method: 'POST', headers, body });
+      response = await fetch(apiUrl('/api/reviews/image'), { method: 'POST', headers, body });
     } catch {
       throw new Error('Cannot reach the server. Is the Spring Boot API running on port 8080?');
     }

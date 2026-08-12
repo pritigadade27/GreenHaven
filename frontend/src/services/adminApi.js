@@ -1,5 +1,6 @@
 /** The admin dashboard's own API client. */
 import { readString, writeString, remove } from '../utils/storage.js';
+import { apiUrl } from './api.js';
 
 const TOKEN_KEY = 'greenhaven.admin.token';
 
@@ -21,7 +22,7 @@ async function request(path, { method = 'GET', body, auth = true } = {}) {
 
   let response;
   try {
-    response = await fetch(`/api/admin${path}`, {
+    response = await fetch(apiUrl(`/api/admin${path}`), {
       method,
       headers,
       body: body ? JSON.stringify(body) : undefined,
@@ -88,7 +89,7 @@ export const adminApi = {
   uploadProductImage: async (file) => {
     const body = new FormData();
     body.append('file', file);
-    const response = await fetch('/api/admin/products/image', {
+    const response = await fetch(apiUrl('/api/admin/products/image'), {
       method: 'POST',
       headers: { Authorization: `Bearer ${getAdminToken()}` },
       body,

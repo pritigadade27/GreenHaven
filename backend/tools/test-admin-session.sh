@@ -32,13 +32,22 @@ echo "== ADMIN LOGIN IS ITS OWN ENDPOINT =="
 A1=$(login)
 check "admin signs in at /api/admin/auth/login" "yes" "$([ -n "$A1" ] && echo yes || echo no)"
 check "wrong password refused" 400 "$(code -X POST $API/admin/auth/login -H 'Content-Type: application/json' -d "{\"email\":\"$ADMIN_EMAIL\",\"password\":\"nope-not-it\"}")"
-check "a CUSTOMER cannot use the admin login" 400 "$(code -X POST $API/admin/auth/login -H 'Content-Type: application/json' -d '{"email":"priti@greenhaven.in","password":"GreenHaven2026"}')"
+# A throwaway customer, created here rather than assumed to exist. The
+# seeded account this used to sign in as can legitimately be deleted, and
+# when it was, CUST went empty and the RBAC checks below silently became
+# "no token is refused" instead of "a customer token is refused".
+RBAC_EM="rbac$(date +%s)@example.com"
+CUST=$(curl -s -m 20 -X POST $API/auth/register -H 'Content-Type: application/json' \
+  -d "{\"fullName\":\"RBAC Customer\",\"email\":\"$RBAC_EM\",\"password\":\"Testing@123\"}" \
+  | python -c "import json,sys;print(json.load(sys.stdin).get('token',''))")
+check "the RBAC customer really exists" "yes" "$([ -n "$CUST" ] && echo yes || echo no)"
+RBAC_JSON=$(mktemp)
+printf '{"email":"%s","password":"Testing@123"}' "$RBAC_EM" > "$RBAC_JSON"
+
+check "a CUSTOMER cannot use the admin login" 400 "$(code -X POST $API/admin/auth/login -H 'Content-Type: application/json' --data-binary @"$RBAC_JSON")"
 check "session row created" 1 "$(Q "SELECT COUNT(*) FROM admin_session WHERE revoked=0;")"
 
 echo "== RBAC =="
-CUST=$(curl -s -m 20 -X POST $API/auth/login -H 'Content-Type: application/json' \
-  -d '{"email":"priti@greenhaven.in","password":"GreenHaven2026"}' \
-  | python -c "import json,sys;print(json.load(sys.stdin).get('token',''))")
 check "admin token reaches the dashboard" 200 "$(code $API/admin/stats -H "Authorization: Bearer $A1")"
 check "customer token is refused" 403 "$(code $API/admin/stats -H "Authorization: Bearer $CUST")"
 check "no token is refused" 403 "$(code $API/admin/stats)"

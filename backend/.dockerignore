@@ -1,0 +1,8 @@
+target/
+uploads/
+.env
+.env.*
+!.env.example
+tools/test-env.sh
+db/backups/
+*.log
