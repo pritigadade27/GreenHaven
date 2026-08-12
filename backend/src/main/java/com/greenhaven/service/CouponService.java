@@ -20,10 +20,8 @@ import com.greenhaven.repository.CouponRedemptionRepository;
 import com.greenhaven.repository.CouponRepository;
 import com.greenhaven.repository.PlantRepository;
 
-/** Discount codes: checking them, quoting them, and taking them. */
 @Service
 public class CouponService {
-
     private final CouponRepository coupons;
     private final CouponRedemptionRepository redemptions;
     private final AppUserRepository users;
@@ -39,12 +37,10 @@ public class CouponService {
         this.pricing = pricing;
     }
 
-    /** Codes are compared uppercase and trimmed, so what was typed rarely matters. */
     public static String normalise(String code) {
         return code == null ? "" : code.trim().toUpperCase(Locale.ROOT);
     }
 
-    /** Prices a basket with a code applied, without taking anything. */
     @Transactional(readOnly = true)
     public CouponDtos.QuoteResponse quote(String email, CouponDtos.QuoteRequest request) {
         BigDecimal subtotal = subtotalOf(request);
@@ -66,7 +62,6 @@ public class CouponService {
         return CouponDtos.QuoteResponse.accepted(coupon, pricing.price(subtotal, coupon));
     }
 
-    /** Validates a code at checkout and returns the coupon to price the order with, or throws with a. */
     @Transactional
     public Coupon claim(AppUser user, String rawCode, BigDecimal subtotal) {
         String code = normalise(rawCode);
@@ -81,7 +76,6 @@ public class CouponService {
         return coupon;
     }
 
-    /** Records the use, once the order it belongs to exists. */
     @Transactional
     public void recordRedemption(Coupon coupon, AppUser user, Order order, BigDecimal discount) {
         CouponRedemption redemption = new CouponRedemption();
@@ -92,7 +86,6 @@ public class CouponService {
         redemptions.save(redemption);
     }
 
-    /** Why this customer may not use this coupon right now, or null if they may. */
     private String whyNot(Coupon coupon, AppUser user, BigDecimal subtotal) {
         Instant now = Instant.now();
 
@@ -122,7 +115,6 @@ public class CouponService {
         return null;
     }
 
-    /** Re-prices the basket from the catalogue rather than trusting the request. */
     private BigDecimal subtotalOf(CouponDtos.QuoteRequest request) {
         if (request.items() == null || request.items().isEmpty()) {
             throw new IllegalArgumentException("Your cart is empty.");

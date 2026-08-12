@@ -9,10 +9,8 @@ import com.greenhaven.dto.BadgeDto;
 import com.greenhaven.dto.CategoryDto;
 import com.greenhaven.service.CatalogueService;
 
-/** Reference data the shop front needs to render its filters. */
 @RestController
 public class CatalogueController {
-
     private final CatalogueService catalogue;
 
     public CatalogueController(CatalogueService catalogue) {

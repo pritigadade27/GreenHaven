@@ -16,10 +16,8 @@ import com.greenhaven.entity.Order;
 import com.greenhaven.repository.AppUserRepository;
 import com.greenhaven.repository.NotificationRepository;
 
-/** The customer's own record of what happened to their orders. */
 @Service
 public class NotificationService {
-
     private static final Logger log = LoggerFactory.getLogger(NotificationService.class);
 
     private final NotificationRepository notifications;
@@ -30,7 +28,6 @@ public class NotificationService {
         this.users = users;
     }
 
-    /** Writes one notice. */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void notify(AppUser user, Order order, String type, String title, String body) {
         try {
@@ -47,7 +44,6 @@ public class NotificationService {
         }
     }
 
-    /** The wording each order event gets. Kept here so it reads consistently. */
     public void orderPlaced(Order order) {
         notify(order.getUser(), order, Notification.ORDER_PLACED,
                 "Order " + order.getOrderNumber() + " placed",
@@ -84,7 +80,7 @@ public class NotificationService {
             case "CANCELLED" -> notify(order.getUser(), order, Notification.ORDER_CANCELLED,
                     "Order " + order.getOrderNumber() + " cancelled",
                     "This order will not be delivered. Any payment taken will be refunded.");
-            default -> { }   // PENDING, CONFIRMED, PROCESSING, PACKED are not worth a message
+            default -> { }
         }
     }
 

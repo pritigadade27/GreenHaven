@@ -23,10 +23,8 @@ import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
 
-/** Renders an order as a downloadable invoice. */
 @Service
 public class InvoicePdfService {
-
     private static final java.awt.Color BURGUNDY = new java.awt.Color(0x6D, 0x00, 0x08);
     private static final java.awt.Color ROSE = new java.awt.Color(0xBF, 0x05, 0x13);
     private static final java.awt.Color INK = new java.awt.Color(0x2B, 0x1B, 0x1E);
@@ -68,7 +66,6 @@ public class InvoicePdfService {
         return render(order, null);
     }
 
-    /** Renders one document for an order. */
     public byte[] render(Order order, com.greenhaven.entity.Invoice issued) {
         boolean credit = issued != null && issued.isCreditNote();
         String number = issued != null ? issued.getNumber() : order.getInvoiceNumber();
@@ -100,13 +97,11 @@ public class InvoicePdfService {
 
             doc.close();
         } catch (Exception e) {
-            // The caller is a download endpoint; there is no partial PDF worth sending, so this surfaces as a.
             throw new IllegalStateException("Could not produce the invoice PDF.", e);
         }
         return out.toByteArray();
     }
 
-    /** The line that stops a credit note being mistaken for a bill. */
     private PdfPTable creditBanner(com.greenhaven.entity.Invoice note, Order order) {
         PdfPTable t = new PdfPTable(1);
         t.setWidthPercentage(100);
@@ -139,7 +134,6 @@ public class InvoicePdfService {
 
         PdfPCell right = bare();
         right.setHorizontalAlignment(Element.ALIGN_RIGHT);
-        // "TAX INVOICE" is a claim about the document, so it is only made when tax was actually charged.
         right.addElement(right(new Paragraph(
                 credit ? "CREDIT NOTE" : isPositive(order.getTax()) ? "TAX INVOICE" : "INVOICE",
                 FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, ROSE))));
@@ -225,7 +219,6 @@ public class InvoicePdfService {
         t.setWidthPercentage(100);
         totalRow(t, "Subtotal", money(order.getSubtotal()), false);
         if (isPositive(order.getDiscount())) {
-            // Named, not just deducted.
             String label = order.getCouponCode() == null || order.getCouponCode().isBlank()
                     ? "Discount"
                     : "Discount (" + order.getCouponCode() + ")";
@@ -324,7 +317,6 @@ public class InvoicePdfService {
         return p;
     }
 
-    /** Rupees with an ASCII prefix rather than ₹. */
     private static String money(BigDecimal amount) {
         return "Rs. " + (amount == null ? BigDecimal.ZERO : amount).setScale(2,
                 java.math.RoundingMode.HALF_UP).toPlainString();

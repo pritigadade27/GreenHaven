@@ -14,16 +14,13 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-/** Turns exceptions into a consistent JSON shape so the React side always knows where to look for. */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<Map<String, Object>> notFound(ResourceNotFoundException ex) {
         return build(HttpStatus.NOT_FOUND, ex.getMessage(), null);
     }
 
-    /** Messages we are willing to show a customer. */
     private static String safeMessage(Throwable ex, String fallback) {
         String message = ex.getMessage();
         if (message == null || message.isBlank() || message.length() > 200) return fallback;
@@ -40,14 +37,12 @@ public class GlobalExceptionHandler {
                 null);
     }
 
-    /** A dependency the server needs is not set up — currently only the Razorpay keys. */
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<Map<String, Object>> notReady(IllegalStateException ex) {
         return build(HttpStatus.SERVICE_UNAVAILABLE,
                 safeMessage(ex, "That service is not available right now."), null);
     }
 
-    /** Razorpay refused or could not be reached — a wrong key, a rejected order, a network fault. */
     @ExceptionHandler(com.razorpay.RazorpayException.class)
     public ResponseEntity<Map<String, Object>> gatewayFailed(com.razorpay.RazorpayException ex) {
         LoggerFactory.getLogger(GlobalExceptionHandler.class)
@@ -57,14 +52,12 @@ public class GlobalExceptionHandler {
                 null);
     }
 
-    /** A constraint the database enforces and we did not check first — a duplicate email registered in the same instant, or a value too long for its column. */
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<Map<String, Object>> conflict(DataIntegrityViolationException ex) {
         return build(HttpStatus.CONFLICT,
                 "That could not be saved — it may already exist, or a field is too long.", null);
     }
 
-    /** A body Jackson could not read at all — truncated JSON, a wrong content type, text in an. */
     @ExceptionHandler(org.springframework.http.converter.HttpMessageNotReadableException.class)
     public ResponseEntity<Map<String, Object>> unreadable(
             org.springframework.http.converter.HttpMessageNotReadableException ex) {
@@ -72,14 +65,12 @@ public class GlobalExceptionHandler {
                 "That request could not be read. Please check and retry.", null);
     }
 
-    /** A file larger than spring.servlet.multipart.max-file-size. */
     @ExceptionHandler({MaxUploadSizeExceededException.class, MultipartException.class})
     public ResponseEntity<Map<String, Object>> tooLarge(Exception ex) {
         return build(HttpStatus.PAYLOAD_TOO_LARGE,
                 "That file is too large. Images must be 5 MB or smaller.", null);
     }
 
-    /** Bean-validation failures, returned field by field. */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> invalid(MethodArgumentNotValidException ex) {
         Map<String, String> fields = new LinkedHashMap<>();

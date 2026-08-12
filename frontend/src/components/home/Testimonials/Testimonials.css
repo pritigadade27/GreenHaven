@@ -1,5 +1,3 @@
-/* auto-FIT, not auto-fill. */
-
 .testimonials {
   background: var(--color-bg);
 }
@@ -99,7 +97,6 @@
   letter-spacing: 0.02em;
 }
 
-/* vary the avatar colour so a row of three does not read as one block */
 .quote:nth-child(2) .quote__avatar {
   background: var(--color-secondary);
 }

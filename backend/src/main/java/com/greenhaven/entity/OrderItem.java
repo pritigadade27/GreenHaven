@@ -12,11 +12,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
-/** One line of an order. */
 @Entity
 @Table(name = "order_item")
 public class OrderItem {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -29,7 +27,6 @@ public class OrderItem {
     @JoinColumn(name = "plant_id", nullable = false)
     private Plant plant;
 
-    /* The product as it was at purchase time. */
     @Column(name = "product_name", length = 150)
     private String productName;
 

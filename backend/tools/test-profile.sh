@@ -1,20 +1,6 @@
 #!/usr/bin/env bash
-# Green Haven — the My Profile module, end to end.
-#
-#   bash backend/tools/test-profile.sh
-#
-# Covers personal information, orders, order detail and its tracking timeline,
-# cancellation rules, payment history, invoices and the PDF, saved addresses,
-# password change, notifications — and the isolation between two accounts,
-# which is the part that matters most: nothing here takes a user id, so the
-# only thing standing between two customers is the token.
-#
-# RESTART THE API FIRST — /api/orders is capped at 30 an hour.
 API=${API:-http://localhost:8080/api}
 MYSQL=${MYSQL:-/c/Users/vnp12/mysql/mysql-8.4.9-winx64/bin/mysql.exe}
-# Credentials come from backend/tools/test-env.sh, which is gitignored. There
-# is deliberately no built-in default: a fallback password in a committed
-# script is a published password.
 HERE="$(cd "$(dirname "$0")" && pwd)"
 [ -f "$HERE/test-env.sh" ] && . "$HERE/test-env.sh"
 : "${MYSQL_PWD:?set MYSQL_PWD — copy test-env.example.sh to test-env.sh}"
@@ -25,8 +11,6 @@ ENV_FILE="$(dirname "$0")/../.env"
 
 Q() { "$MYSQL" --default-character-set=utf8mb4 -u priti green_haven -N -B -e "$1"; }
 
-# Shared, foreign-key-ordered teardown. Each suite used to roll its own and
-# every one was incomplete, so cleanup aborted on the first FK error.
 . "$(cd "$(dirname "$0")" && pwd)/cleanup.sh"
 pass=0; fail=0
 check() {
@@ -219,7 +203,6 @@ TOKEN=$(A -X POST $API/profile/email -H 'Content-Type: application/json' \
 check "change is only pending" "$EM"     "$(Q "SELECT email FROM app_user WHERE id=(SELECT id FROM app_user WHERE email='$EM');")"
 check "…and parked separately" "$NEW_EM" "$(Q "SELECT pending_email FROM app_user WHERE email='$EM';")"
 check "a bad token is refused" 400 "$(Ac -X POST "$API/profile/email/confirm?token=rubbish")"
-# Confirming reissues the token, because a JWT names its subject by email.
 NEWSESSION=$(A -X POST "$API/profile/email/confirm?token=$TOKEN")
 check "confirming returns a new token" "yes" "$([ -n "$(echo "$NEWSESSION" | jq_ token)" ] && echo yes || echo no)"
 check "…naming the new address"     "$NEW_EM" "$(echo "$NEWSESSION" | jq_ user.email)"
@@ -249,11 +232,8 @@ Q "DELETE n FROM notification n JOIN app_user u ON u.id=n.user_id WHERE u.email 
    UPDATE plant SET stock=100 WHERE slug='tulsi';" >/dev/null
 echo "  test accounts removed, stock restored"
 
-# Shared teardown: returns consumed stock, then removes the run in
-# foreign-key order. Rolling its own left accounts behind on every run.
 purge_test_accounts "prof%@example.com"
 assert_clean "prof%@example.com"
-
 
 echo
 echo "  $pass passed, $fail failed"

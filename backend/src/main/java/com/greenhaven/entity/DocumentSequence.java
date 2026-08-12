@@ -6,12 +6,10 @@ import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;
 import jakarta.persistence.Table;
 
-/** The counter behind order and invoice numbers. */
 @Entity
 @Table(name = "document_sequence")
 @IdClass(DocumentSequence.Key.class)
 public class DocumentSequence {
-
     public static class Key implements java.io.Serializable {
         private String name;
         private Integer year;

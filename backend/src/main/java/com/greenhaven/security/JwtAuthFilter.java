@@ -17,10 +17,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-/** Reads the bearer token from the Authorization header and, if it verifies, puts the user into. */
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter {
-
     private final JwtService jwt;
     private final AppUserRepository users;
 
@@ -45,10 +43,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 String jti = claims.getId();
 
                 users.findByEmail(email).ifPresent(user -> {
-                    // A blocked account keeps its history but cannot act.
                     if (user.isBlocked()) return;
 
-                    // Admin tokens are only honoured while the server still recognises the session.
                     if ("ADMIN".equals(user.getRole()) && !sessions.isLive(jti)) return;
 
                     var authority = new SimpleGrantedAuthority("ROLE_" + user.getRole());
@@ -57,7 +53,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(auth);
                 });
             } catch (Exception ignored) {
-                // malformed or expired token — continue as anonymous
             }
         }
 

@@ -6,7 +6,6 @@ import java.util.List;
 
 import com.greenhaven.entity.Order;
 
-/** An order as the client may see it. */
 public record OrderDto(
         String orderNumber,
         String invoiceNumber,
@@ -30,7 +29,6 @@ public record OrderDto(
         String pincode,
         Instant placedAt,
         List<Line> items) {
-
     public record Line(String slug, String name, int quantity, BigDecimal unitPrice) {
     }
 

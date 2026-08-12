@@ -16,13 +16,10 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 
-/** Discount codes, as the storefront and the dashboard see them. */
 public final class CouponDtos {
-
     private CouponDtos() {
     }
 
-    /** A basket to price, plus the code to try on it. */
     public record QuoteRequest(
             @NotBlank(message = "Enter a code.")
             @Size(max = 40, message = "That is not a code we issue.")
@@ -31,14 +28,12 @@ public final class CouponDtos {
             @NotEmpty(message = "Your cart is empty")
             @Size(max = 50, message = "An order can hold up to 50 different products")
             @Valid List<Line> items) {
-
         public record Line(
                 @NotBlank String slug,
                 @Positive @Max(99) int quantity) {
         }
     }
 
-    /** What the basket costs with the code applied — or why it does not apply. */
     public record QuoteResponse(
             boolean applied,
             String code,
@@ -49,7 +44,6 @@ public final class CouponDtos {
             BigDecimal shipping,
             BigDecimal tax,
             BigDecimal total) {
-
         public static QuoteResponse accepted(Coupon coupon, PricingService.Totals t) {
             return new QuoteResponse(true, coupon.getCode(), coupon.getDescription(), null,
                     t.subtotal(), t.discount(), t.shipping(), t.tax(), t.total());
@@ -62,7 +56,6 @@ public final class CouponDtos {
         }
     }
 
-    /** A coupon as the dashboard lists it, with what it has actually cost. */
     public record CouponRow(
             Long id,
             String code,
@@ -80,7 +73,6 @@ public final class CouponDtos {
             Instant createdAt,
             long timesUsed,
             BigDecimal givenAway,
-            /** Live, expired, not started, fully claimed — one word for the list. */
             String state) {
     }
 

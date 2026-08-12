@@ -19,10 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.greenhaven.repository.ReviewImageRepository;
 
-/** Removes review photographs that were uploaded but never attached to anything. */
 @Service
 public class OrphanUploadSweeper {
-
     private static final Logger log = LoggerFactory.getLogger(OrphanUploadSweeper.class);
 
     private final ReviewImageRepository images;
@@ -43,7 +41,6 @@ public class OrphanUploadSweeper {
         this.enabled = enabled;
     }
 
-    /** Once an hour. */
     @Scheduled(initialDelayString = "${greenhaven.uploads.sweep-initial-delay:PT5M}",
                fixedDelayString = "${greenhaven.uploads.sweep-interval:PT1H}")
     public void scheduled() {
@@ -52,12 +49,10 @@ public class OrphanUploadSweeper {
             int removed = sweep();
             if (removed > 0) log.info("Removed {} unattached review photograph(s).", removed);
         } catch (RuntimeException e) {
-            // A scheduled task that throws can be silently unscheduled by Spring.
             log.error("Orphan upload sweep failed: {}", e.getMessage());
         }
     }
 
-    /** Exposed so it can be run on demand and tested. Returns how many went. */
     @Transactional(readOnly = true)
     public int sweep() {
         if (!Files.isDirectory(reviewsDir)) return 0;

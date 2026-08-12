@@ -1,7 +1,3 @@
-/* Explicit column counts, not auto-fit. */
-
-/* auto-FIT, not auto-fill. */
-
 .bestsellers__grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -12,7 +8,6 @@
   display: flex;
 }
 
-/* Cards sit on the tinted section, so give them a touch more lift than the plain-background. */
 .bestsellers .product-card {
   border-color: transparent;
   box-shadow: var(--shadow-sm);
@@ -34,13 +29,11 @@
 .bestsellers__promise li {
   display: flex;
   align-items: center;
-  /* Centre the icon-and-text block inside its column rather than pinning it to the left edge. */
   justify-content: center;
   gap: var(--space-md);
   color: var(--color-primary);
 }
 
-/* The text inside each block stays left-aligned — centring two lines of different lengths against. */
 .bestsellers__promise li > div {
   text-align: left;
 }

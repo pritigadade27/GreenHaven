@@ -14,14 +14,12 @@ import com.greenhaven.entity.Coupon;
 import jakarta.persistence.LockModeType;
 
 public interface CouponRepository extends JpaRepository<Coupon, Long> {
-
     Optional<Coupon> findByCode(String code);
 
     boolean existsByCode(String code);
 
     Page<Coupon> findAllByOrderByIdDesc(Pageable pageable);
 
-    /** Locks the coupon row for the length of the transaction. */
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT c FROM Coupon c WHERE c.code = :code")
     Optional<Coupon> findByCodeForUpdate(@Param("code") String code);

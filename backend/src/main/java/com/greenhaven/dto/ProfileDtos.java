@@ -10,13 +10,10 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-/** Everything the signed-in customer sees about themselves. */
 public final class ProfileDtos {
-
     private ProfileDtos() {
     }
 
-    /** Indian mobile numbers, the same rule the checkout form applies. */
     private static final String PHONE = "^([+]?91[- ]?|0)?[6-9]\\d{9}$";
     private static final String PINCODE = "^\\d{6}$";
 
@@ -49,8 +46,6 @@ public final class ProfileDtos {
             LocalDate estimatedDelivery,
             boolean cancellable,
             List<Thumb> preview) {
-
-        /** Just enough of a line to draw the row — image, name, quantity. */
         public record Thumb(String slug, String name, String image, int quantity) {
         }
     }
@@ -77,7 +72,6 @@ public final class ProfileDtos {
             BigDecimal total,
             PaymentRow payment,
             List<TimelineStep> timeline) {
-
         public record Address(String name, String line, String city, String state,
                              String pincode, String country, String phone) {
         }
@@ -87,7 +81,6 @@ public final class ProfileDtos {
         }
     }
 
-    /** One step of the tracking strip. */
     public record TimelineStep(String key, String label, String state, Instant at) {
     }
 
@@ -106,7 +99,6 @@ public final class ProfileDtos {
             boolean invoiceAvailable) {
     }
 
-    /** One issued document. */
     public record InvoiceRow(
             String invoiceNumber,
             String orderNumber,
@@ -146,7 +138,6 @@ public final class ProfileDtos {
             @Size(min = 2, max = 120, message = "Use between 2 and 120 characters.")
             String fullName,
 
-            // Optional, but must be a real number if given.
             @Pattern(regexp = PHONE + "|^$", message = "Enter a 10-digit Indian mobile number.")
             String phone,
 

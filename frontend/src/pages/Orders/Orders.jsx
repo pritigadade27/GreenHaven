@@ -8,7 +8,6 @@ import { orderApi } from '../../services/api.js';
 import { formatPrice } from '../../utils/format.js';
 import './Orders.css';
 
-/** How each status reads to a customer, and how it looks. */
 const STATUS = {
   PAID: { label: 'Paid', tone: 'good', note: 'Being potted up for despatch.' },
   PENDING: { label: 'Awaiting payment', tone: 'wait', note: 'Payment was not completed.' },
@@ -27,7 +26,7 @@ export default function Orders() {
   const { isSignedIn, ready } = useAuth();
   const navigate = useNavigate();
 
-  const [orders, setOrders] = useState(null); // null = still loading
+  const [orders, setOrders] = useState(null);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -44,7 +43,6 @@ export default function Orders() {
       .mine()
       .then((list) => alive && setOrders(list))
       .catch((err) => alive && (setError(err.message), setOrders([])));
-    // Guards against a state update after the customer navigates away.
     return () => {
       alive = false;
     };

@@ -9,11 +9,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
-/** A message sent from the Contact page. */
 @Entity
 @Table(name = "contact_message")
 public class ContactMessage {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

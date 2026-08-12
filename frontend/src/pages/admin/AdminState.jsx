@@ -1,6 +1,5 @@
 import Icon from '../../components/common/Icon/Icon.jsx';
 
-/** Loading, error and content for an admin screen, in one place. */
 export default function AdminState({ query, children, skeleton = 'rows' }) {
   const { data, loading, error, reload } = query;
 

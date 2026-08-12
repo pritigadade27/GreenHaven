@@ -14,7 +14,6 @@ const SUGGESTIONS = [
   'Air Purifying Plants',
 ];
 
-/** Full-width search panel that drops down from the navbar. */
 export default function SearchOverlay({ open, onClose }) {
   const [query, setQuery] = useState('');
   const inputRef = useRef(null);
@@ -22,13 +21,11 @@ export default function SearchOverlay({ open, onClose }) {
   const opener = useRef(null);
   const navigate = useNavigate();
 
-  // The parent passes a fresh arrow function on every render, and the navbar re-renders whenever the cart badge, scroll state or auth state changes.
   const close = useRef(onClose);
   close.current = onClose;
 
   useLockBodyScroll(open);
 
-  // Focus the field as it opens, keep Tab inside the panel, and put focus back where it came from.
   useEffect(() => {
     if (!open) return undefined;
 
@@ -42,7 +39,6 @@ export default function SearchOverlay({ open, onClose }) {
       }
       if (event.key !== 'Tab' || !panelRef.current) return;
 
-      // Without this, Tab walks straight out of the open panel and into the page behind it, which a screen-reader or keyboard user cannot see is still covered.
       const focusable = panelRef.current.querySelectorAll(
         'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])'
       );
@@ -63,7 +59,6 @@ export default function SearchOverlay({ open, onClose }) {
     return () => {
       clearTimeout(timer);
       window.removeEventListener('keydown', onKeyDown);
-      // Dropping focus to <body> leaves a keyboard user at the top of the document with no idea where.
       if (opener.current instanceof HTMLElement) opener.current.focus();
     };
   }, [open]);

@@ -23,12 +23,10 @@ import com.greenhaven.service.CouponAdminService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
-/** Discount codes. */
 @RestController
 @RequestMapping("/api/admin/coupons")
 @PreAuthorize("hasRole('ADMIN')")
 public class CouponAdminController {
-
     private final CouponAdminService coupons;
     private final AdminAuditService audit;
 

@@ -33,7 +33,6 @@
   box-shadow: var(--shadow-xl);
 }
 
-/* smaller frame overlapping the bottom-left corner */
 .why__photo--inset {
   position: absolute;
   left: 0;

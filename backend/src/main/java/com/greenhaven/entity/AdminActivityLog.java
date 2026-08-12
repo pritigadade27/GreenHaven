@@ -9,11 +9,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
-/** One recorded admin action. */
 @Entity
 @Table(name = "admin_activity_log")
 public class AdminActivityLog {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

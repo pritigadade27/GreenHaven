@@ -1,18 +1,6 @@
 #!/usr/bin/env bash
-# Green Haven — the document ledger, end to end.
-#
-#   bash backend/tools/test-invoices.sh
-#
-# The rule this suite holds down: an issued invoice is never edited and never
-# deleted. Cancelling a paid order does not rub it out — the money really was
-# taken — it issues a CREDIT NOTE that offsets it, and both documents stand.
-#
-# RESTART THE API FIRST — /api/orders is capped at 30 an hour.
 API=${API:-http://localhost:8080/api}
 MYSQL=${MYSQL:-/c/Users/vnp12/mysql/mysql-8.4.9-winx64/bin/mysql.exe}
-# Credentials come from backend/tools/test-env.sh, which is gitignored. There
-# is deliberately no built-in default: a fallback password in a committed
-# script is a published password.
 HERE="$(cd "$(dirname "$0")" && pwd)"
 [ -f "$HERE/test-env.sh" ] && . "$HERE/test-env.sh"
 : "${MYSQL_PWD:?set MYSQL_PWD — copy test-env.example.sh to test-env.sh}"
@@ -22,8 +10,6 @@ export MYSQL_PWD
 
 Q() { "$MYSQL" --default-character-set=utf8mb4 -u priti green_haven -N -B -e "$1"; }
 
-# Shared, foreign-key-ordered teardown. Each suite used to roll its own and
-# every one was incomplete, so cleanup aborted on the first FK error.
 . "$(cd "$(dirname "$0")" && pwd)/cleanup.sh"
 pass=0; fail=0
 check() {
@@ -45,11 +31,6 @@ io.open(sys.argv[1], 'w', encoding='utf-8').write(json.dumps(json.loads(sys.argv
 post()  { json "$3"; curl -s -m 30 -X "$1" "$2" -H "Authorization: Bearer $TOK" \
   -H 'Content-Type: application/json; charset=utf-8' --data-binary @"$BODY"; }
 
-# Does a PDF show this text?
-#
-# The search happens inside Python rather than by piping to grep: the
-# decompressed page stream is binary, and pushing it through the shell mangles
-# it — which reads as "the text is missing" when it is right there.
 has() { python -c '
 import re, sys, zlib
 d = open(sys.argv[1], "rb").read()
@@ -64,8 +45,6 @@ print("yes" if needle in text else "no")' "$1" "$2"; }
 STAMP=$(date +%s)
 SLUG=snake-plant
 EM="inv$STAMP@example.com"
-# Residue from an earlier run, cleared BEFORE this run creates anything —
-# doing it afterwards deletes the accounts the suite is about to use.
 purge_test_accounts "inv%@example.com"
 
 TOK=$(curl -s -m 20 -X POST $API/auth/register -H 'Content-Type: application/json' \
@@ -111,8 +90,6 @@ check "…for the amount charged"         "$(Q "SELECT total FROM orders WHERE o
 
 echo
 echo "== PAYING TWICE DOES NOT ISSUE TWICE =="
-# The webhook and the browser callback race by design; replaying one must not
-# mint a second document for the same money.
 curl -s -m 30 -X POST $API/orders/verify -H "Authorization: Bearer $TOK" \
   -H 'Content-Type: application/json' -d "$SIG" >/dev/null
 check "still one document" "1" \
@@ -131,8 +108,6 @@ check "…and is not a credit note" "no" "$(has "$WORK/inv.pdf" 'CREDIT NOTE')"
 
 echo
 echo "== SOMEBODY ELSE'S DOCUMENT =="
-# Invoice numbers run in sequence, so without an ownership check anyone could
-# walk the series and read every customer's name and address.
 check "refused" 404 "$(code -H "Authorization: Bearer $TOK2" "$API/profile/documents/$INV")"
 check "…and gives nothing away" "No document with that number." \
   "$(curl -s -m 30 -H "Authorization: Bearer $TOK2" "$API/profile/documents/$INV" | jq_ message)"
@@ -206,20 +181,13 @@ check "credit notes have their own counter" "1" \
 check "…separate from the invoice one" "1" \
   "$(Q "SELECT COUNT(*) FROM document_sequence WHERE name='INVOICE';")"
 
-# ---- tidy up --------------------------------------------------------------
-# The orders go too. Removing only the ledger rows left PAID orders carrying an
-# invoice number that no invoice existed for — the exact contradiction this
-# ledger is meant to make impossible.
 purge_test_accounts "inv%@example.com"
 assert_clean "inv%@example.com"
 rm -rf "$WORK" "$BODY"
 
-# Teardown. Runs at the end as well as the start, so a finished run leaves
-# the database exactly as it found it.
 purge_test_accounts "inv%@example.com"
 assert_clean "inv%@example.com"
 rm -f "$BODY"
-
 
 echo
 echo "  $pass passed, $fail failed"

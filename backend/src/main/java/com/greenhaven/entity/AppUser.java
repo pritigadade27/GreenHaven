@@ -9,11 +9,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
-/** A customer account. */
 @Entity
 @Table(name = "app_user")
 public class AppUser {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -24,7 +22,6 @@ public class AppUser {
     @Column(nullable = false, unique = true, length = 160)
     private String email;
 
-    /** BCrypt hash. The plain password is never stored or logged. */
     @Column(name = "password_hash", nullable = false, length = 255)
     private String passwordHash;
 
@@ -34,7 +31,6 @@ public class AppUser {
     @Column(name = "avatar_url", length = 255)
     private String avatarUrl;
 
-    /** A requested email change, not yet proved. */
     @Column(name = "pending_email", length = 160)
     private String pendingEmail;
 
@@ -77,7 +73,6 @@ public class AppUser {
     public Instant getPendingEmailExpiresAt() { return pendingEmailExpiresAt; }
     public void setPendingEmailExpiresAt(Instant at) { this.pendingEmailExpiresAt = at; }
 
-    /** Set by an admin. */
     @Column(name = "is_blocked", nullable = false)
     private boolean blocked = false;
 

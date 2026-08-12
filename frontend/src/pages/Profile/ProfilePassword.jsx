@@ -7,7 +7,6 @@ import { Flash, SectionHead } from './ProfileParts.jsx';
 
 const BLANK = { currentPassword: '', newPassword: '', confirmPassword: '' };
 
-/** Cheap, honest feedback on the new password — the server sets the real floor. */
 function strengthOf(password) {
   if (!password) return null;
   let score = 0;
@@ -43,7 +42,6 @@ export default function ProfilePassword() {
     event.preventDefault();
     setFlash(null);
 
-    // Caught here as well as on the server, so the round trip is not spent on something the form can.
     if (mismatch) {
       setFlash({ tone: 'bad', message: 'The two new passwords do not match.' });
       return;

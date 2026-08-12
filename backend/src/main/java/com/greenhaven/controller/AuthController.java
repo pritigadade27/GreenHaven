@@ -20,11 +20,9 @@ import com.greenhaven.service.AuthService;
 
 import jakarta.validation.Valid;
 
-/** POST /api/auth/register POST /api/auth/login GET /api/auth/me (requires the bearer token) */
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
-
     private final AuthService auth;
     private final com.greenhaven.service.PasswordResetService passwordResets;
 
@@ -43,7 +41,6 @@ public class AuthController {
         return auth.login(request);
     }
 
-    /** Starts a password reset. */
     @PostMapping("/forgot-password")
     public java.util.Map<String, String> forgotPassword(
             @RequestBody java.util.Map<String, String> body,
@@ -53,12 +50,10 @@ public class AuthController {
         response.put("message",
                 "If that address has an account, a reset link is on its way. "
                         + "It is good for one hour.");
-        // Present only in development — see greenhaven.auth.expose-reset-token.
         token.ifPresent(value -> response.put("token", value));
         return response;
     }
 
-    /** Whether a reset link is still good, so the form can say so up front. */
     @GetMapping("/reset-password")
     public java.util.Map<String, Boolean> checkReset(@RequestParam String token) {
         return java.util.Map.of("usable", passwordResets.isUsable(token));

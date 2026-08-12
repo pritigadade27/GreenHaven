@@ -1,5 +1,3 @@
-/* Deliberately self-contained: if the app crashed, we cannot assume any other stylesheet or component rendered. */
-
 .crash {
   display: flex;
   align-items: center;

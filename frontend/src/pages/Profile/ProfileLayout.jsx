@@ -19,7 +19,6 @@ const SECTIONS = [
   { to: '/profile/notifications', icon: 'bell', label: 'Notifications' },
 ];
 
-/** The shell every profile screen renders inside. */
 export default function ProfileLayout() {
   const { user, isSignedIn, ready, logout } = useAuth();
   const navigate = useNavigate();

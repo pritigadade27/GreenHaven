@@ -12,11 +12,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
-/** A delivery address the customer has saved for reuse. */
 @Entity
 @Table(name = "address")
 public class Address {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

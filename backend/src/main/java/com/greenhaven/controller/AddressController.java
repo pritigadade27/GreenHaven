@@ -20,11 +20,9 @@ import com.greenhaven.service.AddressService;
 
 import jakarta.validation.Valid;
 
-/** Saved delivery addresses, scoped to the caller. */
 @RestController
 @RequestMapping("/api/addresses")
 public class AddressController {
-
     private final AddressService addresses;
 
     public AddressController(AddressService addresses) {

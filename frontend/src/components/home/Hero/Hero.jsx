@@ -5,7 +5,6 @@ import zzPlant from '../../../assets/images/plants/zz-plant.jpg';
 import { useCatalogue } from '../../../context/CatalogueContext.jsx';
 import './Hero.css';
 
-/** Drifting leaf silhouettes behind the photograph. */
 function Leaf({ className }) {
   return (
     <svg className={className} viewBox="0 0 100 60" aria-hidden="true">
@@ -21,7 +20,6 @@ function Leaf({ className }) {
 
 export default function Hero() {
   const { ALL_PLANTS, CATEGORIES } = useCatalogue();
-  // Figures come from the catalogue itself, so they can never drift out of date.
   const stats = [
     { value: CATEGORIES.length, label: 'Plant categories' },
     { value: ALL_PLANTS.length, label: 'Curated species' },
@@ -33,7 +31,6 @@ export default function Hero() {
       <div className="hero__wash" aria-hidden="true" />
 
       <div className="container hero__inner">
-        {/* ------------------------------------------------------------ copy */}
         <div className="hero__content">
           <span className="eyebrow hero__eyebrow">Premium Garden Centre</span>
 
@@ -67,7 +64,6 @@ export default function Hero() {
           </ul>
         </div>
 
-        {/* ----------------------------------------------------------- image */}
         <div className="hero__visual">
           <div className="hero__blob" aria-hidden="true" />
 
@@ -75,7 +71,6 @@ export default function Hero() {
           <Leaf className="hero__leaf hero__leaf--2 float--slow" />
           <Leaf className="hero__leaf hero__leaf--3 float" />
 
-          {/* Three plants rather than one — the arch carries the hero, the two discs show the range without. */}
           <figure className="hero__frame">
             <img
               src={heroPlant}

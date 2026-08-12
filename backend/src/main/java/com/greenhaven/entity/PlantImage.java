@@ -10,11 +10,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
-/** One extra photograph of a product. */
 @Entity
 @Table(name = "plant_image")
 public class PlantImage {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

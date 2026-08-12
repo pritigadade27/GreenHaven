@@ -8,7 +8,6 @@ const ToastContext = createContext(null);
 const ICON = { good: 'check', bad: 'shield', info: 'leaf' };
 const LIFETIME = { good: 4000, info: 5000, bad: 8000 };
 
-/** Brief messages that do not interrupt. */
 export function ToastProvider({ children }) {
   const [toasts, setToasts] = useState([]);
   const timers = useRef(new Map());
@@ -25,7 +24,6 @@ export function ToastProvider({ children }) {
   const push = useCallback(
     (message, tone = 'good') => {
       if (!message) return null;
-      // Date.now alone collides when two land in the same millisecond, which duplicates React keys and.
       const id = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
       setToasts((current) => [...current.slice(-3), { id, message, tone }]);
       timers.current.set(id, setTimeout(() => dismiss(id), LIFETIME[tone] ?? 5000));

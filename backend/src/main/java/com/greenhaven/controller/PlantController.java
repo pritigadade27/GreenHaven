@@ -14,11 +14,9 @@ import com.greenhaven.dto.PlantDetailDto;
 import com.greenhaven.dto.PlantSummaryDto;
 import com.greenhaven.service.PlantService;
 
-/** The catalogue API. */
 @RestController
 @RequestMapping("/api/plants")
 public class PlantController {
-
     private final PlantService plants;
 
     public PlantController(PlantService plants) {
@@ -35,14 +33,11 @@ public class PlantController {
             @RequestParam(required = false) String water,
             @RequestParam(required = false) BigDecimal minPrice,
             @RequestParam(required = false) BigDecimal maxPrice,
-            // Availability and recency.
             @RequestParam(required = false) Boolean inStock,
             @RequestParam(required = false) Boolean newArrival,
             @RequestParam(defaultValue = "featured") String sort,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "24") int size) {
-
-        // Cap the page size so a crafted request cannot ask for the whole table.
         int safeSize = Math.min(Math.max(size, 1), 100);
         return PageResponse.of(plants.search(q, category, petSafety, difficulty, light, water,
                 minPrice, maxPrice, inStock, newArrival, sort, Math.max(page, 0), safeSize));

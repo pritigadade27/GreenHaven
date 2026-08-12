@@ -13,7 +13,6 @@ const WORDS = {
   5: 'I would buy it again',
 };
 
-/** The words for a rating, halves included. */
 function words(rating) {
   if (!rating) return 'Tap a star — halves count';
   if (Number.isInteger(rating)) return WORDS[rating];
@@ -25,7 +24,6 @@ const MAX_IMAGES = 4;
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
-/** Write or edit a review. */
 export default function ReviewForm({ slug, productName, existing, orderNumber, onClose, onSaved }) {
   const [rating, setRating] = useState(existing?.rating ?? 0);
   const [title, setTitle] = useState(existing?.title ?? '');
@@ -40,7 +38,6 @@ export default function ReviewForm({ slug, productName, existing, orderNumber, o
   const cardRef = useRef(null);
   const fileRef = useRef(null);
 
-  // Escape closes, focus moves in on open and back to the opener on close, and Tab stays inside.
   useEffect(() => {
     const opener = document.activeElement;
     const onKeyDown = (event) => {
@@ -66,7 +63,6 @@ export default function ReviewForm({ slug, productName, existing, orderNumber, o
     };
 
     document.addEventListener('keydown', onKeyDown);
-    // Focus the first star: that is where the form starts, and it is the one field that cannot be.
     const timer = setTimeout(
       () => cardRef.current?.querySelector('.stars--input input')?.focus(),
       60
@@ -82,7 +78,6 @@ export default function ReviewForm({ slug, productName, existing, orderNumber, o
     };
   }, [onClose]);
 
-  /** Uploads each chosen file and keeps the paths. */
   async function addFiles(fileList) {
     const chosen = Array.from(fileList ?? []);
     if (!chosen.length) return;
@@ -100,7 +95,6 @@ export default function ReviewForm({ slug, productName, existing, orderNumber, o
     }
 
     for (const file of taking) {
-      // Checked here as well as on the server, so the answer is instant and nobody waits for a 5 MB.
       if (!IMAGE_TYPES.includes(file.type)) {
         setImageError('Photographs must be JPEG, PNG or WebP.');
         continue;
@@ -128,7 +122,6 @@ export default function ReviewForm({ slug, productName, existing, orderNumber, o
     event.preventDefault();
     setError('');
 
-    // Caught here so the round trip is not spent on something the form can see.
     const local = {};
     if (!rating) local.rating = 'Choose a rating.';
     if (body.trim().length < 10) local.body = 'Tell other customers a little more — 10 characters at least.';
@@ -247,7 +240,6 @@ export default function ReviewForm({ slug, productName, existing, orderNumber, o
               hidden
               onChange={(event) => {
                 addFiles(event.target.files);
-                // Cleared so choosing the same file twice still fires a change.
                 event.target.value = '';
               }}
             />
@@ -268,7 +260,6 @@ export default function ReviewForm({ slug, productName, existing, orderNumber, o
           )}
 
           <div className="rform__actions">
-            {/* Held back while a photograph is still uploading, or the review saves without the picture that. */}
             <Button type="submit" size="lg" icon="check" disabled={busy || uploading > 0}>
               {busy ? 'Saving…' : existing ? 'Save changes' : 'Post review'}
             </Button>

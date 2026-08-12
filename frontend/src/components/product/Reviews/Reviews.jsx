@@ -13,7 +13,6 @@ import './Reviews.css';
 const formatDate = (iso) =>
   iso ? new Date(iso).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
 
-/** The photographs on a review, if there are any. */
 function Photos({ images, onOpen }) {
   if (!images?.length) return null;
   return (
@@ -29,7 +28,6 @@ function Photos({ images, onOpen }) {
   );
 }
 
-/** One photograph, enlarged. */
 function Lightbox({ images, index, onClose }) {
   const [at, setAt] = useState(index);
 
@@ -94,7 +92,6 @@ function Lightbox({ images, index, onClose }) {
   );
 }
 
-/** Ratings and reviews for one product. */
 export default function Reviews({ slug, name }) {
   const { isSignedIn, ready } = useAuth();
 
@@ -129,7 +126,6 @@ export default function Reviews({ slug, name }) {
     load(0);
   }, [load]);
 
-  // Asked separately, and only when signed in: an anonymous reader has nothing to check and should.
   const checkEligibility = useCallback(() => {
     if (!isSignedIn) return Promise.resolve(null);
     return reviewApi
@@ -174,7 +170,6 @@ export default function Reviews({ slug, name }) {
             <h2 className="section__title">Ratings &amp; reviews</h2>
           </div>
 
-          {/* Only a customer who has had this plant delivered sees a way in. */}
           {eligibility?.canReview && (
             <Button icon="star" onClick={() => setWriting(true)}>
               Write a review
@@ -196,7 +191,6 @@ export default function Reviews({ slug, name }) {
           </div>
         ) : (
           <div className="reviews__grid">
-            {/* ---- the numbers ---- */}
             <aside className="reviews__summary">
               {total === 0 ? (
                 <div className="reviews__none">
@@ -234,7 +228,6 @@ export default function Reviews({ slug, name }) {
                 </>
               )}
 
-              {/* Why the button is or is not there. Saying so beats hiding it. */}
               {ready && !isSignedIn && (
                 <p className="reviews__note">
                   <Link to="/login">Sign in</Link> to review a plant you have received.
@@ -245,7 +238,6 @@ export default function Reviews({ slug, name }) {
               )}
             </aside>
 
-            {/* ---- what people wrote ---- */}
             <div className="reviews__list">
               {mine && (
                 <article className="review review--mine">

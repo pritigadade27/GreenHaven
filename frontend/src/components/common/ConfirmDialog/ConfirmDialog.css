@@ -1,5 +1,3 @@
-/* A confirmation the customer cannot miss and cannot dismiss by accident. */
-
 .confirm {
   position: fixed;
   inset: 0;
@@ -69,7 +67,6 @@
   transition: var(--transition-base);
 }
 
-/* Cancel is the safer option, so it is the quieter one. */
 .confirm__cancel {
   color: var(--color-text-muted);
   background: transparent;

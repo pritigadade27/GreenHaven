@@ -9,12 +9,10 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
-/** A shop category — Indoor Plants, Succulents, Seeds and so on. */
-@BatchSize(size = 64)   // loaded once per batch of plants, not once per plant
+@BatchSize(size = 64)
 @Entity
 @Table(name = "category")
 public class Category {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

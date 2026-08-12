@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { useAdminAuth } from '../context/AdminAuthContext.jsx';
 
-/** Loads data for an admin screen, with the three states every one of them needs. */
 export default function useAdminQuery(loader, deps = []) {
   const { sessionEnded } = useAdminAuth();
   const [data, setData] = useState(null);
@@ -37,7 +36,7 @@ export default function useAdminQuery(loader, deps = []) {
     return () => {
       alive = false;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [...deps, nonce]);
 
   return { data, error, loading, reload };

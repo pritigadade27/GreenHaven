@@ -127,7 +127,6 @@ export default function ProfilePayments() {
         </div>
       </article>
 
-      {/* The expanded row rendered outside the table, so a narrow screen is not forced to fit six. */}
       {open !== null && (
         <article className="pcard">
           {(() => {

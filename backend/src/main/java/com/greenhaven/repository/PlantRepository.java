@@ -15,15 +15,12 @@ import com.greenhaven.entity.Plant;
 import jakarta.persistence.LockModeType;
 
 public interface PlantRepository extends JpaRepository<Plant, Long> {
-
     Optional<Plant> findBySlug(String slug);
 
-    /** Reads a plant with a row-level write lock (SELECT ... */
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT p FROM Plant p WHERE p.id = :id")
     Optional<Plant> findByIdForUpdate(@Param("id") Long id);
 
-    /** Category id -> product count, for the shop's facet counts. */
     @Query("SELECT p.category.id, COUNT(p) FROM Plant p GROUP BY p.category.id")
     List<Object[]> countByCategory();
 
@@ -31,7 +28,6 @@ public interface PlantRepository extends JpaRepository<Plant, Long> {
 
     long countByStockBetween(int low, int high);
 
-    /** Both of these end on id, and so does searchForAdmin below. */
     Page<Plant> findByStockLessThanEqualOrderByNameAscIdAsc(int stock, Pageable pageable);
 
     Page<Plant> findByStockBetweenOrderByStockAscIdAsc(int low, int high, Pageable pageable);
@@ -40,7 +36,6 @@ public interface PlantRepository extends JpaRepository<Plant, Long> {
 
     boolean existsByCode(String code);
 
-    /** Inventory search: by name, slug or the catalogue code. */
     @Query("""
             SELECT p FROM Plant p
             WHERE (:q IS NULL
@@ -55,10 +50,8 @@ public interface PlantRepository extends JpaRepository<Plant, Long> {
 
     List<Plant> findByBestSellerTrueAndDiscontinuedFalseOrderByReviewCountDesc();
 
-    /** Newest first, because "new arrival" is a claim about recency. */
     List<Plant> findByNewArrivalTrueAndDiscontinuedFalseOrderByIdDesc();
 
-    /** The Shop page's single query. */
     @Query("""
             SELECT p FROM Plant p
             WHERE p.discontinued = FALSE

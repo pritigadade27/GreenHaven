@@ -47,7 +47,6 @@
   white-space: nowrap;
 }
 
-/* Underline grows from the centre on hover. */
 .navbar__link::after {
   content: '';
   position: absolute;
@@ -154,7 +153,6 @@
   position: fixed;
   inset: 0;
   z-index: var(--z-modal);
-  /* Clip the closed panel. */
   overflow: hidden;
   background: var(--overlay-dark);
   backdrop-filter: blur(3px);
@@ -221,7 +219,6 @@
   transform: translateX(24px);
 }
 
-/* Links arrive one after another once the panel is open. */
 .mobile-menu--open .mobile-menu__links li {
   animation: fadeLeft var(--dur-base) var(--ease-out) forwards;
   animation-delay: calc(160ms + var(--i) * 60ms);
@@ -276,7 +273,6 @@
   color: var(--color-green);
 }
 
-/* Tablet and below — collapse the centre links into the drawer. */
 @media (max-width: 991px) {
   .navbar__links,
   .navbar__login {
@@ -301,7 +297,6 @@
   }
 }
 
-/* At 320-380px the bar's contents measured 383px against a 310px box. */
 @media (max-width: 380px) {
   .navbar__inner {
     gap: var(--space-xs);
@@ -322,7 +317,6 @@
   }
 }
 
-/* ---------------------------------------------------- profile menu --- Lives here, not in. */
 .profile-menu {
   position: relative;
 }
@@ -479,8 +473,6 @@
   gap: var(--space-sm);
 }
 
-
-/* Below 992px the burger takes over, exactly as it does for .navbar__login. */
 @media (max-width: 991px) {
   .profile-menu {
     display: none;

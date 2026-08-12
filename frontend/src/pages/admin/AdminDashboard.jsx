@@ -5,7 +5,6 @@ import { formatPrice } from '../../utils/format.js';
 import AdminState from './AdminState.jsx';
 import AdminProductStrip from './AdminProductStrip.jsx';
 
-/** The twelve figures, and how each should read. */
 const CARDS = [
   ['totalProducts', 'Products', 'leaf'],
   ['totalCategories', 'Categories', 'filter'],
@@ -83,7 +82,6 @@ export default function AdminDashboard() {
   );
 }
 
-/** A bar chart in plain CSS. */
 function RevenueChart({ points }) {
   const peak = Math.max(...points.map((p) => Number(p.revenue) || 0), 1);
 

@@ -11,8 +11,6 @@ import org.springframework.data.repository.query.Param;
 import com.greenhaven.entity.Address;
 
 public interface AddressRepository extends JpaRepository<Address, Long> {
-
-    /** Default first, then newest — the order the customer sees them in. */
     List<Address> findByUserIdOrderByDefaultAddressDescIdDesc(Long userId);
 
     Optional<Address> findByIdAndUserId(Long id, Long userId);
@@ -21,7 +19,6 @@ public interface AddressRepository extends JpaRepository<Address, Long> {
 
     Optional<Address> findFirstByUserIdAndDefaultAddressTrue(Long userId);
 
-    /** Clears the flag on every other address in one statement. */
     @Modifying
     @Query("UPDATE Address a SET a.defaultAddress = false "
             + "WHERE a.user.id = :userId AND a.id <> :keep")

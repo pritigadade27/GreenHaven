@@ -7,7 +7,6 @@ import { resolveImage } from '../../utils/productImages.js';
 import { formatPrice } from '../../utils/format.js';
 import AdminState from './AdminState.jsx';
 
-/** A row of products with their photographs. */
 export default function AdminProductStrip() {
   const low = useAdminQuery(() => adminApi.inventory({ filter: 'low', size: 6 }), []);
   const recent = useAdminQuery(() => adminApi.inventory({ filter: 'recent', size: 6 }), []);

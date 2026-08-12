@@ -14,11 +14,9 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
-/** One use of a coupon, on one order. */
 @Entity
 @Table(name = "coupon_redemption")
 public class CouponRedemption {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -35,7 +33,6 @@ public class CouponRedemption {
     @JoinColumn(name = "order_id", nullable = false, unique = true)
     private Order order;
 
-    /** What was actually taken off, in rupees. */
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal discount = BigDecimal.ZERO;
 

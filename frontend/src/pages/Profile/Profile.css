@@ -1,5 +1,3 @@
-/* My Profile. */
-
 .profile {
   padding-top: calc(var(--navbar-height) + var(--space-xl));
 }
@@ -464,7 +462,6 @@
   font-size: 0.85em;
 }
 
-/* Marks a credit note in the documents list. */
 .pcredit {
   display: block;
   margin-top: 3px;
@@ -546,7 +543,6 @@
   pointer-events: none;
 }
 
-/* Password strength — four bars that fill as the score rises. */
 .pstrength {
   display: flex;
   align-items: center;
@@ -737,7 +733,6 @@
   text-align: center;
 }
 
-/* The connector, drawn from each dot to the next rather than as a bar behind the row — so it. */
 .ptrack__step::before {
   content: '';
   position: absolute;
@@ -826,11 +821,9 @@
   }
 }
 
-/* Wide tables scroll inside their own box; the page never scrolls sideways. */
 .ptable-wrap {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
-  /* Belt and braces: a flex or grid item's automatic minimum is its content, and the table below is. */
   min-width: 0;
 }
 
@@ -1146,12 +1139,10 @@
 }
 
 @media (max-width: 1024px) {
-  /* minmax(0, 1fr), not 1fr: a bare `1fr` track takes its minimum from the content, so the. */
   .profile__grid {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  /* The sidebar becomes a scrolling strip of chips above the panel. */
   .profile__nav {
     position: static;
     padding: var(--space-xs);
@@ -1182,7 +1173,6 @@
     gap: 0;
   }
 
-  /* Vertical on narrow screens: seven labels across a phone is unreadable. */
   .ptrack__step {
     flex-direction: row;
     align-items: center;
@@ -1232,14 +1222,12 @@
   }
 }
 
-/* Below 640px the tables stop being tables. */
 @media (max-width: 640px) {
   .ptable {
     min-width: 0;
   }
 
   .ptable thead {
-    /* Hidden from sight, not from screen readers' reading order — the labels are repeated per cell. */
     position: absolute;
     width: 1px;
     height: 1px;
@@ -1275,7 +1263,6 @@
     text-align: right;
   }
 
-  /* The secondary line (payment method, invoice number) drops under its value rather than competing. */
   .ptable td small {
     flex-basis: 100%;
     text-align: right;
@@ -1345,7 +1332,6 @@
   }
 }
 
-/* The strip animates in; anyone who has asked for less motion gets none. */
 @media (prefers-reduced-motion: reduce) {
   .psec,
   .profile-menu__panel,
@@ -1358,7 +1344,6 @@
   }
 }
 
-/* "Rate & review" on a delivered order's line. */
 .porder__rate {
   display: inline-flex;
   align-items: center;

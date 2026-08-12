@@ -1,6 +1,3 @@
-/** Green Haven — everything that is not a living plant. */
-
-// Seeds — our own packaging, shot three ways: printed front, torn open with the seeds spilling.
 import seedMarigoldFront from '../assets/images/seeds/seed-marigold-front.jpg';
 import seedSunflowerFront from '../assets/images/seeds/seed-sunflower-front.jpg';
 import seedRoseFront from '../assets/images/seeds/seed-rose-front.jpg';
@@ -14,7 +11,6 @@ import seedAgaveFront from '../assets/images/seeds/seed-agave-front.jpg';
 import seedCrotonFront from '../assets/images/seeds/seed-croton-front.jpg';
 import seedAloeVeraFront from '../assets/images/seeds/seed-aloe-vera-front.jpg';
 
-// Pots & planters
 import potTerracotta from '../assets/images/care/terracotta-set.jpg';
 import potCeramic from '../assets/images/care/ceramic-planters.jpg';
 import potSingle from '../assets/images/tools/pot.jpg';
@@ -50,7 +46,6 @@ import toolTwine from '../assets/images/tools/twine.jpg';
 import toolLabels from '../assets/images/tools/plant-labels-1.jpg';
 import toolDuo from '../assets/images/care/hand-tool-duo.jpg';
 
-// Plant care products
 import careFertilizer from '../assets/images/care/organic-fertilizer.jpg';
 import careLiquid from '../assets/images/care/liquid-feed.jpg';
 import careMister from '../assets/images/care/neem-mister.jpg';
@@ -61,7 +56,6 @@ import careGranular from '../assets/images/care/granular-feed.jpg';
 import carePest from '../assets/images/care/pest-spray.jpg';
 import careMeter from '../assets/images/care/moisture-meter.jpg';
 
-/** Shorthand — merchandise entries repeat a lot of the same scaffolding. */
 const item = ({
   id, slug, name, subtitle, category, price, mrp, image,
   rating = 4.6, reviews = 40, stock = 60, short, description,
@@ -72,7 +66,6 @@ const item = ({
   botanical: subtitle,
   category, price, mrp, image, rating, reviews, stock,
   short, description,
-  // NOT a blanket 'safe'.
   petSafety: pet,
   difficulty,
   light: null,

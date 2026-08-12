@@ -1,5 +1,3 @@
-/** Green Haven — the badge taxonomy. */
-
 export const BADGES = {
   petFriendly: {
     label: 'Pet Friendly',
@@ -93,7 +91,6 @@ export const BADGES = {
   },
 };
 
-/** Filters offered on the Shop page, in display order. */
 export const FILTER_GROUPS = [
   {
     key: 'petSafety',

@@ -12,11 +12,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
-/** Something that happened to one customer's order, written down for them. */
 @Entity
 @Table(name = "notification")
 public class Notification {
-
     public static final String ORDER_PLACED = "ORDER_PLACED";
     public static final String PAYMENT_SUCCESSFUL = "PAYMENT_SUCCESSFUL";
     public static final String PAYMENT_FAILED = "PAYMENT_FAILED";

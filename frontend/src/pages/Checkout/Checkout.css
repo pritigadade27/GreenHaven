@@ -1,5 +1,3 @@
-/* Checkout — form on the left, an unchangeable summary on the right. */
-
 .checkout__grid {
   display: grid;
   grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
@@ -161,8 +159,6 @@
   color: var(--color-green);
 }
 
-/* ---- discount code ------------------------------------------------------ */
-
 .checkout__coupon {
   margin-bottom: var(--space-md);
   padding-bottom: var(--space-md);
@@ -190,7 +186,6 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   font-size: var(--fs-sm);
-  /* Codes are printed in capitals and matched in capitals, so showing them that way keeps what is. */
   text-transform: uppercase;
 }
 
@@ -268,7 +263,6 @@
   font-size: var(--fs-xs);
 }
 
-/* Money coming off reads as a gain, so it is coloured like the free-delivery note rather than. */
 .checkout__saved dt,
 .checkout__saved dd {
   color: #3d6639 !important;
@@ -378,7 +372,6 @@
   color: var(--color-text-muted);
 }
 
-/* A warning, not a success — the same medallion in the alert colour. */
 .checkout__tick--warn {
   background: var(--color-secondary);
 }
@@ -394,7 +387,6 @@
   padding-top: calc(var(--navbar-height) + var(--space-xl));
 }
 
-/* Simulated payment sheet. */
 .testpay {
   position: fixed;
   inset: 0;
@@ -490,7 +482,6 @@
   color: var(--color-primary);
 }
 
-/* Saved addresses at checkout. */
 .checkout__saved {
   display: flex;
   flex-direction: column;

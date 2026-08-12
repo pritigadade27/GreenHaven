@@ -9,7 +9,6 @@ import { resolveImage } from '../../utils/productImages.js';
 import { formatPrice } from '../../utils/format.js';
 import { Empty, SectionHead } from './ProfileParts.jsx';
 
-/** The same saved list as /wishlist, laid out as rows to sit inside the profile panel. */
 export default function ProfileWishlist() {
   const { reload } = useOutletContext();
   const { items, totalItems, removeFromWishlist } = useWishlist();

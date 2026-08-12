@@ -28,11 +28,9 @@ import com.greenhaven.service.ProfileService;
 
 import jakarta.validation.Valid;
 
-/** My Profile. */
 @RestController
 @RequestMapping("/api/profile")
 public class ProfileController {
-
     private final ProfileService profile;
     private final NotificationService notifications;
     private final InvoicePdfService invoices;
@@ -55,7 +53,6 @@ public class ProfileController {
         return profile.updateProfile(principal.getName(), body);
     }
 
-    /** Returns the confirmation token in the response because no mail server is wired up yet. */
     @PostMapping("/email")
     public Map<String, String> requestEmailChange(
             Principal principal, @Valid @RequestBody ProfileDtos.ChangeEmailRequest body) {
@@ -66,7 +63,6 @@ public class ProfileController {
                 "token", token);
     }
 
-    /** Returns a fresh token: the old one names an address that has moved. */
     @PostMapping("/email/confirm")
     public com.greenhaven.dto.AuthResponse confirmEmailChange(Principal principal,
                                                               @RequestParam String token) {
@@ -118,12 +114,10 @@ public class ProfileController {
                 .contentType(MediaType.APPLICATION_PDF)
                 .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment()
                         .filename(order.getInvoiceNumber() + ".pdf").build().toString())
-                // An invoice never changes once issued, but it is nobody else's business — private, so no shared.
                 .header(HttpHeaders.CACHE_CONTROL, "private, max-age=0, no-store")
                 .body(pdf);
     }
 
-    /** Any issued document by its number — an invoice or a credit note. */
     @GetMapping(value = "/documents/{number}", produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<byte[]> document(Principal principal, @PathVariable String number) {
         com.greenhaven.entity.Invoice doc = profile.ownedDocument(principal.getName(), number);

@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 
-/** Freezes page scrolling while a full-screen layer (mobile menu, search overlay) is open. */
 let locks = 0;
 let original = null;
 

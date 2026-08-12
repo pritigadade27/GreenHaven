@@ -26,10 +26,8 @@ const BLANK = {
 const formatDate = (iso) =>
   iso ? new Date(iso).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
 
-/** A datetime-local value ("2026-08-20T18:30") as an instant the API accepts. */
 const toInstant = (local) => (local ? new Date(local).toISOString() : null);
 
-/** And back again, for the edit form. */
 const toLocal = (iso) => {
   if (!iso) return '';
   const d = new Date(iso);
@@ -79,7 +77,6 @@ export default function AdminCoupons() {
         description: form.description.trim() || null,
         discountType: form.discountType,
         discountValue: Number(form.discountValue),
-        // Empty means "no ceiling", which is not the same as zero — so these go as null rather than being.
         maxDiscount: form.maxDiscount === '' ? null : Number(form.maxDiscount),
         minOrderValue: form.minOrderValue === '' ? 0 : Number(form.minOrderValue),
         freeShipping: form.freeShipping,

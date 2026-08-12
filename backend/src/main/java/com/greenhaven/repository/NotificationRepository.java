@@ -13,7 +13,6 @@ import org.springframework.data.repository.query.Param;
 import com.greenhaven.entity.Notification;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
-
     Page<Notification> findByUserIdOrderByIdDesc(Long userId, Pageable pageable);
 
     List<Notification> findTop20ByUserIdOrderByIdDesc(Long userId);

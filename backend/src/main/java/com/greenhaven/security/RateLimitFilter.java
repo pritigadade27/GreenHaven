@@ -23,19 +23,15 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-/** Per-IP rate limiting on the endpoints that are worth attacking. */
 @Component
-// One step ahead of springSecurityFilterChain, so throttling happens before any authentication.
 @Order(SecurityProperties.DEFAULT_FILTER_ORDER - 1)
 public class RateLimitFilter extends OncePerRequestFilter {
-
     private record Rule(String method, String path, int limit, Duration window) {
         boolean matches(String method, String path) {
             return this.method.equals(method) && this.path.equals(path);
         }
     }
 
-    /** Normalises the URI before matching. */
     private static String normalise(String uri) {
         int semi = uri.indexOf(';');
         if (semi >= 0) uri = uri.substring(0, semi);
@@ -43,13 +39,10 @@ public class RateLimitFilter extends OncePerRequestFilter {
         return uri;
     }
 
-    /** Timestamps of recent hits, oldest first. */
     private final Map<String, Deque<Instant>> hits = new ConcurrentHashMap<>();
     private final Rule[] rules;
-    /** Peer addresses whose X-Forwarded-For header may be believed. */
     private final Set<String> trustedProxies;
 
-    /** Volatile because every request thread reads and writes it. */
     private volatile Instant lastSweep = Instant.EPOCH;
 
     public RateLimitFilter(
@@ -59,22 +52,16 @@ public class RateLimitFilter extends OncePerRequestFilter {
             @Value("${greenhaven.ratelimit.checkout-per-hour:30}") int checkoutLimit,
             @Value("${greenhaven.ratelimit.coupon-per-15min:15}") int couponLimit,
             @Value("${greenhaven.ratelimit.trusted-proxies:}") String trustedProxies) {
-
         this.rules = new Rule[] {
             new Rule("POST", "/api/auth/login", loginLimit, Duration.ofMinutes(15)),
-            // The admin credential opens every order and customer record, so it gets a tighter cap than a.
             new Rule("POST", "/api/admin/auth/login", 5, Duration.ofMinutes(15)),
             new Rule("POST", "/api/auth/register", registerLimit, Duration.ofHours(1)),
-            // A reset both sends mail and probes for an account, so it is capped tighter than sign-in.
             new Rule("POST", "/api/auth/forgot-password", 5, Duration.ofHours(1)),
             new Rule("POST", "/api/auth/reset-password", 10, Duration.ofHours(1)),
             new Rule("POST", "/api/contact", formLimit, Duration.ofHours(1)),
             new Rule("POST", "/api/newsletter", formLimit, Duration.ofHours(1)),
-            // Every checkout opens a real order on Razorpay's side.
             new Rule("POST", "/api/orders", checkoutLimit, Duration.ofHours(1)),
-            // Uploads put bytes on our disk.
             new Rule("POST", "/api/reviews/image", 20, Duration.ofHours(1)),
-            // Quoting a code says whether that code exists, which makes this a guessing oracle: left open.
             new Rule("POST", "/api/coupons/quote", couponLimit, Duration.ofMinutes(15)),
         };
 
@@ -85,7 +72,6 @@ public class RateLimitFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain chain) throws ServletException, IOException {
-
         String path = normalise(request.getRequestURI());
         String method = request.getMethod();
 
@@ -121,7 +107,6 @@ public class RateLimitFilter extends OncePerRequestFilter {
                 return;
             }
 
-            // Blocked. The oldest hit is the one that has to age out.
             retryAfter = Math.max(1,
                     Duration.between(now, recent.peekFirst().plus(rule.window())).getSeconds());
         }
@@ -135,7 +120,6 @@ public class RateLimitFilter extends OncePerRequestFilter {
                 .formatted(minutes, minutes == 1 ? "" : "s"));
     }
 
-    /** Drops keys nobody has touched in an hour, at most once a minute. */
     private void sweep(Instant now) {
         if (Duration.between(lastSweep, now).toMinutes() < 1) return;
         lastSweep = now;
@@ -149,7 +133,6 @@ public class RateLimitFilter extends OncePerRequestFilter {
         });
     }
 
-    /** The address this limit is counted against. */
     private String clientIp(HttpServletRequest request) {
         String peer = request.getRemoteAddr();
         if (trustedProxies.isEmpty() || !trustedProxies.contains(peer)) {

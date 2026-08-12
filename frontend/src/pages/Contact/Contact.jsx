@@ -18,7 +18,7 @@ const SUBJECTS = [
 export default function Contact() {
   const [form, setForm] = useState({ name: '', email: '', subject: SUBJECTS[0], message: '' });
   const [errors, setErrors] = useState({});
-  const [status, setStatus] = useState('idle'); // idle | sending | sent | error
+  const [status, setStatus] = useState('idle');
   const [failure, setFailure] = useState('');
 
   const update = (key) => (e) => {
@@ -26,7 +26,6 @@ export default function Contact() {
     setErrors((err) => ({ ...err, [key]: undefined }));
   };
 
-  // Browser checks catch obvious typos before a round trip; the server validates again and is the.
   const submit = async (e) => {
     e.preventDefault();
     const next = {};
@@ -44,7 +43,6 @@ export default function Contact() {
       setStatus('sent');
       setForm({ name: '', email: '', subject: SUBJECTS[0], message: '' });
     } catch (err) {
-      // Field-level problems belong on the fields; anything else is a notice.
       setErrors(err.fields || {});
       setFailure(err.fields ? 'Please check the highlighted fields.' : err.message);
       setStatus('error');
@@ -57,7 +55,6 @@ export default function Contact() {
 
       <section className="contact section">
         <div className="container contact__layout">
-          {/* --------------------------------------------------------- form */}
           <div className="contact__form-card">
             <h2>Send a message</h2>
             <p className="contact__form-lede">We answer within one working day, usually sooner.</p>
@@ -135,7 +132,6 @@ export default function Contact() {
             </form>
           </div>
 
-          {/* ------------------------------------------------------- details */}
           <aside className="contact__aside">
             <ul className="contact__details">
               <li>

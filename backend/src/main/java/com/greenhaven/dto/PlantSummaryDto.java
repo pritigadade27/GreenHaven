@@ -3,7 +3,6 @@ package com.greenhaven.dto;
 import java.math.BigDecimal;
 import java.util.List;
 
-/** What a product card needs — deliberately smaller than the detail payload. */
 public record PlantSummaryDto(
         String id,
         String slug,
@@ -27,6 +26,5 @@ public record PlantSummaryDto(
         boolean newArrival,
         String careTip,
         List<String> badges,
-        /** True for pots, tools, care products and seed packets. */
         boolean merchandise) {
 }

@@ -7,11 +7,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
-/** One of the labels shown on a product card — Pet Friendly, Low Maintenance, Toxic to Pets. */
 @Entity
 @Table(name = "badge")
 public class Badge {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

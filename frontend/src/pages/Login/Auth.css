@@ -53,13 +53,11 @@
   font-weight: var(--fw-medium);
 }
 
-/* A taller field with a clearer focus ring — this is the one form on the site where a mis-keyed. */
 .field__control:focus-within {
   border-color: var(--color-primary);
   box-shadow: 0 0 0 3px rgba(244, 92, 122, 0.18);
 }
 
-/* Status tones for the shared .auth__notice line. */
 .auth__notice.is-good {
   color: var(--color-green);
   font-weight: 500;
@@ -70,7 +68,6 @@
   font-weight: 500;
 }
 
-/* Forgotten-password screen. Shares the auth card, so only the extras. */
 .auth__back {
   display: inline-flex;
   align-items: center;

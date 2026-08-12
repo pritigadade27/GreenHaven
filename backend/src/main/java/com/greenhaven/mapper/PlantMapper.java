@@ -10,10 +10,8 @@ import com.greenhaven.dto.PlantSummaryDto;
 import com.greenhaven.entity.Badge;
 import com.greenhaven.entity.Plant;
 
-/** Entity -> DTO translation lives here so controllers stay thin and JPA entities never leak out. */
 @Component
 public class PlantMapper {
-
     private final com.greenhaven.repository.PlantImageRepository images;
 
     public PlantMapper(com.greenhaven.repository.PlantImageRepository images) {
@@ -33,7 +31,6 @@ public class PlantMapper {
                 p.getCareTip(), badgeCodes(p), isMerchandise(p));
     }
 
-    /** The primary shot followed by any extras, in the admin's chosen order. */
     private java.util.List<String> galleryFor(Plant p) {
         java.util.List<String> extras = images.findByPlantIdOrderBySortOrderAscIdAsc(p.getId())
                 .stream().map(com.greenhaven.entity.PlantImage::getUrl).toList();
@@ -44,7 +41,6 @@ public class PlantMapper {
                 .toList();
     }
 
-    /** Living plant, or something else? */
     private boolean isMerchandise(Plant p) {
         String code = p.getCode();
         if (code == null || code.isEmpty()) return false;

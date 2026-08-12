@@ -15,11 +15,9 @@ import com.greenhaven.service.BasketService;
 
 import jakarta.validation.Valid;
 
-/** The signed-in customer's saved cart and wishlist. */
 @RestController
 @RequestMapping("/api/basket")
 public class BasketController {
-
     private final BasketService baskets;
 
     public BasketController(BasketService baskets) {

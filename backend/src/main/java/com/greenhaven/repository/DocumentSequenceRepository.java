@@ -13,8 +13,6 @@ import jakarta.persistence.LockModeType;
 
 public interface DocumentSequenceRepository
         extends JpaRepository<DocumentSequence, DocumentSequence.Key> {
-
-    /** Reads the counter with a row-level write lock. */
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT d FROM DocumentSequence d WHERE d.name = :name AND d.year = :year")
     Optional<DocumentSequence> lock(@Param("name") String name, @Param("year") Integer year);

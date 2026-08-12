@@ -1,4 +1,3 @@
-/** Loads Razorpay's Checkout script, once. */
 const SRC = 'https://checkout.razorpay.com/v1/checkout.js';
 
 let pending = null;
@@ -13,7 +12,6 @@ export default function loadRazorpay() {
     script.async = true;
     script.onload = () => resolve(true);
     script.onerror = () => {
-      // Let the next attempt retry rather than caching the failure — this is usually a dropped connection, not a permanently missing script.
       script.remove();
       pending = null;
       resolve(false);

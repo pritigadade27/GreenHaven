@@ -41,7 +41,6 @@ export default function PlantDetails() {
   const [tab, setTab] = useState('care');
   const [added, setAdded] = useState(false);
 
-  // Reset the "Added" confirmation, and clear the timer if the customer navigates away first.
   useEffect(() => {
     if (!added) return undefined;
     const t = setTimeout(() => setAdded(false), 1800);
@@ -52,7 +51,6 @@ export default function PlantDetails() {
   const { isWishlisted, toggleWishlist } = useWishlist();
   const guard = useRequireAuth();
 
-  // Wait for the catalogue before judging the slug.
   if (!ready) {
     return (
       <section className="section">
@@ -71,7 +69,6 @@ export default function PlantDetails() {
     );
   }
 
-  // Unknown slug — send them to the shop rather than render a broken page.
   if (!plant) return <Navigate to="/shop" replace />;
 
   const discount = discountPercent(plant.price, plant.mrp);
@@ -81,19 +78,16 @@ export default function PlantDetails() {
   const related = getRelated(plant, 4);
   const gallery = plant.gallery?.length ? plant.gallery : [plant.image];
 
-  // Seeds, pots and tools have no watering schedule.
   const isMerch = Boolean(plant.isMerchandise);
   const tabs = isMerch
     ? [['about', 'About this product'], ['specs', 'Specifications']]
     : [['care', 'Care instructions'], ['about', 'About this plant'], ['specs', 'Specifications']];
   const activeTab = isMerch && tab === 'care' ? 'about' : tab;
 
-  // The code is carried onto the object: entries in BADGES are keyed by it but do not contain it.
   const badges = (plant.badges ?? [])
     .map((code) => (BADGES[code] ? { code, ...BADGES[code] } : null))
     .filter(Boolean);
 
-  // Stock drives the whole buy panel: how high the stepper can go, whether the button works at all.
   const stock = plant.stock ?? 0;
   const inStock = stock > 0;
   const maxQty = Math.max(1, Math.min(stock, 10));
@@ -104,7 +98,6 @@ export default function PlantDetails() {
       ? `Only ${stock} left in stock`
       : 'In stock, ships in 1–2 days';
 
-  // A plant's specs are assembled from its own fields; merchandise carries a ready-made specs.
   const specs = isMerch
     ? (plant.specs ?? {})
     : {
@@ -118,7 +111,6 @@ export default function PlantDetails() {
         'Pet safety': pet.text,
       };
 
-  // Switching product (or a stock change) must not leave a quantity the new product cannot satisfy.
   if (quantity > maxQty) setQuantity(maxQty);
 
   const handleAdd = () => {
@@ -141,14 +133,12 @@ export default function PlantDetails() {
           </nav>
 
           <div className="pdp__top">
-            {/* ---------------------------------------------------- gallery */}
             <div className="pdp__gallery">
               <figure className="pdp__photo">
                 <img src={gallery[shot]} alt={plant.name} />
                 {discount && <span className="pdp__save">{discount}% off</span>}
               </figure>
 
-              {/* Thumbnails only appear when a product actually has more than one shot — most plants have a. */}
               {gallery.length > 1 && (
                 <ul className="pdp__thumbs">
                   {gallery.map((src, i) => (
@@ -213,7 +203,6 @@ export default function PlantDetails() {
               </ul>
             </div>
 
-            {/* ------------------------------------------------------- buy */}
             <div className="pdp__buy">
               <Link className="pdp__category" to={`/shop?category=${plant.category}`}>
                 {category?.name}
@@ -221,7 +210,6 @@ export default function PlantDetails() {
               <h1>{plant.name}</h1>
               <p className="pdp__botanical">{plant.botanical}</p>
 
-              {/* No stars until somebody has actually given one. */}
               <a className="pdp__rating" href="#reviews">
                 {plant.reviews > 0 ? (
                   <>
@@ -259,7 +247,6 @@ export default function PlantDetails() {
                 </ul>
               )}
 
-              {/* Stock is stated before the customer commits, not discovered at checkout after they have typed a. */}
               <p className={`pdp__stock ${stockTone}`}>
                 <Icon name={inStock ? 'check' : 'close'} size={15} />
                 {stockLabel}
@@ -321,7 +308,6 @@ export default function PlantDetails() {
             </div>
           </div>
 
-          {/* --------------------------------------------------------- tabs */}
           <div className="pdp__tabs">
             <div className="pdp__tab-list" role="tablist" aria-label="Product information">
               {tabs.map(([key, label]) => (
@@ -394,7 +380,6 @@ export default function PlantDetails() {
 
       <Reviews slug={plant.slug} name={plant.name} />
 
-      {/* ----------------------------------------------------------- related */}
       {related.length > 0 && (
         <section className="pdp-related section section--tint">
           <div className="container">

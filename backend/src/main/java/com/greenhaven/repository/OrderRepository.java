@@ -13,22 +13,18 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.greenhaven.entity.Order;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {
-
     Optional<Order> findByRazorpayOrderId(String razorpayOrderId);
 
     Optional<Order> findByOrderNumber(String orderNumber);
 
-    /** See AppUserRepository: the collation already ignores case. */
     List<Order> findByUserEmailOrderByIdDesc(String email);
 
     long countByStatus(String status);
 
     long countByUserId(Long userId);
 
-    /** Scoped by owner in the query, so a wrong id is a miss and not a leak. */
     Optional<Order> findByOrderNumberAndUserId(String orderNumber, Long userId);
 
-    /** The delivered orders in which this customer actually received this plant. */
     @Query("""
             SELECT o FROM Order o JOIN o.items i
              WHERE o.user.id = :userId
@@ -39,7 +35,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             """)
     List<Order> deliveredContaining(@Param("userId") Long userId, @Param("slug") String slug);
 
-    /** Whether this customer has received anything at all, whatever it was. */
     @Query("""
             SELECT COUNT(o) > 0 FROM Order o
              WHERE o.user.id = :userId
@@ -48,7 +43,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             """)
     boolean hasDelivered(@Param("userId") Long userId);
 
-    /** Orders still PENDING well after checkout — the ones the payment flow may have lost. */
     @Query("""
             SELECT o FROM Order o
              WHERE o.status = 'PENDING'
@@ -58,15 +52,12 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             """)
     List<Order> findStrandedPending(@Param("before") java.time.Instant before);
 
-    /** Only orders that reached a verified payment carry an invoice. */
     List<Order> findByUserIdAndInvoiceNumberIsNotNullOrderByIdDesc(Long userId);
 
-    /** Lifetime spend — PAID only, so abandoned checkouts do not inflate it. */
     @Query("SELECT COALESCE(SUM(o.total), 0) FROM Order o "
          + "WHERE o.user.id = :userId AND o.status = 'PAID'")
     BigDecimal sumPaidTotalByUserId(@Param("userId") Long userId);
 
-    /** The admin orders table. */
     @Query("""
             SELECT o FROM Order o
             WHERE (:status   IS NULL OR o.status = :status)
@@ -83,7 +74,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
                                @Param("q") String q,
                                Pageable pageable);
 
-    /** Best sellers by units actually shipped. */
     @Query(value = """
             SELECT oi.product_name, oi.product_category,
                    SUM(oi.quantity)                    AS units,

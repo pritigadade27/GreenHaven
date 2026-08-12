@@ -12,11 +12,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
-/** A live admin sign-in. */
 @Entity
 @Table(name = "admin_session")
 public class AdminSession {
-
     public static final String LOGOUT = "LOGOUT";
     public static final String SUPERSEDED = "SUPERSEDED";
     public static final String TIMEOUT = "TIMEOUT";
@@ -29,7 +27,6 @@ public class AdminSession {
     @JoinColumn(name = "user_id", nullable = false)
     private AppUser user;
 
-    /** The JWT's jti claim. */
     @Column(nullable = false, unique = true, length = 64)
     private String jti;
 

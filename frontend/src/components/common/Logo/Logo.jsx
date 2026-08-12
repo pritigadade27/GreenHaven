@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import mark from '../../../assets/logo/green-haven-logo-without-name.svg';
 import './Logo.css';
 
-/** The Green Haven lockup: botanical emblem + script wordmark. */
 export default function Logo({ tone = 'dark', compact = false, className = '' }) {
   return (
     <Link

@@ -1,5 +1,3 @@
-/* Shares the site's design tokens but none of its layout: the customer navbar, footer and. */
-
 .admin {
   display: grid;
   grid-template-columns: 260px minmax(0, 1fr);
@@ -275,7 +273,6 @@
   color: var(--color-primary);
 }
 
-/* Wide tables scroll inside their own box; the page never scrolls sideways. */
 .admin-scroll {
   overflow-x: auto;
   background: var(--color-white);
@@ -393,7 +390,6 @@
 
 .admin-pill.is-pending,
 .admin-pill.is-created,
-/* A code that has not started, or has been fully taken up — neither is wrong, but neither is. */
 .admin-pill.is-scheduled,
 .admin-pill.is-claimed,
 .admin-pill.is-low-stock { color: #8a5b00; background: #fff2d6; }
@@ -549,7 +545,6 @@
   place-items: center;
   min-height: 100dvh;
   padding: var(--space-lg);
-  /* Plain and unbranded on purpose: someone who guesses this URL should learn nothing about what is. */
   background: var(--color-primary);
 }
 
@@ -653,7 +648,6 @@
   color: var(--color-text-muted);
 }
 
-/* The pause while the stored session is verified. */
 .admin-boot {
   display: grid;
   place-items: center;
@@ -773,7 +767,6 @@
   color: var(--color-text);
 }
 
-/* Thumbnails in the inventory table — a plant is recognised by its picture far faster than by its. */
 .admin-thumb-cell {
   width: 56px;
   padding-right: 0 !important;
@@ -787,7 +780,6 @@
   display: block;
 }
 
-/* Product management form. */
 .admin-note {
   padding: 10px 14px;
   margin-bottom: var(--space-md);
@@ -897,7 +889,6 @@
   border-radius: var(--radius-sm);
 }
 
-/* A small modal for the one admin action that needs a typed answer. */
 .admin-modal {
   position: fixed;
   inset: 0;

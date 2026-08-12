@@ -30,7 +30,6 @@ export default function Footer() {
   return (
     <footer className="footer">
       <div className="container footer__inner">
-        {/* ---------------------------------------------------------- brand */}
         <div className="footer__brand">
           <Logo tone="light" />
           <p>
@@ -41,7 +40,6 @@ export default function Footer() {
           <ul className="footer__social">
             {SOCIAL.map(({ name, label }) => (
               <li key={name}>
-                {/* href placeholders — swap for the real profiles at launch */}
                 <a href="#" aria-label={label} title={label}>
                   <Icon name={name} size={18} />
                 </a>
@@ -50,7 +48,6 @@ export default function Footer() {
           </ul>
         </div>
 
-        {/* ---------------------------------------------------------- links */}
         <nav className="footer__col" aria-label="Quick links">
           <h3>Quick Links</h3>
           <ul>
@@ -73,7 +70,6 @@ export default function Footer() {
           </ul>
         </nav>
 
-        {/* -------------------------------------------------------- contact */}
         <div className="footer__col footer__contact">
           <h3>Visit the Nursery</h3>
           <ul>

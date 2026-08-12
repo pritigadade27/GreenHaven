@@ -18,7 +18,6 @@ public record RegisterRequest(
         @Size(min = 8, max = 72, message = "Password must be at least 8 characters")
         String password,
 
-        // Optional, because an email address is enough to open an account and demanding a phone number to.
         @Pattern(regexp = "^([+]?91[- ]?|0)?[6-9]\\d{9}$|^$",
                 message = "Enter a 10-digit Indian mobile number")
         String phone) {

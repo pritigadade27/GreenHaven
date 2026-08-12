@@ -1,6 +1,5 @@
 import Icon from '../../components/common/Icon/Icon.jsx';
 
-/** 403 for a signed-in account without ROLE_ADMIN. */
 export default function AdminForbidden() {
   return (
     <div className="admin-login">

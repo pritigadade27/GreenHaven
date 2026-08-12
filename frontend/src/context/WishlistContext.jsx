@@ -16,14 +16,12 @@ export function WishlistProvider({ children }) {
     writeJson(STORAGE_KEY, items);
   }, [items]);
 
-  // Saved to the account, not just the browser — see useBasketSync.
   const { getPlantBySlug, ready: catalogueReady } = useCatalogue();
 
   const restoreFromServer = useCallback(
     (slugs) => {
       if (!Array.isArray(slugs) || slugs.length === 0) return;
       setItems((current) => {
-        // Union of what is here and what the account had saved.
         const merged = [...current];
         slugs.forEach((slug) => {
           if (merged.some((item) => item.slug === slug)) return;
@@ -43,7 +41,7 @@ export function WishlistProvider({ children }) {
     local: items,
     onRestore: restoreFromServer,
     toPayload,
-    enabled: catalogueReady,   // see CartContext
+    enabled: catalogueReady,
   });
 
   const toggleWishlist = useCallback((product) => {

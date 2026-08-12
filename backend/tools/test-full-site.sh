@@ -1,10 +1,6 @@
 #!/usr/bin/env bash
-# Whole-site test: storefront renders from MySQL, and an admin edit reaches it.
 BR=http://127.0.0.1:10086/command
 MYSQL="/c/Users/vnp12/mysql/mysql-8.4.9-winx64/bin/mysql.exe"
-# Credentials come from backend/tools/test-env.sh, which is gitignored. There
-# is deliberately no built-in default: a fallback password in a committed
-# script is a published password.
 HERE="$(cd "$(dirname "$0")" && pwd)"
 [ -f "$HERE/test-env.sh" ] && . "$HERE/test-env.sh"
 : "${MYSQL_PWD:?set MYSQL_PWD — copy test-env.example.sh to test-env.sh}"
@@ -13,9 +9,6 @@ ADMIN_PASSWORD=${ADMIN_PASSWORD:?set ADMIN_PASSWORD in test-env.sh}
 export MYSQL_PWD
 Q() { "$MYSQL" --default-character-set=utf8mb4 -u priti green_haven -N -B -e "$1"; }
 
-
-# Shared, foreign-key-ordered teardown. Each suite used to roll its own and
-# every one was incomplete, so cleanup aborted on the first FK error.
 . "$(cd "$(dirname "$0")" && pwd)/cleanup.sh"
 go() {
   curl -s -X POST $BR -H 'Content-Type: application/json' \
@@ -109,11 +102,8 @@ check "no admin link on the shop" 0 "$(ev '[...document.querySelectorAll("a[href
 go /admin/dashboard 5
 check "admin still gated" "/admin/login" "$(ev 'location.pathname')"
 
-# Shared teardown: returns consumed stock, then removes the run in
-# foreign-key order. Rolling its own left accounts behind on every run.
 purge_test_accounts "other%@example.com"
 assert_clean "other%@example.com"
-
 
 echo
 echo "  $pass passed, $fail failed"

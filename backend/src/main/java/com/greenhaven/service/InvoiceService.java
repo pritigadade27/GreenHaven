@@ -14,10 +14,8 @@ import com.greenhaven.entity.Invoice;
 import com.greenhaven.entity.Order;
 import com.greenhaven.repository.InvoiceRepository;
 
-/** The document ledger: what was charged, and what was owed back. */
 @Service
 public class InvoiceService {
-
     private static final Logger log = LoggerFactory.getLogger(InvoiceService.class);
 
     private final InvoiceRepository invoices;
@@ -28,7 +26,6 @@ public class InvoiceService {
         this.documents = documents;
     }
 
-    /** Records the invoice for an order that has just been paid. */
     @Transactional
     public Invoice issueFor(Order order, String number) {
         if (invoices.existsByOrderIdAndDocType(order.getId(), Invoice.INVOICE)) {
@@ -47,14 +44,12 @@ public class InvoiceService {
         return invoices.save(invoice);
     }
 
-    /** Issues a credit note against an order that was paid and then cancelled. */
     @Transactional
     public Optional<Invoice> creditNoteFor(Order order, String reason) {
         boolean paid = "PAID".equals(order.getStatus()) || "PAID_SHORT".equals(order.getStatus());
         if (!paid) return Optional.empty();
 
         if (!invoices.existsByOrderIdAndDocType(order.getId(), Invoice.INVOICE)) {
-            // Paid but with no invoice recorded — an order settled before this ledger existed and not caught.
             log.warn("Order {} is paid but has no invoice; no credit note issued.",
                     order.getOrderNumber());
             return Optional.empty();
@@ -69,7 +64,6 @@ public class InvoiceService {
         note.setNumber(documents.nextCreditNoteNumber());
         note.setDocType(Invoice.CREDIT_NOTE);
         note.setOrder(order);
-        // The whole order.
         note.setAmount(order.getTotal() == null ? BigDecimal.ZERO : order.getTotal());
         note.setReason(reason == null || reason.isBlank() ? "Order cancelled" : reason.trim());
         note.setIssuedAt(Instant.now());

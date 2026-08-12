@@ -2,7 +2,6 @@ import { Navigate, useLocation } from 'react-router-dom';
 
 import { useAdminAuth } from '../../context/AdminAuthContext.jsx';
 
-/** Gate for every protected admin route. */
 export default function AdminRoute({ children }) {
   const { isAdmin, ready } = useAdminAuth();
   const location = useLocation();
@@ -17,7 +16,6 @@ export default function AdminRoute({ children }) {
   }
 
   if (!isAdmin) {
-    // `from` so a deep link survives the sign-in, and replace so the back button cannot return to the.
     return <Navigate to="/admin/login" replace state={{ from: location.pathname }} />;
   }
 

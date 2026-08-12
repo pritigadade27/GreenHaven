@@ -28,11 +28,9 @@ import com.greenhaven.service.AdminSessionService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
-/** Admin sign-in, sign-out and the activity trail. */
 @RestController
 @RequestMapping("/api/admin/auth")
 public class AdminAuthController {
-
     private final AppUserRepository users;
     private final PasswordEncoder encoder;
     private final JwtService jwt;
@@ -48,7 +46,6 @@ public class AdminAuthController {
         this.audit = audit;
     }
 
-    /** Signs an admin in. */
     @PostMapping("/login")
     public Map<String, Object> login(@Valid @RequestBody LoginRequest request,
                                      HttpServletRequest http) {
@@ -61,7 +58,6 @@ public class AdminAuthController {
                 && !user.isBlocked();
 
         if (!ok) {
-            // Burn the same BCrypt time on the miss, so a non-existent address cannot be told apart from a.
             if (user == null) {
                 encoder.matches(request.password(),
                         "$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy");
@@ -86,7 +82,6 @@ public class AdminAuthController {
                         "role", user.getRole()));
     }
 
-    /** Signs out for real. */
     @PostMapping("/logout")
     @PreAuthorize("hasRole('ADMIN')")
     public ApiMessage logout(@RequestHeader(value = "Authorization", required = false) String header,
@@ -95,7 +90,6 @@ public class AdminAuthController {
             try {
                 sessions.revoke(jwt.claims(header.substring(7)).getId(), AdminSession.LOGOUT);
             } catch (Exception ignored) {
-                // Already expired or malformed — nothing left to revoke.
             }
         }
         audit.record(principal == null ? null : principal.getName(),
@@ -103,7 +97,6 @@ public class AdminAuthController {
         return new ApiMessage("Signed out.");
     }
 
-    /** Confirms the token is still good — the guard calls this on every load. */
     @GetMapping("/me")
     @PreAuthorize("hasRole('ADMIN')")
     public Map<String, Object> me(Principal principal) {

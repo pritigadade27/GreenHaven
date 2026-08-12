@@ -1,5 +1,3 @@
-/** Inline SVG icon set. */
-
 const paths = {
   search: (
     <>

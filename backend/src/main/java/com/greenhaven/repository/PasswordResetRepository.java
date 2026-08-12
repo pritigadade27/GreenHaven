@@ -11,10 +11,8 @@ import org.springframework.data.repository.query.Param;
 import com.greenhaven.entity.PasswordReset;
 
 public interface PasswordResetRepository extends JpaRepository<PasswordReset, Long> {
-
     Optional<PasswordReset> findByTokenHash(String tokenHash);
 
-    /** Retires every outstanding token for one account. */
     @Modifying
     @Query("UPDATE PasswordReset r SET r.usedAt = :now "
             + "WHERE r.user.id = :userId AND r.usedAt IS NULL")

@@ -11,7 +11,6 @@ import { resolveImage } from '../../utils/productImages.js';
 import { formatPrice } from '../../utils/format.js';
 import { Empty, Flash, Pill, Skeletons, formatDate, formatDateTime } from './ProfileParts.jsx';
 
-/** The icon that marks each stop on the tracking strip. */
 const STEP_ICON = {
   PLACED: 'check',
   PAID: 'card',
@@ -59,7 +58,6 @@ export default function ProfileOrderDetail() {
     }
   }
 
-  /** Puts the order's lines back in the basket at today's prices, which is the only honest thing to. */
   async function reorder() {
     setBusy(true);
     try {
@@ -119,7 +117,6 @@ export default function ProfileOrderDetail() {
 
   if (!order) return <Skeletons rows={3} height={160} />;
 
-  // The one condition the whole review system turns on.
   const delivered = order.deliveryStatus === 'DELIVERED';
 
   return (
@@ -144,7 +141,6 @@ export default function ProfileOrderDetail() {
 
       <Flash {...flash} onDismiss={() => setFlash(null)} />
 
-      {/* ---- tracking ---- */}
       <article className="pcard">
         <h3 className="pcard__title">Tracking</h3>
         <ol className="ptrack">
@@ -224,7 +220,6 @@ export default function ProfileOrderDetail() {
         </article>
       </div>
 
-      {/* ---- what was in it ---- */}
       <article className="pcard">
         <h3 className="pcard__title">Items</h3>
         <div className="ptable-wrap">
@@ -256,7 +251,6 @@ export default function ProfileOrderDetail() {
                           <span>{line.name}</span>
                         )}
                         {line.category && <small>{line.category}</small>}
-                        {/* Only once it has actually arrived. */}
                         {delivered && line.slug && (
                           <Link className="porder__rate" to={`/plant/${line.slug}#reviews`}>
                             <Icon name="star" size={13} /> Rate &amp; review

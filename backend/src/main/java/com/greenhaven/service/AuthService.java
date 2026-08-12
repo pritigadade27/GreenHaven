@@ -14,9 +14,7 @@ import com.greenhaven.repository.AppUserRepository;
 import com.greenhaven.security.JwtService;
 
 @Service
-// Deliberately NOT @Transactional at class level: login and register spend ~80ms inside BCrypt doing no database work at all, and a class-level transaction pinned a pooled connection for every millisecond of it.
 public class AuthService {
-
     private final AppUserRepository users;
     private final PasswordEncoder encoder;
     private final JwtService jwt;
@@ -46,16 +44,14 @@ public class AuthService {
         return tokenFor(user);
     }
 
-    /** A BCrypt hash of a value nobody can supply, used only to burn the same ~80 ms an unknown email would otherwise skip. */
     private static final String DUMMY_HASH =
             "$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy";
 
     public AuthResponse login(LoginRequest request) {
-        // The same message is returned for an unknown email and a wrong password, so this endpoint cannot.
         AppUser user = users.findByEmail(request.email().trim()).orElse(null);
 
         if (user == null) {
-            encoder.matches(request.password(), DUMMY_HASH);   // constant-cost path
+            encoder.matches(request.password(), DUMMY_HASH);
             throw new IllegalArgumentException("Email or password is incorrect.");
         }
 
@@ -63,7 +59,6 @@ public class AuthService {
             throw new IllegalArgumentException("Email or password is incorrect.");
         }
 
-        // Checked after the password, not before: answering differently to a blocked account than to a.
         if (user.isBlocked()) {
             throw new IllegalArgumentException(
                     "This account has been suspended. Please contact us at hello@greenhaven.in.");

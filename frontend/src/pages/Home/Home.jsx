@@ -7,7 +7,6 @@ import WhyChooseUs from '../../components/home/WhyChooseUs/WhyChooseUs.jsx';
 import PlantCareTips from '../../components/home/PlantCareTips/PlantCareTips.jsx';
 import Newsletter from '../../components/home/Newsletter/Newsletter.jsx';
 
-/** Home page. */
 export default function Home() {
   return (
     <>

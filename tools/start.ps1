@@ -1,4 +1,3 @@
-# Starts the API and the site, each in its own window, then opens the browser.
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
 
@@ -15,7 +14,6 @@ if (-not (Test-Path $envFile)) {
     exit 1
 }
 
-# Spring Boot reads the environment, not the file, so load it here.
 Get-Content $envFile | ForEach-Object {
     $line = $_.Trim()
     if ($line -and -not $line.StartsWith('#') -and $line.Contains('=')) {
@@ -25,7 +23,6 @@ Get-Content $envFile | ForEach-Object {
 }
 Say 'settings loaded' Green
 
-# Maven if it is installed, otherwise the wrapper that ships with the project.
 $mvn = (Get-Command mvn -ErrorAction SilentlyContinue)
 if ($mvn) { $mvnCmd = 'mvn' } else { $mvnCmd = '.\mvnw.cmd' }
 

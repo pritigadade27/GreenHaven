@@ -19,18 +19,14 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
-/** A product in the catalogue. */
-// Class-level, so every ManyToOne that points at a Plant is batched too — @BatchSize is illegal.
 @BatchSize(size = 64)
 @Entity
 @Table(name = "plant")
 public class Plant {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /** Stable business key from the catalogue: p01, p02 … */
     @Column(nullable = false, unique = true, length = 12)
     private String code;
 
@@ -121,7 +117,6 @@ public class Plant {
     @Column(name = "is_best_seller")
     private Boolean bestSeller = Boolean.FALSE;
 
-    /** Retired from the shop but kept for its history. */
     @Column(nullable = false)
     private boolean discontinued = false;
 
@@ -131,7 +126,6 @@ public class Plant {
     @Column(name = "created_at", insertable = false, updatable = false)
     private Instant createdAt;
 
-    /** Batched, not join-fetched. */
     @BatchSize(size = 64)
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(

@@ -8,22 +8,17 @@ import org.springframework.stereotype.Service;
 
 import com.greenhaven.entity.Coupon;
 
-/** What an order costs. */
 @Service
 public class PricingService {
-
-    /** Matches the frontend's rule so the customer is never surprised. */
     private static final BigDecimal FREE_DELIVERY_OVER = BigDecimal.valueOf(999);
     private static final BigDecimal DELIVERY_FEE = BigDecimal.valueOf(99);
 
-    /** GST, as a whole percentage. */
     private final BigDecimal gstPercent;
 
     public PricingService(@Value("${greenhaven.tax.gst-percent:0}") BigDecimal gstPercent) {
         this.gstPercent = gstPercent;
     }
 
-    /** Every figure on the order, and how it got there. */
     public record Totals(
             BigDecimal subtotal,
             BigDecimal discount,
@@ -32,7 +27,6 @@ public class PricingService {
             BigDecimal total) {
     }
 
-    /** Prices a basket, with or without a coupon. */
     public Totals price(BigDecimal subtotal, Coupon coupon) {
         BigDecimal discount = discountFor(subtotal, coupon);
         BigDecimal goods = subtotal.subtract(discount);
@@ -51,7 +45,6 @@ public class PricingService {
         return new Totals(subtotal, discount, shipping, tax, goods.add(shipping).add(tax));
     }
 
-    /** What a coupon takes off a given subtotal. */
     public BigDecimal discountFor(BigDecimal subtotal, Coupon coupon) {
         if (coupon == null) return BigDecimal.ZERO;
 

@@ -21,11 +21,9 @@ import com.greenhaven.service.OrderService;
 
 import jakarta.validation.Valid;
 
-/** Checkout and payment. */
 @RestController
 @RequestMapping("/api/orders")
 public class OrderController {
-
     private final OrderService orders;
 
     public OrderController(OrderService orders) {
@@ -46,7 +44,6 @@ public class OrderController {
         return orders.confirmPayment(principal.getName(), request);
     }
 
-    /** Test-mode only. */
     @PostMapping("/{razorpayOrderId}/simulate")
     public PaymentVerificationRequest simulate(Principal principal,
                                                @PathVariable String razorpayOrderId,

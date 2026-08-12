@@ -8,7 +8,6 @@
   overflow: hidden;
 }
 
-/* Soft blush wash bleeding out of the top-right corner. */
 .hero__wash {
   position: absolute;
   top: -28%;
@@ -59,7 +58,6 @@
   line-height: 1.06;
 }
 
-/* "Every Home" set in the script face — the brand's own handwriting. */
 .hero__title em {
   display: inline-block;
   margin-top: 0.06em;
@@ -129,7 +127,6 @@
   animation: zoomIn 1.2s var(--ease-out) both, floatSlow 16s var(--ease-in-out) 1.2s infinite;
 }
 
-/* The arch echoes the greenhouse doorway in the Green Haven emblem. */
 .hero__frame {
   position: relative;
   width: min(430px, 100%);
@@ -153,7 +150,6 @@
   transform: scale(1.05);
 }
 
-/* drifting leaves */
 .hero__leaf {
   position: absolute;
   color: var(--color-green);
@@ -182,7 +178,6 @@
   animation-delay: 2.6s;
 }
 
-/* Two supporting plants in circular frames, offset either side of the arch. */
 .hero__disc {
   position: absolute;
   border-radius: var(--radius-circle);
@@ -232,7 +227,6 @@
   }
 }
 
-/* Tablet — stack, photo first is tempting but copy first reads better. */
 @media (max-width: 991px) {
   .hero {
     min-height: auto;

@@ -1,24 +1,6 @@
 #!/usr/bin/env bash
-# Green Haven — discount codes, end to end.
-#
-#   bash backend/tools/test-coupons.sh
-#
-# A discount is money leaving the shop, so the rule this suite exists to hold
-# down is that the SERVER decides what a code is worth. The browser sends a
-# code and nothing else; it never sends a figure, and no figure it sends is
-# ever believed.
-#
-# The rest is the arithmetic and the limits: percentages, caps, floors,
-# windows, per-customer and overall ceilings, and what happens to a code when
-# the order that used it is cancelled.
-#
-# RESTART THE API FIRST — /api/orders is capped at 30 an hour and the quote
-# endpoint at 15 per 15 minutes.
 API=${API:-http://localhost:8080/api}
 MYSQL=${MYSQL:-/c/Users/vnp12/mysql/mysql-8.4.9-winx64/bin/mysql.exe}
-# Credentials come from backend/tools/test-env.sh, which is gitignored. There
-# is deliberately no built-in default: a fallback password in a committed
-# script is a published password.
 HERE="$(cd "$(dirname "$0")" && pwd)"
 [ -f "$HERE/test-env.sh" ] && . "$HERE/test-env.sh"
 : "${MYSQL_PWD:?set MYSQL_PWD — copy test-env.example.sh to test-env.sh}"
@@ -28,8 +10,6 @@ export MYSQL_PWD
 
 Q() { "$MYSQL" --default-character-set=utf8mb4 -u priti green_haven -N -B -e "$1"; }
 
-# Shared, foreign-key-ordered teardown. Each suite used to roll its own and
-# every one was incomplete, so cleanup aborted on the first FK error.
 . "$(cd "$(dirname "$0")" && pwd)/cleanup.sh"
 pass=0; fail=0
 check() {
@@ -37,9 +17,6 @@ check() {
   else printf "  FAIL  %-52s got %s want %s\n" "$1" "$3" "$2"; fail=$((fail+1)); fi
 }
 code() { curl -s -o /dev/null -m 30 -w '%{http_code}' "$@"; }
-# Money comes back as JSON numbers, so 479.20 arrives as 479.2. Comparing the
-# printed forms would fail on a difference that does not exist — these are
-# compared as numbers, to the paisa.
 money() { python -c "print(f'{float('${1:-0}' or 0):.2f}')" 2>/dev/null || echo "$1"; }
 checkm() {
   local got want
@@ -69,8 +46,6 @@ SLUG=snake-plant
 PRICE=$(Q "SELECT price FROM plant WHERE slug='$SLUG';")
 echo "  $SLUG is ₹$PRICE"
 
-# Residue from an earlier run, cleared BEFORE this run creates anything —
-# doing it afterwards deletes the accounts the suite is about to use.
 purge_test_accounts "cpn%@example.com"
 
 reg() {
@@ -89,10 +64,8 @@ fi
 ATOK=$(curl -s -m 20 -X POST $API/admin/auth/login -H 'Content-Type: application/json' \
   -d "{\"email\":\"$ADMIN_EMAIL\",\"password\":\"$ADMIN_PASSWORD\"}" | jq_ token)
 
-# Residue from an earlier run, cleared so the counts below are absolute.
 Q "DELETE FROM coupon WHERE code LIKE 'TEST%';" >/dev/null
 
-# A basket of 4, comfortably over the ₹999 free-delivery line.
 CART4="[{\"slug\":\"$SLUG\",\"quantity\":4}]"
 CART1="[{\"slug\":\"$SLUG\",\"quantity\":1}]"
 quote() { post POST $API/coupons/quote "{\"code\":\"$1\",\"items\":$2}"; }
@@ -138,7 +111,6 @@ check "anonymous cannot quote" 403 \
 
 echo
 echo "== THE BROWSER CANNOT NAME ITS OWN DISCOUNT =="
-# The request carries a discount and a total. Both must be ignored entirely.
 FORGED=$(post POST $API/coupons/quote \
   "{\"code\":\"TEST20\",\"items\":$CART4,\"discount\":99999,\"total\":1,\"subtotal\":1}")
 checkm "the sent discount is ignored" "$EXPECTED" "$(echo "$FORGED" | jq_ discount)"
@@ -239,12 +211,10 @@ apost POST $API/admin/coupons \
   '{"code":"TESTSHIP","discountType":"FLAT","discountValue":1,"freeShipping":true,"perUserLimit":9}' >/dev/null
 SHIPQ=$(quote TESTSHIP "$CART1")
 checkm "delivery is waived on a small basket" "0.00" "$(echo "$SHIPQ" | jq_ shipping)"
-# Without the code, one plant is under ₹999 and pays the ₹99 fee.
 checkm "…and charged without it" "99.00" "$(quote NOPE9999 "$CART1" | jq_ shipping)"
 
 echo
 echo "== A DISCOUNT NEVER COSTS THE CUSTOMER FREE DELIVERY =="
-# The basket qualifies at ₹999+; a code taking it under must not re-add the fee.
 apost POST $API/admin/coupons \
   '{"code":"TESTDROP","discountType":"PERCENT","discountValue":70,"perUserLimit":9}' >/dev/null
 DROP=$(quote TESTDROP "$CART4")
@@ -284,17 +254,13 @@ print(r['timesUsed'], r['givenAway'])")
 check "TEST20 used once"        "1" "$(echo "$ROW" | cut -d' ' -f1)"
 checkm "…and what it cost"       "$EXPECTED" "$(echo "$ROW" | cut -d' ' -f2)"
 
-# ---- tidy up --------------------------------------------------------------
 assert_clean "cpn%@example.com"
 Q "DELETE FROM coupon WHERE code LIKE 'TEST%';" >/dev/null
 rm -f "$BODY"
 
-# Teardown. Runs at the end as well as the start, so a finished run leaves
-# the database exactly as it found it.
 purge_test_accounts "cpn%@example.com"
 assert_clean "cpn%@example.com"
 rm -f "$BODY"
-
 
 echo
 echo "  $pass passed, $fail failed"

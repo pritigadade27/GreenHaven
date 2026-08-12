@@ -17,11 +17,9 @@ const NAV = [
   ['/admin/activity', 'Activity log', 'filter'],
 ];
 
-/** The dashboard shell. */
 export default function AdminLayout() {
   const { admin, logout } = useAdminAuth();
   const [menuOpen, setMenuOpen] = useState(false);
-  // Signing out here revokes the server-side session, so a mis-click means signing in again — worth.
   const [confirmingLogout, setConfirmingLogout] = useState(false);
 
   return (
@@ -101,7 +99,6 @@ export default function AdminLayout() {
         }}
       />
 
-      {/* Tapping the dimmed area closes the drawer on a phone. */}
       {menuOpen && (
         <button
           type="button"

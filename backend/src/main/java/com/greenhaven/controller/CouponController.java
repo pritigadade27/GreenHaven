@@ -12,11 +12,9 @@ import com.greenhaven.service.CouponService;
 
 import jakarta.validation.Valid;
 
-/** Trying a discount code against a basket. */
 @RestController
 @RequestMapping("/api/coupons")
 public class CouponController {
-
     private final CouponService coupons;
 
     public CouponController(CouponService coupons) {

@@ -12,11 +12,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
-/** A plant a signed-in customer has saved. See {@link CartItem}. */
 @Entity
 @Table(name = "wishlist_item")
 public class WishlistItem {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

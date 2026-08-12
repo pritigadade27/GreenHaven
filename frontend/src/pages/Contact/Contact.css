@@ -4,7 +4,6 @@
 
 .contact__layout {
   display: grid;
-  /* minmax(0, …) rather than a bare fr. */
   grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
   align-items: start;
   gap: var(--space-2xl);
@@ -35,7 +34,6 @@
   gap: var(--space-md);
 }
 
-/* let the shared .field__control host a select and a textarea too */
 .contact .field__control select {
   flex: 1;
   min-width: 0;
@@ -139,10 +137,8 @@
   border-bottom: 1px solid currentColor;
 }
 
-/* The two-column layout had no stacking rule at all, so the form and the details column stayed. */
 @media (max-width: 991px) {
   .contact__layout {
-    /* minmax(0, …), not a bare 1fr: a bare fr track has an `auto` minimum, so the form card sized. */
     grid-template-columns: minmax(0, 1fr);
     gap: var(--space-xl);
   }

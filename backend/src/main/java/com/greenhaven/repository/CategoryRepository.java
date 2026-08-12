@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.greenhaven.entity.Category;
 
 public interface CategoryRepository extends JpaRepository<Category, Long> {
-
     Optional<Category> findBySlug(String slug);
 
     List<Category> findAllByOrderBySortOrderAsc();

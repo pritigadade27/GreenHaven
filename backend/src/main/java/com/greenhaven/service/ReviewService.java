@@ -27,13 +27,10 @@ import com.greenhaven.repository.PlantRepository;
 import com.greenhaven.repository.ReviewImageRepository;
 import com.greenhaven.repository.ReviewRepository;
 
-/** Ratings and reviews. */
 @Service
 public class ReviewService {
-
     private static final int MAX_PAGE = 50;
 
-    /** Four is plenty to show a plant from every angle, and it bounds what one account can put on disk. */
     private static final int MAX_IMAGES = 4;
 
     private final ReviewRepository reviews;
@@ -56,7 +53,7 @@ public class ReviewService {
 
     @Transactional(readOnly = true)
     public ReviewDtos.ReviewPage page(String slug, int page, int size, String email) {
-        plant(slug);   // 404 for an unknown product rather than an empty page
+        plant(slug);
 
         Pageable pageable = PageRequest.of(Math.max(0, page), Math.min(Math.max(1, size), MAX_PAGE));
         Page<Review> found =
@@ -65,7 +62,6 @@ public class ReviewService {
         Long me = email == null ? null
                 : users.findByEmail(email).map(AppUser::getId).orElse(null);
 
-        // One query for the whole page's photographs rather than one per review.
         Map<Long, List<String>> photos = imagesFor(
                 found.getContent().stream().map(Review::getId).toList());
 
@@ -79,7 +75,6 @@ public class ReviewService {
 
     @Transactional(readOnly = true)
     public ReviewDtos.Summary summary(String slug) {
-        // Every key present, always — a bar chart should not have to guess at a star nobody has given yet.
         Map<Integer, Long> breakdown = new LinkedHashMap<>();
         for (int star = 5; star >= 1; star--) {
             breakdown.put(star, 0L);
@@ -93,7 +88,6 @@ public class ReviewService {
             total += count;
         }
 
-        // From the ratings themselves, not from the bars above.
         BigDecimal average = total == 0 ? BigDecimal.ZERO
                 : BigDecimal.valueOf(reviews.averageForSlug(slug))
                         .setScale(1, RoundingMode.HALF_UP);
@@ -101,7 +95,6 @@ public class ReviewService {
         return new ReviewDtos.Summary(slug, average, total, breakdown);
     }
 
-    /** May this customer write about this plant, and if not, why not. */
     @Transactional(readOnly = true)
     public ReviewDtos.Eligibility eligibility(String email, String slug) {
         Plant plant = plant(slug);
@@ -146,7 +139,6 @@ public class ReviewService {
                     "You have already reviewed this plant. Edit your review instead.");
         }
 
-        // Checked here and not only in the UI.
         List<Order> delivered = orders.deliveredContaining(user.getId(), slug);
         if (delivered.isEmpty()) {
             throw new IllegalArgumentException(
@@ -159,7 +151,6 @@ public class ReviewService {
         review.setOrder(delivered.get(0));
         review.setVerifiedPurchase(true);
         apply(review, request);
-        // A verified purchase goes straight up.
         review.setStatus(Review.APPROVED);
 
         Review saved = reviews.save(review);
@@ -175,7 +166,6 @@ public class ReviewService {
 
         apply(review, request);
         review.setUpdatedAt(Instant.now());
-        // An edit un-hides nothing: if an admin took it down, changing the words does not put it back up.
         Review saved = reviews.save(review);
         List<String> photos = syncImages(saved, request.images());
         recompute(saved.getPlant());
@@ -188,15 +178,13 @@ public class ReviewService {
         Review review = owned(user, id);
         Plant plant = review.getPlant();
 
-        // Read the file paths before the rows go, or the FK cascade takes the only record of what is.
         List<String> files = imagesOf(review.getId());
         reviews.delete(review);
-        reviews.flush();     // the average is read back below
+        reviews.flush();
         files.forEach(uploads::deleteQuietly);
         recompute(plant);
     }
 
-    /** Stores one photograph for a customer who is entitled to review something. */
     @Transactional(readOnly = true)
     public ReviewDtos.UploadedImage uploadImage(String email,
                                                 org.springframework.web.multipart.MultipartFile file) {
@@ -208,7 +196,6 @@ public class ReviewService {
         return new ReviewDtos.UploadedImage(uploads.storeReviewImage(file));
     }
 
-    /** Replaces a review's photographs with exactly the list given. */
     private List<String> syncImages(Review review, List<String> urls) {
         List<String> wanted = urls == null ? List.of()
                 : urls.stream()
@@ -229,7 +216,6 @@ public class ReviewService {
 
         List<String> previous = imagesOf(review.getId());
         images.deleteByReviewId(review.getId());
-        // Flushed before the inserts, or UNIQUE (review_id, url) fires against rows the delete has not.
         images.flush();
 
         int order = 0;
@@ -261,7 +247,6 @@ public class ReviewService {
         return byReview;
     }
 
-    /** Rewrites the plant's rating and review count from its visible reviews. */
     @Transactional
     public void recompute(Plant plant) {
         long count = reviews.countByPlantIdAndStatus(plant.getId(), Review.APPROVED);
@@ -272,7 +257,6 @@ public class ReviewService {
         plants.save(plant);
     }
 
-    /** Used by the admin side, which holds ids rather than entities. */
     @Transactional
     public void recompute(Long plantId) {
         plants.findById(plantId).ifPresent(this::recompute);
@@ -295,7 +279,6 @@ public class ReviewService {
                 me != null && me.equals(r.getUser().getId()), photos);
     }
 
-    /** First name and last initial — "Aarti D." Reviews are public, and a full name beside a delivery. */
     private static String displayName(AppUser user) {
         String full = user.getFullName() == null ? "" : user.getFullName().trim();
         if (full.isEmpty()) return "A customer";
@@ -320,7 +303,6 @@ public class ReviewService {
                 .orElseThrow(() -> new ResourceNotFoundException("Not signed in."));
     }
 
-    /** Ratings go in half stars and nothing finer. */
     private static java.math.BigDecimal halfStar(java.math.BigDecimal rating) {
         java.math.BigDecimal scaled = rating.setScale(1, java.math.RoundingMode.UNNECESSARY);
         if (scaled.movePointRight(1).remainder(java.math.BigDecimal.valueOf(5))

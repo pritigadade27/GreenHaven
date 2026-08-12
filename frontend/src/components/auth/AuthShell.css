@@ -1,18 +1,14 @@
 .auth {
-  /* flex, not grid: `place-items: center` sizes the column to content, so the card's `width: min(980px, 100%)` resolved against the wrong box and the whole thing sat hard left. */
   display: flex;
   align-items: center;
   justify-content: center;
-  /* min-height only, and dvh rather than vh. */
   min-height: 100dvh;
   padding: calc(var(--navbar-height) + var(--space-sm)) var(--container-pad) var(--space-lg);
   background-size: cover;
   background-position: center;
-  /* `fixed` repaints the whole backdrop on every scroll frame on iOS and is simply ignored by some. */
   background-attachment: scroll;
 }
 
-/* A blush veil over the photography so the card always has contrast to sit against, whatever the. */
 .auth::before {
   content: '';
   position: fixed;
@@ -25,9 +21,7 @@
   position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  /* One fixed size for BOTH screens, so switching between Sign in and Sign up never resizes the. */
   width: min(920px, 100%);
-  /* A floor rather than a fixed height: the card still looks identical between Sign in and Sign up on a normal screen, but it can grow instead of clipping its own contents on a short one. */
   min-height: min(736px, 100%);
   background: var(--color-white);
   border-radius: var(--radius-xl);
@@ -118,7 +112,6 @@
   right: 0;
   bottom: 0;
   padding: var(--space-4xl) var(--space-lg) var(--space-lg);
-  /* A deeper, earlier scrim. */
   background: linear-gradient(
     180deg,
     rgba(58, 0, 4, 0) 0%,
@@ -157,7 +150,6 @@
   display: flex;
   align-items: center;
   gap: var(--space-xs);
-  /* Soft pink on a photograph measured around 2:1. */
   color: rgba(255, 255, 255, 0.9);
   font-size: var(--fs-xs);
   font-weight: var(--fw-regular);
@@ -181,7 +173,6 @@
   }
 }
 
-/* Compact field metrics inside the card — the sign-up form has four inputs and still has to fit a. */
 .auth__card .field {
   margin-bottom: var(--space-sm);
 }
@@ -205,7 +196,6 @@
   font-size: 0.6875rem;
 }
 
-/* Sign in has two fields to sign up's four. */
 .auth__pane {
   justify-content: flex-start;
 }
@@ -218,7 +208,6 @@
   min-height: 0;
 }
 
-/* Trim the intro block so the four sign-up fields, the button and the note all clear the card. */
 .auth__body {
   padding-top: var(--space-md);
 }
@@ -271,7 +260,6 @@
   font-size: var(--fs-sm);
 }
 
-/* Shown when a visitor was redirected here from an action that needs an account — tells them why. */
 .auth__reason {
   display: flex;
   align-items: flex-start;

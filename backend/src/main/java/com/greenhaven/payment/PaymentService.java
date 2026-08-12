@@ -20,13 +20,10 @@ import com.razorpay.Utils;
 
 import jakarta.annotation.PostConstruct;
 
-/** Everything that talks to Razorpay. */
 @Service
 public class PaymentService {
-
     private static final Logger log = LoggerFactory.getLogger(PaymentService.class);
 
-    /** Set RAZORPAY_MODE to this to run checkout without a gateway account. */
     public static final String SIMULATED = "simulated";
 
     private final String keyId;
@@ -36,7 +33,6 @@ public class PaymentService {
     private final String simulationSecret;
     private final String webhookSecret;
 
-    /** Built once, lazily. */
     private volatile RazorpayClient client;
 
     public PaymentService(@Value("${razorpay.key-id}") String keyId,
@@ -50,12 +46,11 @@ public class PaymentService {
         this.currency = currency;
         this.mode = mode == null ? "live" : mode.trim().toLowerCase();
         this.simulationSecret = simulationSecret == null || simulationSecret.isBlank()
-                ? UUID.randomUUID().toString()   // per-boot, so nothing outlives the process
+                ? UUID.randomUUID().toString()
                 : simulationSecret;
         this.webhookSecret = webhookSecret;
     }
 
-    /** Simulation stands in for the gateway when no account is connected yet. */
     public boolean isSimulated() {
         return SIMULATED.equals(mode) && !hasLiveKeys();
     }
@@ -78,14 +73,12 @@ public class PaymentService {
         return isSimulated() ? "rzp_test_simulated" : keyId;
     }
 
-    /** True when real keys are configured — lets the API fail loudly, early. */
     public boolean isConfigured() {
         return isSimulated()
                 || (keyId != null && !keyId.isBlank() && !keyId.contains("REPLACE_ME")
                     && keySecret != null && !keySecret.isBlank() && !keySecret.contains("REPLACE_ME"));
     }
 
-    /** Creates the order on Razorpay's side and returns its id. */
     public String createOrder(BigDecimal rupees, String receipt) throws Exception {
         if (isSimulated()) {
             return "order_SIM" + UUID.randomUUID().toString().replace("-", "").substring(0, 14);
@@ -103,7 +96,6 @@ public class PaymentService {
         request.put("amount", paise);
         request.put("currency", currency);
         request.put("receipt", receipt);
-        // Let Razorpay capture automatically; a manual capture step is one more place for a.
         request.put("payment_capture", 1);
 
         return client().orders.create(request).get("id").toString();
@@ -123,12 +115,10 @@ public class PaymentService {
         return local;
     }
 
-    /** Verifies the HMAC-SHA256 signature Razorpay returns with a payment. */
     public boolean isSignatureValid(String razorpayOrderId, String razorpayPaymentId,
                                     String signature) {
         try {
             if (isSimulated()) {
-                // Same algorithm, same comparison, only the secret differs.
                 return constantTimeEquals(
                         sign(razorpayOrderId + "|" + razorpayPaymentId, simulationSecret),
                         signature);
@@ -139,12 +129,10 @@ public class PaymentService {
             payload.put("razorpay_signature", signature);
             return Utils.verifyPaymentSignature(payload, keySecret);
         } catch (Exception e) {
-            // A malformed signature is a failed verification, never an error the caller has to handle.
             return false;
         }
     }
 
-    /** Verifies a webhook payload. */
     public boolean isWebhookSignatureValid(String rawBody, String headerSignature) {
         if (webhookSecret == null || webhookSecret.isBlank()) return false;
         if (rawBody == null || headerSignature == null || headerSignature.isBlank()) return false;
@@ -155,7 +143,6 @@ public class PaymentService {
         return webhookSecret != null && !webhookSecret.isBlank();
     }
 
-    /** How the customer actually paid — card, upi, netbanking, wallet. */
     public String methodOf(String razorpayPaymentId) {
         if (isSimulated()) return "SIMULATED";
         if (razorpayPaymentId == null || razorpayPaymentId.isBlank()) return null;
@@ -169,7 +156,6 @@ public class PaymentService {
         }
     }
 
-    /** Asks Razorpay whether an order was in fact paid, and returns the captured payment id if so. */
     public String capturedPaymentIdFor(String razorpayOrderId) {
         if (isSimulated() || razorpayOrderId == null || razorpayOrderId.isBlank()) return null;
         try {
@@ -182,13 +168,11 @@ public class PaymentService {
             }
             return null;
         } catch (Exception e) {
-            // Not knowing is not the same as knowing it was not paid.
             log.warn("Could not ask Razorpay about {}: {}", razorpayOrderId, e.getMessage());
             return null;
         }
     }
 
-    /** Signs a would-be gateway response. */
     public String[] simulateGatewayResponse(String razorpayOrderId, boolean succeed) {
         if (!isSimulated()) {
             throw new IllegalStateException("Payment simulation is off. Payments go through Razorpay.");
@@ -196,7 +180,7 @@ public class PaymentService {
         String paymentId = "pay_SIM" + UUID.randomUUID().toString().replace("-", "").substring(0, 14);
         String signature = succeed
                 ? sign(razorpayOrderId + "|" + paymentId, simulationSecret)
-                : sign(razorpayOrderId + "|" + paymentId, "wrong-secret");  // must fail verification
+                : sign(razorpayOrderId + "|" + paymentId, "wrong-secret");
         return new String[] { paymentId, signature };
     }
 

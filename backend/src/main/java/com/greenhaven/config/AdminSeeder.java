@@ -11,10 +11,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import com.greenhaven.entity.AppUser;
 import com.greenhaven.repository.AppUserRepository;
 
-/** Creates the first admin account from configuration, once. */
 @Configuration
 public class AdminSeeder {
-
     private static final Logger log = LoggerFactory.getLogger(AdminSeeder.class);
 
     @Bean
@@ -35,12 +33,10 @@ public class AdminSeeder {
             }
 
             if (password.length() < 8) {
-                // Refuse rather than create a weak account that can reach every order and customer record in the.
                 log.error("ADMIN_PASSWORD is shorter than 8 characters — admin NOT created.");
                 return;
             }
             if (password.length() < 12) {
-                // Not fatal: it is the owner's account and their decision.
                 log.warn("ADMIN_PASSWORD is under 12 characters. Consider a longer one.");
             }
 
@@ -51,7 +47,6 @@ public class AdminSeeder {
             admin.setRole("ADMIN");
             users.save(admin);
 
-            // The address, never the password.
             log.info("Admin account created for {}", normalised);
         };
     }

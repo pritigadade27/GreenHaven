@@ -1,4 +1,4 @@
-<#
+<
   Green Haven — creates the database, the application user, the schema and the
   seed data in one go.
 
@@ -8,7 +8,6 @@
   It will ask for your MySQL *root* password once. Everything after that is
   automatic. Safe to re-run: the schema drops and recreates its own tables, so
   a second run simply reloads a clean catalogue.
-#>
 
 $ErrorActionPreference = 'Stop'
 
@@ -21,7 +20,6 @@ foreach ($f in @($setupUser, $schema, $data)) {
     if (-not (Test-Path $f)) { throw "Missing SQL file: $f" }
 }
 
-# ---------------------------------------------------------------- find mysql
 $mysql = (Get-Command mysql -ErrorAction SilentlyContinue).Source
 if (-not $mysql) {
     $candidates = @(
@@ -42,7 +40,6 @@ if (-not $mysql) {
 }
 Write-Host "Using mysql client: $mysql" -ForegroundColor DarkGray
 
-# ------------------------------------------------------------------- connect
 $rootPw = Read-Host 'MySQL root password' -AsSecureString
 $plain  = [Runtime.InteropServices.Marshal]::PtrToStringAuto(
             [Runtime.InteropServices.Marshal]::SecureStringToBSTR($rootPw))
@@ -55,8 +52,6 @@ function Invoke-Sql {
     if ($LASTEXITCODE -ne 0) { throw "mysql failed on $(Split-Path -Leaf $File)" }
 }
 
-# The application user's password comes from the environment, not from this
-# file — see mysql.ps1 for the same reason.
 $appPassword = $env:MYSQL_PWD
 if (-not $appPassword) {
   Write-Host 'Set MYSQL_PWD first:  $env:MYSQL_PWD = "..."' -ForegroundColor Red
@@ -73,7 +68,6 @@ Invoke-Sql -File $schema -User 'priti' -Password $appPassword -Database 'green_h
 Write-Host '3/3  loading catalogue ...' -ForegroundColor Cyan
 Invoke-Sql -File $data -User 'priti' -Password $appPassword -Database 'green_haven'
 
-# -------------------------------------------------------------------- verify
 Write-Host ''
 Write-Host 'Verifying:' -ForegroundColor Green
 $check = @'

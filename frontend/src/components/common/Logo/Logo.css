@@ -40,7 +40,6 @@
   white-space: nowrap;
 }
 
-/* On a burgundy surface — footer, dark overlays. */
 .logo--light .logo__name {
   color: var(--color-text-on-dark);
 }
@@ -52,7 +51,6 @@
   display: none;
 }
 
-/* The navbar shrinks the lockup once the page is scrolled. */
 .navbar--scrolled .logo__mark {
   width: 38px;
   height: 38px;

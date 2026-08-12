@@ -12,11 +12,8 @@ import com.greenhaven.entity.AppUser;
 import com.greenhaven.repository.AddressRepository;
 import com.greenhaven.repository.AppUserRepository;
 
-/** The customer's saved delivery addresses. */
 @Service
 public class AddressService {
-
-    /** Enough for a household without becoming a list nobody can scan. */
     private static final int MAX_PER_USER = 12;
 
     private final AddressRepository addresses;
@@ -45,7 +42,6 @@ public class AddressService {
         row.setUser(owner);
         apply(row, request);
 
-        // The first address saved is the default whether or not the box was ticked — an account with.
         boolean first = addresses.countByUserId(owner.getId()) == 0;
         row.setDefaultAddress(first || request.makeDefault());
 
@@ -72,7 +68,6 @@ public class AddressService {
         return toDto(saved);
     }
 
-    /** Removes a saved address. */
     @Transactional
     public void delete(String email, Long id) {
         AppUser owner = user(email);
@@ -80,7 +75,6 @@ public class AddressService {
         boolean wasDefault = row.isDefaultAddress();
         addresses.delete(row);
 
-        // Promote another one rather than leaving the account with none marked.
         if (wasDefault) {
             addresses.findByUserIdOrderByDefaultAddressDescIdDesc(owner.getId()).stream()
                     .findFirst()
@@ -117,7 +111,6 @@ public class AddressService {
         return s == null || s.isBlank() ? null : s.trim();
     }
 
-    /** Scoped to the owner in the query — a wrong id is a miss, not a leak. */
     private Address owned(AppUser owner, Long id) {
         return addresses.findByIdAndUserId(id, owner.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("No such saved address."));

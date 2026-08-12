@@ -9,11 +9,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
-/** An email address subscribed to the monthly care letter. */
 @Entity
 @Table(name = "newsletter_subscriber")
 public class NewsletterSubscriber {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

@@ -5,7 +5,6 @@ import { resolveImage } from '../utils/productImages.js';
 
 const CatalogueContext = createContext(null);
 
-/** The catalogue, loaded from MySQL. */
 export function CatalogueProvider({ children }) {
   const [state, setState] = useState({ products: [], categories: [], badges: {}, ready: false, error: '' });
 
@@ -45,7 +44,6 @@ export function CatalogueProvider({ children }) {
       CATALOGUE: products,
       CATEGORIES: categories,
       BADGES: badges,
-      // Merchandise carries `isMerchandise`; the plant-only lists exclude it.
       ALL_PLANTS: products.filter((p) => !p.isMerchandise),
       PLANTS: products.filter((p) => !p.isMerchandise),
       getPlantBySlug: (slug) => products.find((p) => p.slug === slug),
@@ -68,14 +66,12 @@ export function useCatalogue() {
   return ctx;
 }
 
-/** Fetches the whole catalogue, one page at a time. */
 async function fetchEveryProduct() {
   const SIZE = 100;
   const first = await request(`/plants?page=0&size=${SIZE}`);
   const products = [...first.content];
 
   for (let page = 1; page < first.totalPages; page += 1) {
-    // Sequential rather than parallel: three requests against a local API is nothing, and it keeps.
     const next = await request(`/plants?page=${page}&size=${SIZE}`);
     products.push(...next.content);
   }
@@ -83,14 +79,12 @@ async function fetchEveryProduct() {
   return products;
 }
 
-/** API shape -> the shape the components already expect. */
 function adapt(dto) {
   return {
     ...dto,
     short: dto.shortDescription ?? dto.short ?? '',
     tip: dto.careTip ?? dto.tip ?? '',
     image: resolveImage(dto.image),
-    // Each shot goes through the same resolver as the primary, so a bundled asset and an uploaded.
     gallery: (dto.gallery ?? []).map(resolveImage).filter(Boolean),
     badges: dto.badges ?? [],
     isMerchandise: Boolean(dto.merchandise ?? dto.isMerchandise),

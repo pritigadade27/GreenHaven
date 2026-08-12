@@ -17,10 +17,8 @@ import com.greenhaven.entity.Coupon;
 import com.greenhaven.repository.CouponRedemptionRepository;
 import com.greenhaven.repository.CouponRepository;
 
-/** Creating, editing and retiring discount codes from the dashboard. */
 @Service
 public class CouponAdminService {
-
     private static final Set<String> TYPES = Set.of(Coupon.PERCENT, Coupon.FLAT);
 
     private final CouponRepository coupons;
@@ -54,7 +52,6 @@ public class CouponAdminService {
         Coupon coupon = coupons.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No coupon with id " + id));
 
-        // The code is what customers have been given.
         String code = CouponService.normalise(r.code());
         if (!code.equals(coupon.getCode())) {
             if (coupons.existsByCode(code)) {
@@ -66,7 +63,6 @@ public class CouponAdminService {
         return toRow(coupons.save(coupon));
     }
 
-    /** Turns a coupon off. */
     @Transactional
     public CouponDtos.CouponRow setActive(Long id, boolean active) {
         Coupon coupon = coupons.findById(id)
@@ -113,7 +109,6 @@ public class CouponAdminService {
                 redemptions.totalGivenAway(c.getId()), state(c, used));
     }
 
-    /** The one word the list column shows, in the order a reader would ask. */
     private static String state(Coupon c, long used) {
         Instant now = Instant.now();
         if (!c.isActive()) return "Off";

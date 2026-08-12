@@ -3,7 +3,6 @@ import { useEffect, useRef } from 'react';
 import Icon from '../Icon/Icon.jsx';
 import './ConfirmDialog.css';
 
-/** A small confirmation, used before anything the customer cannot simply undo. */
 export default function ConfirmDialog({
   open,
   title,

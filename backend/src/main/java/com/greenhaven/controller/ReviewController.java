@@ -23,17 +23,14 @@ import com.greenhaven.service.ReviewService;
 
 import jakarta.validation.Valid;
 
-/** Product ratings and reviews. */
 @RestController
 public class ReviewController {
-
     private final ReviewService reviews;
 
     public ReviewController(ReviewService reviews) {
         this.reviews = reviews;
     }
 
-    /** Principal is null for an anonymous reader, which is fine — it is only used to mark which review. */
     @GetMapping("/api/plants/{slug}/reviews")
     public ReviewDtos.ReviewPage list(Principal principal, @PathVariable String slug,
                                       @RequestParam(defaultValue = "0") int page,
@@ -71,7 +68,6 @@ public class ReviewController {
         return new ApiMessage("Your review has been removed.");
     }
 
-    /** Stores one photograph and returns its path, to be sent back with the review body. */
     @PostMapping(value = "/api/reviews/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ReviewDtos.UploadedImage uploadImage(Principal principal,
                                                 @RequestPart("file") MultipartFile file) {

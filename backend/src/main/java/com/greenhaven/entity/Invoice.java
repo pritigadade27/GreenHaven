@@ -13,11 +13,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
-/** One issued document — an invoice, or a credit note offsetting one. */
 @Entity
 @Table(name = "invoice")
 public class Invoice {
-
     public static final String INVOICE = "INVOICE";
     public static final String CREDIT_NOTE = "CREDIT_NOTE";
 
@@ -35,7 +33,6 @@ public class Invoice {
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;
 
-    /** Always positive. */
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal amount = BigDecimal.ZERO;
 

@@ -1,5 +1,3 @@
-/** Green Haven — product catalogue. */
-
 import aloeVera from '../assets/images/plants/aloe-vera.jpg';
 import castIron from '../assets/images/plants/cast-iron-plant.jpg';
 import dumbcane from '../assets/images/plants/dumbcane.jpg';
@@ -28,7 +26,6 @@ import rose from '../assets/images/plants/rose.jpg';
 import sunflower from '../assets/images/plants/sunflower.jpg';
 import tulsi from '../assets/images/plants/tulsi.jpg';
 
-// Second wave — sourced from Unsplash, curated in Y:\Priti\green-haven\assets
 import anthurium from '../assets/images/plants/anthurium.jpg';
 import arecaPalm from '../assets/images/plants/areca-palm.jpg';
 import basil from '../assets/images/plants/basil.jpg';
@@ -904,7 +901,6 @@ export const PLANTS = [
   },
 ];
 
-/** PLANTS holds the living stock. */
 export const ALL_PLANTS = [...PLANTS, ...EXTRA_PLANTS];
 export const CATALOGUE = [...ALL_PLANTS, ...MERCHANDISE];
 
@@ -913,7 +909,6 @@ export const getPlantBySlug = (slug) => CATALOGUE.find((p) => p.slug === slug);
 export const getByCategory = (category) =>
   category ? CATALOGUE.filter((p) => p.category === category) : CATALOGUE;
 
-/** How many products sit in a category — merchandise included. */
 export const countInCategory = (slug) => CATALOGUE.filter((p) => p.category === slug).length;
 
 export const getFeatured = () => ALL_PLANTS.filter((p) => p.featured);
@@ -924,7 +919,6 @@ export const getPetSafe = () => ALL_PLANTS.filter((p) => p.petSafety === 'safe')
 
 export const getBeginnerFriendly = () => ALL_PLANTS.filter((p) => p.badges.includes('beginner'));
 
-/** Related products: same category first, then anything sharing a badge. */
 export const getRelated = (plant, limit = 4) => {
   const others = CATALOGUE.filter((p) => p.id !== plant.id);
   const sameCategory = others.filter((p) => p.category === plant.category);

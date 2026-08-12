@@ -19,7 +19,6 @@ export default function AdminReviews() {
   const [page, setPage] = useState(0);
   const [busyId, setBusyId] = useState(null);
   const [removing, setRemoving] = useState(null);
-  // Which review is having a hide reason typed for it.
   const [hiding, setHiding] = useState(null);
   const [reason, setReason] = useState('Inappropriate content');
   const reviews = useAdminQuery(() => adminApi.reviews({ status, page, size: 20 }), [status, page]);
@@ -104,7 +103,6 @@ export default function AdminReviews() {
                           )}
                         </td>
                         <td>
-                          {/* Ratings come in halves, so the glyphs are drawn from the whole part and the remainder is stated. */}
                           {'★'.repeat(Math.floor(row.rating))}
                           <span className="admin-muted">
                             {'★'.repeat(5 - Math.ceil(row.rating))}
@@ -115,7 +113,6 @@ export default function AdminReviews() {
                           {row.title && <strong>{row.title}</strong>}
                           <span className="admin-sub">{row.body}</span>
                           {row.images?.length > 0 && (
-                            /* Shown because a photograph is the part of a review most likely to need taking down, and it. */
                             <span className="admin-review-photos">
                               {row.images.map((url, index) => (
                                 <a key={url} href={url} target="_blank" rel="noreferrer">

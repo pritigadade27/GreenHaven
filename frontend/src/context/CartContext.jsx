@@ -7,7 +7,6 @@ import useBasketSync from '../hooks/useBasketSync.js';
 const CartContext = createContext(null);
 const STORAGE_KEY = 'greenhaven.cart';
 
-/** Read the basket back from localStorage so a refresh does not empty it. */
 const isCart = (value) =>
   Array.isArray(value) &&
   value.every(
@@ -20,7 +19,6 @@ const isCart = (value) =>
   );
 
 function init() {
-  // Coerce the numbers: a quantity persisted as "3" would make the subtotal string-concatenate.
   return readJson(STORAGE_KEY, [], isCart).map((line) => ({
     ...line,
     price: Number(line.price),
@@ -28,7 +26,6 @@ function init() {
   }));
 }
 
-/** A line can never hold more than the shop has. */
 const capped = (quantity, line) => {
   const ceiling = Number.isFinite(line?.stock) && line.stock > 0 ? line.stock : 99;
   return Math.max(1, Math.min(Math.round(quantity), ceiling));
@@ -53,18 +50,16 @@ function reducer(state, action) {
       return state.filter((line) => line.id !== action.id);
 
     case 'SET_QUANTITY':
-      // Dropping to zero removes the line rather than leaving an empty row.
       if (action.quantity < 1) return state.filter((line) => line.id !== action.id);
       return state.map((line) =>
         line.id === action.id ? { ...line, quantity: capped(action.quantity, line) } : line
       );
 
     case 'MERGE_SERVER': {
-      // Union, not overwrite.
       const merged = [...state];
       action.lines.forEach(({ slug, quantity }) => {
         const product = action.lookup(slug);
-        if (!product) return;   // delisted since it was saved
+        if (!product) return;
         const existing = merged.find((line) => line.slug === slug);
         if (existing) {
           existing.quantity = capped(Math.max(existing.quantity, quantity), existing);
@@ -98,7 +93,6 @@ export function CartProvider({ children }) {
     writeJson(STORAGE_KEY, items);
   }, [items]);
 
-  // The account's copy of the basket.
   const { getPlantBySlug, ready: catalogueReady } = useCatalogue();
 
   const restoreFromServer = useCallback(
@@ -119,7 +113,6 @@ export function CartProvider({ children }) {
     local: items,
     onRestore: restoreFromServer,
     toPayload,
-    // The saved basket is a list of slugs; turning it back into cart lines needs the catalogue.
     enabled: catalogueReady,
   });
 
@@ -132,7 +125,6 @@ export function CartProvider({ children }) {
       totalItems,
       subtotal,
       isInCart: (id) => items.some((line) => line.id === id),
-      /** What this line may not exceed — used to disable the + button. */
       maxFor: (id) => {
         const line = items.find((l) => l.id === id);
         return Number.isFinite(line?.stock) && line.stock > 0 ? line.stock : 99;

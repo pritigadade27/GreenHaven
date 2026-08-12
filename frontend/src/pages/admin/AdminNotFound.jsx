@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom';
 
 import Icon from '../../components/common/Icon/Icon.jsx';
 
-/** 404 for an unknown /admin route. */
 export default function AdminNotFound() {
   return (
     <div className="admin-empty">

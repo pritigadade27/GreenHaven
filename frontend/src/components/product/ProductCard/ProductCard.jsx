@@ -10,12 +10,10 @@ import { useCatalogue } from '../../../context/CatalogueContext.jsx';
 import { formatPrice, discountPercent } from '../../../utils/format.js';
 import './ProductCard.css';
 
-/** The product card used by Featured Plants, Best Sellers, Shop and the related-plants strip. */
 export default function ProductCard({ plant, rank }) {
   const { CATEGORIES } = useCatalogue();
   const [justAdded, setJustAdded] = useState(false);
 
-  // The confirmation resets itself, and the timer is cancelled if the customer navigates away first — this card links to the product page, so leaving within 1.6s is the normal case, not the edge case.
   useEffect(() => {
     if (!justAdded) return undefined;
     const t = setTimeout(() => setJustAdded(false), 1600);
@@ -29,7 +27,6 @@ export default function ProductCard({ plant, rank }) {
   const discount = discountPercent(plant.price, plant.mrp);
   const categoryName = CATEGORIES.find((c) => c.slug === plant.category)?.name ?? '';
 
-  // `??
   const badgeCodes = plant.badges ?? [];
   const petBadge = badgeCodes.find((b) => b.startsWith('pet'));
   const otherBadge = badgeCodes.find((b) => !b.startsWith('pet'));

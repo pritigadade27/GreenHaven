@@ -1,12 +1,3 @@
--- ===========================================================================
---  Green Haven — migration 011
---  Photographs attached to a review
---
---  ON DELETE CASCADE: a photograph of a plant only means anything alongside
---  the words it illustrates. When the review goes, so does the picture.
---    mysql --default-character-set=utf8mb4 -u priti green_haven < migration-011-review-images.sql
--- ===========================================================================
-
 SET NAMES utf8mb4;
 
 CREATE TABLE IF NOT EXISTS review_image (

@@ -1,4 +1,3 @@
-/** localStorage that cannot take the site down. */
 const memory = new Map();
 
 export function readJson(key, fallback, isValid = () => true) {
@@ -35,7 +34,7 @@ export function writeString(key, value) {
   try {
     localStorage.setItem(key, value);
   } catch {
-    /* in-memory only for this session */
+    // ignore
   }
 }
 
@@ -44,6 +43,6 @@ export function remove(key) {
   try {
     localStorage.removeItem(key);
   } catch {
-    /* nothing to do */
+    // ignore
   }
 }

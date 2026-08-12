@@ -9,10 +9,8 @@ import org.springframework.data.repository.query.Param;
 import com.greenhaven.entity.CouponRedemption;
 
 public interface CouponRedemptionRepository extends JpaRepository<CouponRedemption, Long> {
-
     Optional<CouponRedemption> findByOrderId(Long orderId);
 
-    /** How many times this coupon has been taken, ignoring orders that came to nothing. */
     @Query("""
             SELECT COUNT(r) FROM CouponRedemption r
              WHERE r.coupon.id = :couponId
@@ -28,7 +26,6 @@ public interface CouponRedemptionRepository extends JpaRepository<CouponRedempti
             """)
     long countLiveForUser(@Param("couponId") Long couponId, @Param("userId") Long userId);
 
-    /** Total actually given away on paid orders, for the admin's figures. */
     @Query("""
             SELECT COALESCE(SUM(r.discount), 0) FROM CouponRedemption r
              WHERE r.coupon.id = :couponId

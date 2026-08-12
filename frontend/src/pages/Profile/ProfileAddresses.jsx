@@ -28,7 +28,7 @@ export default function ProfileAddresses() {
   const [addresses, setAddresses] = useState(null);
   const [error, setError] = useState('');
   const [flash, setFlash] = useState(null);
-  const [form, setForm] = useState(null); // null = the form is closed
+  const [form, setForm] = useState(null);
   const [editingId, setEditingId] = useState(null);
   const [fieldErrors, setFieldErrors] = useState({});
   const [busy, setBusy] = useState(false);

@@ -1,5 +1,3 @@
-# Runs the API with backend\.env loaded. Maven does not read that file itself,
-# so starting Maven directly fails on the missing JWT secret.
 $ErrorActionPreference = 'Continue'
 $root = Split-Path -Parent $PSScriptRoot
 $backend = Join-Path $root 'backend'
@@ -19,8 +17,6 @@ Get-Content $envFile | ForEach-Object {
 }
 Write-Host "  settings loaded from backend\.env" -ForegroundColor Green
 
-# Full paths, and cd inside the cmd line itself: Set-Location moves PowerShell's
-# location but not the working directory a child process inherits.
 Set-Location $backend
 if (Get-Command mvn -ErrorAction SilentlyContinue) {
     cmd /c "cd /d `"$backend`" && mvn spring-boot:run"

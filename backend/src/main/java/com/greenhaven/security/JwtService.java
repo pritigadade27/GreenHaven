@@ -12,22 +12,18 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 
-/** Issues and reads the signed tokens returned by /api/auth/login. */
 @Service
 public class JwtService {
-
     private final SecretKey key;
     private final long expirationMs;
 
     public JwtService(@Value("${greenhaven.jwt.secret}") String secret,
                       @Value("${greenhaven.jwt.expiration-ms}") long expirationMs) {
-        // HS256 needs at least 256 bits of key material.
         if (secret == null || secret.isBlank()) {
             throw new IllegalStateException(
                     "greenhaven.jwt.secret is not set. Put GREENHAVEN_JWT_SECRET in backend/.env "
                     + "or in the environment.");
         }
-        // A placeholder that ships in source is a master key that ships in source.
         if (secret.startsWith("change-this")) {
             throw new IllegalStateException(
                     "greenhaven.jwt.secret is still the example value. Generate a real one.");
@@ -45,7 +41,6 @@ public class JwtService {
         return issue(email, role, null, expirationMs);
     }
 
-    /** Issues a token, optionally tied to a server-side session. */
     public String issue(String email, String role, String jti, long lifetimeMs) {
         Date now = new Date();
         var builder = Jwts.builder()
@@ -58,7 +53,6 @@ public class JwtService {
         return builder.compact();
     }
 
-    /** All claims, verified. Throws if the signature or expiry is bad. */
     public Claims claims(String token) {
         return Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload();
     }

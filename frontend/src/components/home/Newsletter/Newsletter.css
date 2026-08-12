@@ -16,7 +16,6 @@
   box-shadow: var(--shadow-xl);
 }
 
-/* decorative foliage, kept well behind the text */
 .newsletter__leaf {
   position: absolute;
   color: var(--color-white);

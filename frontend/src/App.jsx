@@ -29,7 +29,6 @@ const About = lazy(() => import('./pages/About/About.jsx'));
 const Contact = lazy(() => import('./pages/Contact/Contact.jsx'));
 const Orders = lazy(() => import('./pages/Orders/Orders.jsx'));
 
-// My Profile.
 const ProfileLayout = lazy(() => import('./pages/Profile/ProfileLayout.jsx'));
 const ProfileOverview = lazy(() => import('./pages/Profile/ProfileOverview.jsx'));
 const ProfileOrders = lazy(() => import('./pages/Profile/ProfileOrders.jsx'));
@@ -42,7 +41,6 @@ const ProfileInvoices = lazy(() => import('./pages/Profile/ProfileInvoices.jsx')
 const ProfileNotifications = lazy(() => import('./pages/Profile/ProfileNotifications.jsx'));
 const NotFound = lazy(() => import('./pages/NotFound/NotFound.jsx'));
 
-// The dashboard is its own chunk.
 const AdminLogin = lazy(() => import('./pages/admin/AdminLogin.jsx'));
 const AdminLayout = lazy(() => import('./pages/admin/AdminLayout.jsx'));
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard.jsx'));
@@ -56,11 +54,8 @@ const AdminCoupons = lazy(() => import('./pages/admin/AdminCoupons.jsx'));
 const AdminActivity = lazy(() => import('./pages/admin/AdminActivity.jsx'));
 const AdminNotFound = lazy(() => import('./pages/admin/AdminNotFound.jsx'));
 
-/** Green Haven — application shell. */
-/** Login and Register are full-height split screens — a footer under them would just push the form. */
 const CHROMELESS = ['/login', '/register', '/forgot-password'];
 
-/** The dashboard branch. */
 function AdminArea() {
   return (
     <AdminAuthProvider>
@@ -81,7 +76,6 @@ function AdminArea() {
               </AdminRoute>
             }
           >
-            {/* /admin lands on the dashboard rather than a blank shell. */}
             <Route index element={<Navigate to="dashboard" replace />} />
             <Route path="dashboard" element={<AdminDashboard />} />
             <Route path="orders" element={<AdminOrders />} />
@@ -92,7 +86,6 @@ function AdminArea() {
             <Route path="reviews" element={<AdminReviews />} />
             <Route path="coupons" element={<AdminCoupons />} />
             <Route path="activity" element={<AdminActivity />} />
-            {/* Unknown admin route: a 404 inside the shell, still signed in. */}
             <Route path="*" element={<AdminNotFound />} />
           </Route>
         </Routes>
@@ -101,7 +94,6 @@ function AdminArea() {
   );
 }
 
-/** The public shop. Unchanged. */
 function StorefrontArea() {
   const { pathname } = useLocation();
   const showFooter = !CHROMELESS.includes(pathname);
@@ -147,7 +139,6 @@ function StorefrontArea() {
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
-            {/* A real 404. Rendering Home here told people their link worked. */}
             <Route path="*" element={<NotFound />} />
           </Routes>
           </Suspense>
@@ -163,13 +154,10 @@ function StorefrontArea() {
 
 export default function App() {
   return (
-    // Outermost on purpose: a throw inside any provider or page shows a page that explains itself.
     <ErrorBoundary>
       <ToastProvider>
       <Routes>
-        {/* Everything under /admin, handled entirely by AdminArea. */}
         <Route path="/admin/*" element={<AdminArea />} />
-        {/* Everything else is the shop. */}
         <Route path="/*" element={<StorefrontArea />} />
       </Routes>
       </ToastProvider>

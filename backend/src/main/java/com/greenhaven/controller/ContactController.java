@@ -11,10 +11,8 @@ import com.greenhaven.service.ContactService;
 
 import jakarta.validation.Valid;
 
-/** POST /api/contact POST /api/newsletter */
 @RestController
 public class ContactController {
-
     private final ContactService contact;
 
     public ContactController(ContactService contact) {

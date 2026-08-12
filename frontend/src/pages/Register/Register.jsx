@@ -40,10 +40,8 @@ export default function Register() {
     setBusy(true);
     try {
       await register(form.name, form.email, form.password, form.phone.trim());
-      // Honour where the customer was headed, exactly as Login does.
       navigate(from, { replace: true });
     } catch (err) {
-      // Server-side bean validation comes back per field; surface it there.
       if (err.fields) {
         const { fullName, ...rest } = err.fields;
         setErrors({ ...rest, ...(fullName ? { name: fullName } : {}) });
@@ -124,7 +122,6 @@ export default function Register() {
                   autoComplete="tel"
                 />
               </div>
-              {/* Not required here on purpose: an email address is enough to open an account, and checkout asks. */}
               {errors.phone && <p className="field__error">{errors.phone}</p>}
             </div>
 

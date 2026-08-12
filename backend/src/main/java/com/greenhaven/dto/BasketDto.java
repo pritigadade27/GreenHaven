@@ -8,9 +8,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 
-/** What the browser sends and receives for a saved cart or wishlist. */
 public final class BasketDto {
-
     private BasketDto() { }
 
     public record Line(
@@ -19,9 +17,7 @@ public final class BasketDto {
             int quantity) {
     }
 
-    /** A whole basket, replacing whatever was stored before. */
     public record Basket(
-            // @Valid is what makes the constraints on Line actually run.
             @Valid
             @Size(max = 100, message = "A basket can hold up to 100 different products")
             List<Line> items) {

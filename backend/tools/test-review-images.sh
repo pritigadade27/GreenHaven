@@ -1,20 +1,6 @@
 #!/usr/bin/env bash
-# Green Haven — photographs attached to a review, end to end.
-#
-#   bash backend/tools/test-review-images.sh
-#
-# An upload endpoint reachable by customers is the largest new door this
-# feature opens, so most of this suite is about what must NOT get through it:
-# files that are not images, paths that were never uploaded, links pointing off
-# this site, and callers who have never received an order.
-#
-# RESTART THE API FIRST — /api/orders is capped at 30 an hour and the upload
-# endpoint at 20.
 API=${API:-http://localhost:8080/api}
 MYSQL=${MYSQL:-/c/Users/vnp12/mysql/mysql-8.4.9-winx64/bin/mysql.exe}
-# Credentials come from backend/tools/test-env.sh, which is gitignored. There
-# is deliberately no built-in default: a fallback password in a committed
-# script is a published password.
 HERE="$(cd "$(dirname "$0")" && pwd)"
 [ -f "$HERE/test-env.sh" ] && . "$HERE/test-env.sh"
 : "${MYSQL_PWD:?set MYSQL_PWD — copy test-env.example.sh to test-env.sh}"
@@ -25,8 +11,6 @@ UPLOADS="$(cd "$(dirname "$0")/.." && pwd)/uploads"
 
 Q() { "$MYSQL" --default-character-set=utf8mb4 -u priti green_haven -N -B -e "$1"; }
 
-# Shared, foreign-key-ordered teardown. Each suite used to roll its own and
-# every one was incomplete, so cleanup aborted on the first FK error.
 . "$(cd "$(dirname "$0")" && pwd)/cleanup.sh"
 pass=0; fail=0
 check() {
@@ -53,13 +37,8 @@ postc() { json "$3"; code -X "$1" "$2" -H "Authorization: Bearer $TOK" \
 SLUG=peace-lily
 STAMP=$(date +%s)
 WORK=$(mktemp -d)
-# Git Bash's /tmp is invisible to Windows python and curl, which is where the
-# fixtures are written and read. Bash keeps $WORK; native programs get $WIN.
 WIN=$(cygpath -m "$WORK")
 
-# ---- fixtures -------------------------------------------------------------
-# Real PNG bytes, written by Python rather than checked in: the point is that
-# the server decodes them, so they have to actually be an image.
 python - "$WIN" <<'PY'
 import struct, sys, zlib, os
 work = sys.argv[1]
@@ -81,15 +60,11 @@ png(os.path.join(work, 'leaf3.png'), 40, 40, (108, 112, 60))
 png(os.path.join(work, 'leaf4.png'), 40, 40, (60, 80, 100))
 png(os.path.join(work, 'leaf5.png'), 40, 40, (200, 180, 90))
 
-# A script wearing an image's content type — the case the decode check exists
-# for. Named .png and declared image/png at upload time.
 open(os.path.join(work, 'notreally.png'), 'wb').write(
     b'<?php system($_GET["c"]); ?>\n')
 PY
 echo "  fixtures in $WORK"
 
-# Residue from an earlier run, cleared BEFORE this run creates anything —
-# doing it afterwards deletes the accounts the suite is about to use.
 purge_test_accounts "img%@example.com"
 restore_plant peace-lily
 
@@ -102,9 +77,6 @@ EM2="img2$STAMP@example.com"
 TOK=$(reg "$EM" "Meera Shinde")
 TOK2=$(reg "$EM2" "Sanjay Rao")
 
-# Registration is capped at 5 an hour per IP. Without this guard a capped run
-# hands out empty tokens, every authenticated call comes back 403, and the
-# report reads like a wall of product bugs.
 if [ -z "$TOK" ] || [ -z "$TOK2" ]; then
   echo "  Could not register a test account — the rate limit is probably spent."
   echo "  Restart the API (that clears the in-memory limiter) and run this again."
@@ -114,7 +86,6 @@ A() { curl -s -m 30 -H "Authorization: Bearer $TOK" "$@"; }
 up()  { curl -s -m 30 -X POST $API/reviews/image -H "Authorization: Bearer $1" -F "file=@$WIN/$2"; }
 upc() { code -X POST $API/reviews/image -H "Authorization: Bearer $1" -F "file=@$WIN/$2"; }
 
-# The suite asserts absolute counts, so the product must start clean.
 EXISTING=$(Q "SELECT COUNT(*) FROM review r JOIN plant p ON p.id=r.plant_id WHERE p.slug='$SLUG';")
 if [ "$EXISTING" != "0" ]; then
   echo "  $SLUG already has $EXISTING real review(s). Point SLUG at another product."
@@ -161,7 +132,6 @@ echo "== WHAT MAY NOT =="
 check "a script wearing image/png"  400 "$(upc "$TOK" "notreally.png")"
 check "…and says so plainly"        "That file is not a readable image." \
   "$(up "$TOK" "notreally.png" | jq_ message)"
-# 6 MB of a real PNG, over the 5 MB cap.
 python -c "
 import struct, sys, zlib
 w = h = 1400
@@ -185,7 +155,6 @@ echo "== ATTACHING THEM TO A REVIEW =="
 REVIEW="{\"rating\":5,\"title\":\"Arrived beautifully\",\"body\":\"Packed better than I expected and the leaves had no damage at all. Photographs attached.\",\"images\":[\"$U1\",\"$U2\"]}"
 NEW=$(post POST $API/reviews/$SLUG "$REVIEW")
 RID_REVIEW=$(echo "$NEW" | jq_ id)
-# Ratings are DECIMAL(2,1), so a 5 arrives as 5.0 — the same rating.
 check "review created"           "5.0" "$(echo "$NEW" | jq_ rating)"
 check "…carries both photographs" "2" \
   "$(echo "$NEW" | python -c "import json,sys;print(len(json.load(sys.stdin)['images']))")"
@@ -274,16 +243,12 @@ curl -s -m 30 -X DELETE "$API/admin/reviews/$SID" -H "Authorization: Bearer $ATO
 check "the admin removed it" "0"  "$(Q "SELECT COUNT(*) FROM review WHERE id=$SID;")"
 check "the file went as well" "no" "$([ -f "$F6" ] && echo yes || echo no)"
 
-# ---- tidy up --------------------------------------------------------------
 rm -rf "$WORK" "$BODY"
 
-# Teardown. Runs at the end as well as the start, so a finished run leaves
-# the database exactly as it found it.
 purge_test_accounts "img%@example.com"
 restore_plant peace-lily
 assert_clean "img%@example.com"
 rm -f "$BODY"
-
 
 echo
 echo "  $pass passed, $fail failed"

@@ -14,7 +14,6 @@
   transition: var(--transition-base);
 }
 
-/* Sheen that sweeps across on hover. */
 .btn::before {
   content: '';
   position: absolute;

@@ -13,7 +13,6 @@ import com.greenhaven.repository.NewsletterSubscriberRepository;
 @Service
 @Transactional
 public class ContactService {
-
     private final ContactMessageRepository messages;
     private final NewsletterSubscriberRepository subscribers;
 
@@ -32,7 +31,6 @@ public class ContactService {
         messages.save(message);
     }
 
-    /** Subscribing twice is not an error — it is the same outcome. */
     public void subscribe(NewsletterRequest request) {
         String email = request.email().trim().toLowerCase();
         if (subscribers.findByEmail(email).isPresent()) {

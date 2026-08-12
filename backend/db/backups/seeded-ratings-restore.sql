@@ -1,5 +1,3 @@
--- Restores the demo ratings that shipped with the catalogue, in case the
--- switch to real reviews needs undoing. Generated 2026-08-08.
 UPDATE plant SET rating=4.8, review_count=312 WHERE slug='aloe-vera';
 UPDATE plant SET rating=4.9, review_count=187 WHERE slug='snake-plant-cast-iron';
 UPDATE plant SET rating=4.5, review_count=94 WHERE slug='dumbcane';

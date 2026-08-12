@@ -14,10 +14,8 @@ import com.greenhaven.repository.AppUserRepository;
 
 import jakarta.servlet.http.HttpServletRequest;
 
-/** Writes the admin activity trail. */
 @Service
 public class AdminAuditService {
-
     public static final String LOGIN = "LOGIN";
     public static final String LOGIN_FAILED = "LOGIN_FAILED";
     public static final String LOGOUT = "LOGOUT";
@@ -51,7 +49,6 @@ public class AdminAuditService {
 
         AdminActivityLog entry = new AdminActivityLog();
         entry.setAdminId(admin == null ? null : admin.getId());
-        // Copied, not joined: the trail must still read correctly after the account is renamed or removed.
         entry.setAdminName(admin == null ? "(unknown)" : admin.getFullName());
         entry.setAdminEmail(adminEmail == null ? "(unknown)" : adminEmail);
         entry.setAction(action);

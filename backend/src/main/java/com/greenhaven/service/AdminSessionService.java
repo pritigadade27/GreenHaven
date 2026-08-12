@@ -16,10 +16,8 @@ import com.greenhaven.repository.AdminSessionRepository;
 
 import jakarta.servlet.http.HttpServletRequest;
 
-/** Decides whether an admin token is still worth honouring. */
 @Service
 public class AdminSessionService {
-
     private final AdminSessionRepository sessions;
     private final long sessionMinutes;
     private final long idleMinutes;
@@ -39,11 +37,9 @@ public class AdminSessionService {
         return Duration.ofMinutes(sessionMinutes).toMillis();
     }
 
-    /** Opens a session and returns the jti to embed in the token. */
     @Transactional
     public String open(AppUser admin, HttpServletRequest request) {
         if (singleSession) {
-            // Revoke anything still open.
             List<AdminSession> live = sessions.findByUserIdAndRevokedFalse(admin.getId());
             for (AdminSession old : live) {
                 old.setRevoked(true);
@@ -62,7 +58,6 @@ public class AdminSessionService {
         return session.getJti();
     }
 
-    /** True when the token may still be used, and touches the idle clock. */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public boolean isLive(String jti) {
         if (jti == null || jti.isBlank()) return false;
@@ -78,7 +73,6 @@ public class AdminSessionService {
             return false;
         }
 
-        // Only write when the clock has actually moved.
         if (Duration.between(session.getLastSeenAt(), now).toSeconds() >= 30) {
             session.setLastSeenAt(now);
             sessions.save(session);
@@ -105,7 +99,6 @@ public class AdminSessionService {
         sessions.saveAll(live);
     }
 
-    /** Best-effort client address for the audit log. */
     public static String clientIp(HttpServletRequest request) {
         if (request == null) return null;
         String forwarded = request.getHeader("X-Forwarded-For");

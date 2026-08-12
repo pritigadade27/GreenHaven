@@ -1,21 +1,6 @@
 #!/usr/bin/env bash
-# Green Haven — end-to-end smoke test, customer side and admin side.
-#
-#   bash backend/tools/smoke-test.sh
-#
-# Kept in the repo rather than a temp folder so it survives the session and can
-# be run before any deploy.
-#
-# RESTART THE API FIRST. The rate limiter is in-memory and deliberately tight:
-# 5 admin sign-ins per 15 minutes. Running this twice — or running it alongside
-# another suite that signs in — exhausts that budget, and every later check then
-# fails for want of a token rather than for any real fault. A restart clears the
-# buckets. This is the limiter working, not a bug.
 API=${API:-http://localhost:8080/api}
 MYSQL=${MYSQL:-/c/Users/vnp12/mysql/mysql-8.4.9-winx64/bin/mysql.exe}
-# Credentials come from backend/tools/test-env.sh, which is gitignored. There
-# is deliberately no built-in default: a fallback password in a committed
-# script is a published password.
 HERE="$(cd "$(dirname "$0")" && pwd)"
 [ -f "$HERE/test-env.sh" ] && . "$HERE/test-env.sh"
 : "${MYSQL_PWD:?set MYSQL_PWD — copy test-env.example.sh to test-env.sh}"
@@ -26,8 +11,6 @@ ENV_FILE="$(dirname "$0")/../.env"
 
 Q() { "$MYSQL" --default-character-set=utf8mb4 -u priti green_haven -N -B -e "$1"; }
 
-# Shared, foreign-key-ordered teardown. Each suite used to roll its own and
-# every one was incomplete, so cleanup aborted on the first FK error.
 . "$(cd "$(dirname "$0")" && pwd)/cleanup.sh"
 pass=0; fail=0
 check() {
@@ -58,10 +41,6 @@ check "newsletter accepted" 200 "$(code -X POST $API/newsletter -H 'Content-Type
 check "contact row in MySQL" 1 "$(Q "SELECT COUNT(*) FROM contact_message WHERE email='smoke@example.in';")"
 
 echo "== CUSTOMER AUTH =="
-# The suite creates its own customer rather than signing in as a seeded one.
-# Depending on a pre-existing account meant that deleting it — a reasonable
-# thing for the shop owner to do — broke six checks that had nothing to do
-# with the account itself.
 SMOKE_EM="moved$(date +%s)@example.com"
 CUST=$(curl -s -m 20 -X POST $API/auth/register -H 'Content-Type: application/json' \
   -d "{\"fullName\":\"Smoke Customer\",\"email\":\"$SMOKE_EM\",\"password\":\"Testing@123\"}" \
@@ -106,11 +85,8 @@ Q "DELETE FROM contact_message WHERE email='smoke@example.in';
    DELETE FROM newsletter_subscriber WHERE email='smoke@example.in';" >/dev/null
 echo "  test rows removed"
 
-# Shared teardown: returns consumed stock, then removes the run in
-# foreign-key order. Rolling its own left accounts behind on every run.
 purge_test_accounts "moved%@example.com"
 assert_clean "moved%@example.com"
-
 
 echo
 echo "  $pass passed, $fail failed"

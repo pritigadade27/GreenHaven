@@ -9,9 +9,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-/** Product management, admin side only. */
 public final class ProductAdminDtos {
-
     private ProductAdminDtos() {
     }
 
@@ -47,7 +45,6 @@ public final class ProductAdminDtos {
             @Size(max = 150, message = "Keep the name under 150 characters.")
             String name,
 
-            // Derived from the name when left empty.
             @Size(max = 120) String slug,
 
             @Size(max = 150) String botanicalName,
@@ -81,7 +78,6 @@ public final class ProductAdminDtos {
             Boolean discontinued) {
     }
 
-    /** What actually happened to a delete request. */
     public record DeleteOutcome(boolean deleted, boolean discontinued, String message) {
     }
 

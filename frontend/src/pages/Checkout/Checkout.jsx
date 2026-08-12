@@ -15,7 +15,6 @@ const DELIVERY_FEE = 99;
 
 const EMPTY = { addressLine: '', phone: '', city: '', state: '', pincode: '' };
 
-/** A saved address flattened into the shape the checkout form holds. */
 const toForm = (a) => ({
   addressLine: [a.line1, a.line2].filter(Boolean).join(', '),
   phone: a.phone ?? '',
@@ -37,14 +36,11 @@ export default function Checkout() {
   const [priceChange, setPriceChange] = useState(null);
   const [testSheet, setTestSheet] = useState(null);
 
-  // Saved addresses.
   const [addresses, setAddresses] = useState([]);
   const [chosen, setChosen] = useState('new');
   const [saveNew, setSaveNew] = useState(true);
-  // Which of the two Razorpay callbacks got there first.
   const settled = useRef(false);
 
-  // A code the customer has typed, and the server's answer about it.
   const [couponInput, setCouponInput] = useState('');
   const [coupon, setCoupon] = useState(null);
   const [couponError, setCouponError] = useState('');
@@ -55,9 +51,7 @@ export default function Checkout() {
   const delivery = coupon ? coupon.shipping : localDelivery;
   const total = coupon ? coupon.total : subtotal + localDelivery;
 
-  // Reaching checkout signed out means a stale tab or a hand-typed URL; the API would reject it.
   useEffect(() => {
-    // Wait for the auth check to finish.
     if (ready && !isSignedIn) {
       navigate('/login', {
         replace: true,
@@ -66,7 +60,6 @@ export default function Checkout() {
     }
   }, [ready, isSignedIn, navigate]);
 
-  // Pull the saved addresses in and pre-select the default, so a returning customer does not retype.
   useEffect(() => {
     if (!ready || !isSignedIn) return undefined;
     let alive = true;
@@ -79,7 +72,6 @@ export default function Checkout() {
         setChosen(preferred.id);
         setForm(toForm(preferred));
       })
-      // A failure here is not worth blocking checkout — the form still works.
       .catch(() => {});
     return () => {
       alive = false;
@@ -122,7 +114,6 @@ export default function Checkout() {
     setCouponError('');
   }
 
-  // A quote is priced against the basket it was asked about.
   useEffect(() => {
     if (!coupon) return undefined;
     if (Math.round(coupon.subtotal * 100) === Math.round(subtotal * 100)) return undefined;
@@ -145,14 +136,13 @@ export default function Checkout() {
     return () => {
       alive = false;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [subtotal, coupon]);
 
   async function handlePay(event) {
     event.preventDefault();
     setError('');
 
-    // Catch the obvious locally rather than spending a round trip on it.
     const local = {};
     if (form.addressLine.trim().length < 6) local.addressLine = 'Enter the full address.';
     if (!/^([+]?91[- ]?|0)?[6-9]\d{9}$/.test(form.phone.trim()))
@@ -170,14 +160,12 @@ export default function Checkout() {
     setBusy(true);
 
     try {
-      // 1. The server prices the basket and opens a Razorpay order.
       const order = await orderApi.start(
         form,
         items.map((line) => ({ slug: line.slug, quantity: line.quantity })),
         coupon?.code,
       );
 
-      // Saved only once the order exists, and never blocking it: a failure to remember an address must.
       if (chosen === 'new' && saveNew) {
         addressApi
           .add({
@@ -195,7 +183,6 @@ export default function Checkout() {
           .catch(() => {});
       }
 
-      // The button showed a total summed from prices persisted in the browser; the sheet charges what the server just calculated.
       if (Math.round(order.total * 100) !== Math.round(total * 100)) {
         setBusy(false);
         setPriceChange({ was: total, now: order.total, order });
@@ -210,7 +197,6 @@ export default function Checkout() {
     }
   }
 
-  // Test mode: the gateway is stood in for, so there is no sheet to open.
   async function settleSimulated(order, succeed) {
     setTestSheet(null);
     setBusy(true);
@@ -236,7 +222,6 @@ export default function Checkout() {
     }
 
     try {
-      // 2. Payment sheet.
       const sdkLoaded = await loadRazorpay();
       if (!sdkLoaded) {
         throw new Error('Could not load the payment window. Check your connection.');
@@ -255,7 +240,6 @@ export default function Checkout() {
         theme: { color: '#6D0008' },
         modal: {
           ondismiss: () => {
-            // ondismiss fires whenever the sheet closes — including in the window between a successful authorisation and `handler` running.
             if (settled.current) return;
             settled.current = true;
             orderApi.cancel(order.razorpayOrderId).catch(() => {});
@@ -264,9 +248,7 @@ export default function Checkout() {
           },
         },
         handler: async (response) => {
-          // Claim the outcome before any await, so a dismiss that lands during verification cannot undo a.
           settled.current = true;
-          // 3.
           try {
             const confirmed = await orderApi.verify({
               razorpayOrderId: response.razorpay_order_id,
@@ -297,7 +279,6 @@ export default function Checkout() {
     }
   }
 
-  // Reached only when the server's total differs from the one on the button.
   if (priceChange) {
     return (
       <>
@@ -632,7 +613,6 @@ export default function Checkout() {
               ))}
             </ul>
 
-            {/* Sits above the totals it changes, so the effect of applying a code is visible in the same. */}
             <div className="checkout__coupon">
               {coupon ? (
                 <div className="checkout__coupon-applied">
@@ -658,7 +638,6 @@ export default function Checkout() {
                         setCouponError('');
                       }}
                       onKeyDown={(e) => {
-                        // Enter here would submit the delivery form and open the payment sheet — emphatically not what.
                         if (e.key === 'Enter') {
                           e.preventDefault();
                           applyCoupon();
@@ -707,7 +686,6 @@ export default function Checkout() {
                   <dd>{formatPrice(coupon.tax)}</dd>
                 </div>
               )}
-              {/* Tax is only shown when some is charged. */}
               <div className="checkout__total">
                 <dt>Total</dt>
                 <dd>{formatPrice(total)}</dd>

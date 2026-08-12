@@ -7,10 +7,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-/** Serves uploaded product photographs off disk. */
 @Configuration
 public class UploadsResourceConfig implements WebMvcConfigurer {
-
     private final String dir;
     private final String publicPath;
 
@@ -25,7 +23,6 @@ public class UploadsResourceConfig implements WebMvcConfigurer {
         String location = Paths.get(dir).toAbsolutePath().normalize().toUri().toString();
         registry.addResourceHandler(publicPath + "/**")
                 .addResourceLocations(location)
-                // Uploaded files are content-addressed by a random name, so a given URL never changes and can be.
                 .setCachePeriod(60 * 60 * 24 * 30);
     }
 }

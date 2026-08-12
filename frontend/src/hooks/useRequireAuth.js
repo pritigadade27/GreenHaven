@@ -3,7 +3,6 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 import { useAuth } from '../context/AuthContext.jsx';
 
-/** Guards an action that needs an account. */
 export default function useRequireAuth() {
   const { isSignedIn, ready } = useAuth();
   const navigate = useNavigate();
@@ -12,7 +11,6 @@ export default function useRequireAuth() {
   return useCallback(
     (action, reason = 'continue') =>
       (...args) => {
-        // `ready` is false until /auth/me has answered.
       if (!ready || isSignedIn) return action(...args);
         navigate('/login', {
           state: {

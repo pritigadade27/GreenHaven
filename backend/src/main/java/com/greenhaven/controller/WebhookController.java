@@ -14,11 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.greenhaven.service.OrderService;
 import com.greenhaven.payment.PaymentService;
 
-/** Razorpay's own notification of what happened to a payment. */
 @RestController
 @RequestMapping("/api/webhooks")
 public class WebhookController {
-
     private static final Logger log = LoggerFactory.getLogger(WebhookController.class);
 
     private final PaymentService payments;
@@ -29,14 +27,11 @@ public class WebhookController {
         this.orders = orders;
     }
 
-    /** Takes the body as a String, not a parsed object: the signature covers the exact bytes Razorpay. */
     @PostMapping("/razorpay")
     public ResponseEntity<String> razorpay(
             @RequestBody String rawBody,
             @RequestHeader(value = "X-Razorpay-Signature", required = false) String signature) {
-
         if (!payments.isWebhookConfigured()) {
-            // Refusing beats accepting unsigned calls: an open endpoint that marks orders paid is worse than.
             log.warn("Webhook received but RAZORPAY_WEBHOOK_SECRET is not set — refused.");
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("not configured");
         }
@@ -53,7 +48,6 @@ public class WebhookController {
             event = payload.optString("event", "");
             entity = payload.getJSONObject("payload").getJSONObject("payment").getJSONObject("entity");
         } catch (RuntimeException e) {
-            // Signed but unreadable.
             log.warn("Webhook payload could not be read: {}", e.getMessage());
             return ResponseEntity.ok("ignored");
         }
@@ -65,7 +59,6 @@ public class WebhookController {
             return ResponseEntity.ok("no order id");
         }
 
-        // Idempotency lives in the service: a webhook is retried until it is acknowledged, and Razorpay.
         String result = switch (event) {
             case "payment.captured" ->
                     orders.settleFromWebhook(razorpayOrderId, razorpayPaymentId,

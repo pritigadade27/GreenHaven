@@ -3,12 +3,10 @@ import { useState } from 'react';
 import Icon from '../Icon/Icon.jsx';
 import './Stars.css';
 
-/** 0.5, 1, 1.5 … 5 — every value a reviewer may give, in order. */
 const STEPS = [0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5];
 
 const label = (n) => `${n} star${n === 1 ? '' : 's'}`;
 
-/** A row of stars. */
 export default function Stars({
   value = 0,
   size = 18,
@@ -17,7 +15,6 @@ export default function Stars({
   label: groupLabel = 'Rating',
 }) {
   const interactive = typeof onChange === 'function';
-  // What the pointer is over, so the row previews the rating under the cursor.
   const [hovered, setHovered] = useState(null);
 
   if (interactive) {
@@ -39,7 +36,6 @@ export default function Stars({
                 </span>
               )}
 
-              {/* Two hit areas over each star, left half and right. */}
               {[n - 0.5, n].map((step) => (
                 <label
                   key={step}
@@ -71,7 +67,6 @@ export default function Stars({
   return (
     <span className="stars" role="img" aria-label={`${value} out of 5 stars`}>
       {[1, 2, 3, 4, 5].map((n) => {
-        // A half star is the filled glyph clipped down the middle, laid over the empty one — no second.
         const half = rounded === n - 0.5;
         return (
           <span key={n} className={`stars__one ${half ? 'is-half' : ''}`} aria-hidden="true">

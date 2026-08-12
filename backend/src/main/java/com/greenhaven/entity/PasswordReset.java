@@ -12,11 +12,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
-/** One outstanding password reset. */
 @Entity
 @Table(name = "password_reset")
 public class PasswordReset {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

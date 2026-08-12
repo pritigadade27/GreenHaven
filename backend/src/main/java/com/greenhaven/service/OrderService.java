@@ -27,7 +27,6 @@ import com.greenhaven.payment.PaymentService;
 
 @Service
 public class OrderService {
-
     private final OrderRepository orders;
     private final PlantRepository plants;
     private final AppUserRepository users;
@@ -60,7 +59,6 @@ public class OrderService {
         this.baskets = baskets;
     }
 
-    /** Builds a PENDING order and asks Razorpay for a payment order id. */
     @Transactional
     public OrderDto startCheckout(String email, CheckoutRequest request) throws Exception {
         AppUser user = users.findByEmail(email)
@@ -79,7 +77,6 @@ public class OrderService {
         order.setState(request.state());
         order.setPincode(request.pincode());
 
-        // Collapse duplicate slugs first.
         Map<String, Integer> wanted = new LinkedHashMap<>();
         for (CheckoutRequest.Line line : request.items()) {
             wanted.merge(line.slug(), Math.max(1, line.quantity()), Integer::sum);
@@ -93,7 +90,6 @@ public class OrderService {
                             "No product with slug '" + slug + "'"));
 
             int qty = entry.getValue();
-            // Unknown stock is not infinite stock — treat null as none.
             if (plant.getStock() == null || plant.getStock() < qty) {
                 throw new IllegalArgumentException(plant.getStock() == null
                         ? plant.getName() + " is not available right now."
@@ -104,7 +100,6 @@ public class OrderService {
             item.setPlant(plant);
             item.setQuantity(qty);
             item.setUnitPrice(plant.getPrice());
-            // Copy the product as it is NOW.
             item.setProductName(plant.getName());
             item.setProductImage(plant.getImage());
             item.setProductCategory(
@@ -114,10 +109,8 @@ public class OrderService {
             subtotal = subtotal.add(plant.getPrice().multiply(BigDecimal.valueOf(qty)));
         }
 
-        // Claimed under a row lock, and re-validated here even though the page already previewed it: the.
         Coupon coupon = couponService.claim(user, request.couponCode(), subtotal);
 
-        // The same arithmetic the preview used — one implementation, so the figure quoted and the figure.
         PricingService.Totals totals = pricing.price(subtotal, coupon);
 
         order.setSubtotal(totals.subtotal());
@@ -126,12 +119,10 @@ public class OrderService {
         order.setShipping(totals.shipping());
         order.setTax(totals.tax());
         order.setTotal(totals.total());
-        // Set at checkout rather than on despatch, so the customer has a date to plan around from the.
         order.setEstimatedDelivery(java.time.LocalDate.now(java.time.ZoneId.of("Asia/Kolkata"))
                 .plusDays(5));
         order.setRazorpayOrderId(payments.createOrder(order.getTotal(), order.getOrderNumber()));
 
-        // A payment row from the moment Razorpay has an order, not just on success.
         Payment attempt = new Payment();
         attempt.setOrder(order);
         attempt.setRazorpayOrderId(order.getRazorpayOrderId());
@@ -149,11 +140,9 @@ public class OrderService {
         return OrderDto.from(saved, payments.getKeyId(), payments.isSimulated());
     }
 
-    /** Stands in for the gateway callback while no Razorpay account is connected. */
     @Transactional(readOnly = true)
     public PaymentVerificationRequest simulateGateway(String email, String razorpayOrderId,
                                                       boolean succeed) {
-        // Mode first, before anything about this particular order is looked up or reported.
         if (!payments.isSimulated()) {
             throw new IllegalStateException("Payment simulation is off. Payments go through Razorpay.");
         }
@@ -166,23 +155,19 @@ public class OrderService {
         return new PaymentVerificationRequest(razorpayOrderId, response[0], response[1]);
     }
 
-    /** Confirms a payment. */
     @Transactional(noRollbackFor = IllegalArgumentException.class)
     public OrderDto confirmPayment(String email, PaymentVerificationRequest request) {
         Order order = orders.findByRazorpayOrderId(request.razorpayOrderId())
                 .orElseThrow(() -> new ResourceNotFoundException("Unknown payment order."));
 
         if (!order.getUser().getEmail().equalsIgnoreCase(email)) {
-            // Someone confirming another account's order.
             throw new IllegalArgumentException("This order does not belong to you.");
         }
 
-        // Idempotency: Razorpay can fire a callback more than once, and a user can refresh the.
         if ("PAID".equals(order.getStatus())) {
             return OrderDto.from(order, payments.getKeyId(), payments.isSimulated());
         }
 
-        // Only a PENDING order may become PAID.
         if (!"PENDING".equals(order.getStatus())) {
             throw new IllegalArgumentException(
                     "This order is " + order.getStatus().toLowerCase()
@@ -208,13 +193,11 @@ public class OrderService {
         return OrderDto.from(settled, payments.getKeyId(), payments.isSimulated());
     }
 
-    /** Marks an order paid, once. */
     @Transactional
     public Order markPaid(Order order, String razorpayPaymentId, String signature, String source) {
         return markPaid(order, razorpayPaymentId, signature, source, null);
     }
 
-    /** methodHint: what the caller already knows, saving a gateway round trip. */
     @Transactional
     public Order markPaid(Order order, String razorpayPaymentId, String signature, String source,
                           String methodHint) {
@@ -224,11 +207,9 @@ public class OrderService {
 
         order.setRazorpayPaymentId(razorpayPaymentId);
         order.setStatus("PAID");
-        // The invoice number is allocated HERE, not at checkout: an invoice is a financial document, and.
         if (order.getInvoiceNumber() == null) {
             order.setInvoiceNumber(documents.nextInvoiceNumber());
         }
-        // The webhook payload already names the method; only ask the gateway when nobody has told us.
         order.setPaymentMethod(methodHint != null && !methodHint.isBlank()
                 ? methodHint : payments.methodOf(razorpayPaymentId));
         recordAttempt(order,
@@ -236,17 +217,15 @@ public class OrderService {
                         signature == null ? "webhook" : signature),
                 Payment.CAPTURED, Payment.VERIFIED, null, source);
 
-        // Only now is stock committed — never on an unpaid order.
         for (OrderItem item : order.getItems()) {
             Plant plant = plants.findByIdForUpdate(item.getPlant().getId())
                     .orElseThrow(() -> new ResourceNotFoundException(
                             "That product no longer exists."));
 
-            if (plant.getStock() == null) continue;   // nothing to decrement
+            if (plant.getStock() == null) continue;
 
             int remaining = plant.getStock() - item.getQuantity();
             if (remaining < 0) {
-                // The money is already captured, so rejecting the order now would be worse than recording the.
                 remaining = 0;
                 order.setStatus("PAID_SHORT");
             }
@@ -256,15 +235,12 @@ public class OrderService {
 
         Order settled = orders.saveAndFlush(order);
 
-        // The document ledger entry, once the order is definitely saved and has an id.
         invoiceService.issueFor(settled, settled.getInvoiceNumber());
-        // Emptied server-side rather than trusting the browser to do it.
         baskets.clearCartQuietly(settled.getUser().getId());
         notifier.paymentSuccessful(settled);
         return settled;
     }
 
-    /** Settles from the webhook. */
     @Transactional
     public boolean settleFromWebhook(String razorpayOrderId, String razorpayPaymentId) {
         return settleFromWebhook(razorpayOrderId, razorpayPaymentId, null);
@@ -276,7 +252,7 @@ public class OrderService {
         Order order = orders.findByRazorpayOrderId(razorpayOrderId).orElse(null);
         if (order == null) return false;
         if ("PAID".equals(order.getStatus()) || "PAID_SHORT".equals(order.getStatus())) {
-            return false;   // the browser callback got here first
+            return false;
         }
         if ("CANCELLED".equals(order.getStatus())) return false;
 
@@ -284,7 +260,6 @@ public class OrderService {
         return true;
     }
 
-    /** Records a gateway-reported failure arriving by webhook. */
     @Transactional
     public boolean failFromWebhook(String razorpayOrderId, String razorpayPaymentId, String reason) {
         Order order = orders.findByRazorpayOrderId(razorpayOrderId).orElse(null);
@@ -301,7 +276,6 @@ public class OrderService {
         return true;
     }
 
-    /** Writes the outcome of one attempt. */
     private void recordAttempt(Order order, PaymentVerificationRequest request,
                                String status, String verification, String failureReason) {
         recordAttempt(order, request, status, verification, failureReason,
@@ -319,7 +293,6 @@ public class OrderService {
 
         record.setOrder(order);
         record.setRazorpayOrderId(request.razorpayOrderId());
-        // razorpay_payment_id is UNIQUE, which is right for a real payment but wrong for a claimed one.
         boolean verified = Payment.VERIFIED.equals(verification);
         record.setRazorpayPaymentId(verified ? request.razorpayPaymentId() : null);
         record.setRazorpaySignature(request.razorpaySignature());
@@ -354,5 +327,4 @@ public class OrderService {
         return orders.findByUserEmailOrderByIdDesc(email).stream()
                 .map(o -> OrderDto.from(o, null)).toList();
     }
-
 }

@@ -26,12 +26,10 @@ import com.greenhaven.service.UploadService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
-/** Product management. */
 @RestController
 @RequestMapping("/api/admin/products")
 @PreAuthorize("hasRole('ADMIN')")
 public class ProductAdminController {
-
     private final ProductAdminService products;
     private final UploadService uploads;
     private final AdminAuditService audit;
@@ -93,7 +91,6 @@ public class ProductAdminController {
         return urls;
     }
 
-    /** Uploads one photograph and returns the path to store on a product. */
     @PostMapping(value = "/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ProductAdminDtos.UploadResult upload(Principal principal,
                                                 @RequestPart("file") MultipartFile file,

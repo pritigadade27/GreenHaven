@@ -4,7 +4,6 @@ import Button from '../Button/Button.jsx';
 import Icon from '../Icon/Icon.jsx';
 import './ErrorBoundary.css';
 
-/** The last line of defence. */
 export default class ErrorBoundary extends Component {
   state = { error: null };
 
@@ -17,7 +16,7 @@ export default class ErrorBoundary extends Component {
       localStorage.removeItem('greenhaven.cart');
       localStorage.removeItem('greenhaven.wishlist');
     } catch {
-      // Storage being unavailable is one of the things that lands us here.
+      // ignore
     }
     window.location.assign('/');
   };

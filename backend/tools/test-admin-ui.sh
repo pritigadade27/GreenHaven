@@ -1,16 +1,15 @@
 #!/usr/bin/env bash
-# Admin UI journey, driven through the real browser.
 BR=http://127.0.0.1:10086/command
 S=green-haven-qa
 PW=$(grep '^ADMIN_PASSWORD=' "/c/Users/vnp12/Desktop/green haven/backend/.env" | cut -d= -f2- | tr -d '\r')
 ADMIN_EMAIL=$(grep '^ADMIN_EMAIL=' "/c/Users/vnp12/Desktop/green haven/backend/.env" | cut -d= -f2- | tr -d '\r')
 
-go() {  # navigate and settle
+go() {
   curl -s -X POST $BR -H 'Content-Type: application/json' \
     -d "{\"action\":\"navigate\",\"args\":{\"url\":\"http://localhost:5173$1\"},\"session\":\"$S\"}" >/dev/null
   sleep "${2:-4}"
 }
-ev() {  # evaluate and print the raw string result
+ev() {
   python - "$1" <<'PY' > /tmp/ev.json
 import json,sys
 print(json.dumps({"action":"evaluate","args":{"code":sys.argv[1]},"session":"green-haven-qa"}))
@@ -20,8 +19,6 @@ PY
 import json,sys
 r = json.load(sys.stdin)
 v = r.get('data', {}).get('value')
-# Zero and false are legitimate answers here; a truthiness test turned a
-# correct zero into an empty string and reported a pass as a failure.
 print('' if v is None else v)"
 }
 
@@ -66,8 +63,6 @@ go /admin/dashboard 6
 check "dashboard reachable" "/admin/dashboard" "$(ev 'location.pathname')"
 check "stat cards rendered" "yes" "$(ev 'document.querySelectorAll(".admin-card").length >= 12 ? "yes" : String(document.querySelectorAll(".admin-card").length)')"
 check "products card shows 154" "yes" "$(ev 'document.body.innerText.includes("154") ? "yes":"no"')"
-# Named rather than counted: a bare count says nothing about which link is
-# missing, and it breaks every time the dashboard legitimately grows.
 check "sidebar has every section" "Dashboard,Orders,Payments,Products,Inventory,Customers,Reviews,Discount codes,Activity log" "$(ev '[...document.querySelectorAll(".admin__nav a")].map(a=>a.innerText.trim()).join(",")')"
 
 echo "== ALREADY SIGNED IN: /admin/login REDIRECTS =="
@@ -95,8 +90,6 @@ TOK=$(ev 'localStorage.getItem("greenhaven.admin.token") || ""')
 check "a live token was captured" "yes" "$([ -n "$TOK" ] && echo yes || echo no)"
 ev "(async()=>{await fetch('/api/admin/auth/logout',{method:'POST',headers:{Authorization:'Bearer $TOK'}}); return 'sent';})()" >/dev/null
 sleep 2
-# Asked over curl, not through the page: logout redirects to /admin/login, and an
-# in-page fetch that loses its JS realm mid-flight returns nothing rather than a status.
 check "the old token is dead server-side" 403 \
   "$(curl -s -o /dev/null -m 20 -w '%{http_code}' http://localhost:8080/api/admin/stats -H "Authorization: Bearer $TOK")"
 ev 'localStorage.removeItem("greenhaven.admin.token"); "cleared"' >/dev/null

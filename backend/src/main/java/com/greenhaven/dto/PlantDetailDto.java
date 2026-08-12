@@ -3,7 +3,6 @@ package com.greenhaven.dto;
 import java.math.BigDecimal;
 import java.util.List;
 
-/** Everything the Plant Details page renders, in one response. */
 public record PlantDetailDto(
         String id,
         String slug,
@@ -14,7 +13,6 @@ public record PlantDetailDto(
         BigDecimal price,
         BigDecimal mrp,
         String image,
-        /** Extra shots, primary first. Empty for most products. */
         java.util.List<String> gallery,
         BigDecimal rating,
         Integer reviews,

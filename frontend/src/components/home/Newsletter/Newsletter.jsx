@@ -8,12 +8,11 @@ import './Newsletter.css';
 export default function Newsletter() {
   const ref = useScrollReveal();
   const [email, setEmail] = useState('');
-  const [status, setStatus] = useState('idle');   // idle | sending | error | done
+  const [status, setStatus] = useState('idle');
   const [message, setMessage] = useState('');
 
   const submit = async (event) => {
     event.preventDefault();
-    // Catches obvious typos before a round trip. The server validates too.
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
       setMessage('That does not look like an email address — check and try again.');
       setStatus('error');
@@ -23,7 +22,6 @@ export default function Newsletter() {
     setStatus('sending');
     try {
       const reply = await contactApi.subscribe(email);
-      // Subscribing twice is not an error worth scolding anyone over, so the server's own wording is.
       setMessage(reply?.message || 'Thank you. Look for the first letter next month.');
       setStatus('done');
       setEmail('');

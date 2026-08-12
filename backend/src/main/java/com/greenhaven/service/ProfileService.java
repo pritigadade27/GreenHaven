@@ -24,11 +24,8 @@ import com.greenhaven.repository.OrderRepository;
 import com.greenhaven.repository.PaymentRepository;
 import com.greenhaven.repository.WishlistItemRepository;
 
-/** Everything behind My Profile, for the signed-in customer only. */
 @Service
 public class ProfileService {
-
-    /** The fulfilment steps, in the order they happen. */
     private static final List<String[]> STEPS = List.of(
             new String[] { "PLACED",           "Order placed" },
             new String[] { "PAID",             "Payment confirmed" },
@@ -38,7 +35,6 @@ public class ProfileService {
             new String[] { "OUT_FOR_DELIVERY", "Out for delivery" },
             new String[] { "DELIVERED",        "Delivered" });
 
-    /** Which step is happening now, for a paid order. */
     private static int reached(String deliveryStatus) {
         return switch (deliveryStatus) {
             case "PENDING", "CONFIRMED", "PROCESSING" -> 2;
@@ -50,7 +46,6 @@ public class ProfileService {
         };
     }
 
-    /** Once it is with the courier it is too late for the customer to stop it. */
     private static final List<String> TOO_LATE_TO_CANCEL =
             List.of("SHIPPED", "OUT_FOR_DELIVERY", "DELIVERED", "CANCELLED");
 
@@ -106,7 +101,6 @@ public class ProfileService {
         return profile(email);
     }
 
-    /** Starts an email change. */
     @Transactional
     public String requestEmailChange(String email, ProfileDtos.ChangeEmailRequest r) {
         AppUser user = user(email);
@@ -127,11 +121,9 @@ public class ProfileService {
         user.setPendingEmailExpiresAt(Instant.now().plus(java.time.Duration.ofHours(24)));
         users.save(user);
 
-        // No mail server is configured yet, so the token is returned to the caller instead of being sent.
         return user.getPendingEmailToken();
     }
 
-    /** Confirms the change and reissues the token. */
     @Transactional
     public AuthResponse confirmEmailChange(String email, String token) {
         AppUser user = user(email);
@@ -146,7 +138,6 @@ public class ProfileService {
         if (!user.getPendingEmailToken().equals(token)) {
             throw new IllegalArgumentException("That confirmation link is not valid.");
         }
-        // Checked again at the last moment: someone else may have registered the address during the 24.
         if (users.findByEmail(user.getPendingEmail()).isPresent()) {
             clearPendingEmail(user);
             throw new IllegalArgumentException("That email address has since been registered.");
@@ -225,7 +216,6 @@ public class ProfileService {
                 timeline(order));
     }
 
-    /** Cancels an order the customer no longer wants. */
     @Transactional
     public ProfileDtos.OrderDetail cancelOrder(String email, String orderNumber, String reason) {
         Order order = ownedOrder(email, orderNumber);
@@ -239,13 +229,11 @@ public class ProfileService {
         order.setCancelledAt(Instant.now());
         order.setCancelledBy("CUSTOMER");
         order.setCancelReason(blankToNull(reason));
-        // An unpaid order is simply abandoned.
         if ("PENDING".equals(order.getStatus())) {
             order.setStatus("CANCELLED");
         }
         orders.save(order);
 
-        // A paid order that is cancelled leaves the shop owing money.
         invoiceService.creditNoteFor(order,
                 blankToNull(reason) == null ? "Cancelled by the customer" : reason.trim());
 
@@ -253,11 +241,10 @@ public class ProfileService {
         return orderDetail(email, orderNumber);
     }
 
-    /** The lines of a past order, for putting straight back in the basket. */
     @Transactional(readOnly = true)
     public List<com.greenhaven.dto.BasketDto.Line> reorderLines(String email, String orderNumber) {
         return ownedOrder(email, orderNumber).getItems().stream()
-                .filter(i -> i.getPlant() != null)   // a delisted product cannot be re-bought
+                .filter(i -> i.getPlant() != null)
                 .map(i -> new com.greenhaven.dto.BasketDto.Line(
                         i.getPlant().getSlug(), i.getQuantity()))
                 .toList();
@@ -286,9 +273,9 @@ public class ProfileService {
         for (int i = 0; i < STEPS.size(); i++) {
             String state;
             if (i == 0) {
-                state = "DONE";                       // it exists, so it was placed
+                state = "DONE";
             } else if (i == 1) {
-                state = paid ? "DONE" : "CURRENT";    // waiting on payment
+                state = paid ? "DONE" : "CURRENT";
             } else if (i < at) {
                 state = "DONE";
             } else if (i == at) {
@@ -309,7 +296,6 @@ public class ProfileService {
                 .toList();
     }
 
-    /** Every document issued to this customer — invoices and the credit notes offsetting them, newest. */
     @Transactional(readOnly = true)
     public List<ProfileDtos.InvoiceRow> myInvoices(String email) {
         return invoiceService.forUser(user(email).getId()).stream()
@@ -321,19 +307,16 @@ public class ProfileService {
                 .toList();
     }
 
-    /** One document by its number, checked to belong to the caller. */
     @Transactional(readOnly = true)
     public com.greenhaven.entity.Invoice ownedDocument(String email, String number) {
         com.greenhaven.entity.Invoice doc = invoiceService.byNumber(number)
                 .orElseThrow(() -> new ResourceNotFoundException("No document with that number."));
         if (!doc.getOrder().getUser().getEmail().equalsIgnoreCase(email)) {
-            // Deliberately the same message as a genuinely missing document, so this cannot be used to.
             throw new ResourceNotFoundException("No document with that number.");
         }
         return doc;
     }
 
-    /** The order behind an invoice, checked to belong to the caller. */
     @Transactional(readOnly = true)
     public Order invoiceSource(String email, String orderNumber) {
         Order order = ownedOrder(email, orderNumber);
@@ -371,7 +354,6 @@ public class ProfileService {
                 o != null && o.getInvoiceNumber() != null);
     }
 
-    /** The product as it was on the day, falling back to the live catalogue only where the snapshot is. */
     private static String nameOf(OrderItem i) {
         if (i.getProductName() != null) return i.getProductName();
         return i.getPlant() == null ? "Product" : i.getPlant().getName();

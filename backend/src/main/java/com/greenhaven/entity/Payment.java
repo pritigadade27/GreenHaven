@@ -13,22 +13,17 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
-/** One attempt to pay for an order. */
 @Entity
 @Table(name = "payment")
 public class Payment {
-
-    /** What Razorpay reports. */
     public static final String CREATED = "CREATED";
     public static final String CAPTURED = "CAPTURED";
     public static final String FAILED = "FAILED";
 
-    /** What our own signature check concluded. */
     public static final String UNVERIFIED = "UNVERIFIED";
     public static final String VERIFIED = "VERIFIED";
     public static final String VERIFICATION_FAILED = "FAILED";
 
-    /** How we learned of it. */
     public static final String SOURCE_BROWSER = "BROWSER";
     public static final String SOURCE_WEBHOOK = "WEBHOOK";
 
@@ -46,7 +41,6 @@ public class Payment {
     @Column(name = "razorpay_payment_id", length = 64)
     private String razorpayPaymentId;
 
-    /** Kept: it is the proof the payment was genuine if it is ever disputed. */
     @Column(name = "razorpay_signature", length = 255)
     private String razorpaySignature;
 

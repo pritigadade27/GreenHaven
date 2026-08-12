@@ -8,7 +8,6 @@
 
 html {
   scroll-behavior: smooth;
-  /* Clears the fixed navbar when a link jumps to a section. */
   scroll-padding-top: calc(var(--navbar-height-scrolled) + var(--space-sm));
   -webkit-text-size-adjust: 100%;
 }
@@ -24,7 +23,6 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  /* NOTE: no overflow-x here either. */
 }
 
 h1,
@@ -118,7 +116,6 @@ button {
   border-radius: var(--radius-xs);
 }
 
-/* Skip link for keyboard users — hidden until focused. */
 .skip-link {
   position: absolute;
   top: -100px;
@@ -153,7 +150,6 @@ button {
   background-color: var(--color-card-soft);
 }
 
-/* The small letter-spaced label that sits above a section heading. */
 .eyebrow {
   display: inline-block;
   font-family: var(--font-body);
@@ -168,8 +164,6 @@ button {
   max-width: 620px;
   margin-bottom: var(--space-lg);
 }
-
-/* NOTE: no scroll-margin-top on anchored sections. */
 
 .section-heading--center {
   margin-inline: auto;
@@ -187,7 +181,6 @@ button {
   font-weight: var(--fw-light);
 }
 
-/* Glassmorphism — used sparingly (sticky navbar, image-overlay chips). */
 .glass {
   background: var(--glass-bg);
   backdrop-filter: var(--glass-blur);
@@ -195,7 +188,6 @@ button {
   border: 1px solid var(--glass-border);
 }
 
-/* Screen-reader-only text. */
 .sr-only {
   position: absolute;
   width: 1px;
@@ -222,12 +214,10 @@ button {
   }
 }
 
-/* Route-level suspense fallback. */
 .route-loading {
   min-height: 60vh;
 }
 
-/* ---------------------------------------------------------------- overflow Belt and braces for. */
 img,
 video,
 canvas,
@@ -236,7 +226,6 @@ iframe {
   max-width: 100%;
 }
 
-/* Form controls carry a browser default `size` that is wider than most phone columns, and they do. */
 input,
 select,
 textarea,
@@ -245,7 +234,6 @@ button {
   min-width: 0;
 }
 
-/* Long words, email addresses and URLs break instead of pushing the layout. */
 p,
 li,
 dd,
@@ -255,8 +243,6 @@ h3,
 h4 {
   overflow-wrap: break-word;
 }
-
-/* NOTE: deliberately no `overflow-x` on <html>. */
 
 .field {
   margin-bottom: var(--space-md);
@@ -320,7 +306,6 @@ h4 {
   font-size: var(--fs-xs);
 }
 
-/* The auth card uses slightly taller fields than the contact form. */
 .auth .field__control,
 .auth__card .field__control {
   padding: 0.95rem var(--space-md);
@@ -347,7 +332,6 @@ h4 {
   font-weight: var(--fw-light);
 }
 
-/* Marks a field the form does not insist on. */
 .field__optional {
   margin-left: 6px;
   color: var(--color-text-muted);

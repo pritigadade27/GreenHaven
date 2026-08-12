@@ -51,7 +51,6 @@ export default function Cart() {
 
       <section className="cart section">
         <div className="container cart__layout">
-          {/* --------------------------------------------------------- lines */}
           <div className="cart__lines">
             {delivery > 0 && (
               <p className="cart__nudge">
@@ -123,7 +122,6 @@ export default function Cart() {
             </div>
           </div>
 
-          {/* ------------------------------------------------------- summary */}
           <aside className="cart__summary">
             <h2>Order summary</h2>
 

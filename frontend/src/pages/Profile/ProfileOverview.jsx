@@ -18,7 +18,6 @@ export default function ProfileOverview() {
   const [flash, setFlash] = useState(null);
   const [busy, setBusy] = useState(false);
 
-  // Email lives behind its own form: it needs the password, and it does not take effect until the.
   const [emailForm, setEmailForm] = useState({ email: '', password: '' });
   const [emailOpen, setEmailOpen] = useState(false);
   const [pendingToken, setPendingToken] = useState('');
@@ -46,7 +45,6 @@ export default function ProfileOverview() {
     try {
       await profileApi.update(form);
       await reload();
-      // The navbar greeting reads from the auth context, not from here.
       await refresh().catch(() => {});
       setEditing(false);
       setFlash({ tone: 'good', message: 'Your details have been saved.' });
@@ -80,7 +78,6 @@ export default function ProfileOverview() {
   async function confirmEmail() {
     setBusy(true);
     try {
-      // api.js has already swapped the stored token by the time this resolves.
       await profileApi.confirmEmailChange(pendingToken);
       setPendingToken('');
       await reload();

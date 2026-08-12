@@ -24,12 +24,10 @@ import com.greenhaven.dto.PageResponse;
 import com.greenhaven.service.AdminAuditService;
 import com.greenhaven.service.AdminService;
 
-/** The admin dashboard API. */
 @RestController
 @RequestMapping("/api/admin")
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
-
     private final AdminService admin;
     private final AdminAuditService audit;
     private final com.greenhaven.service.ReconciliationService reconciliation;
@@ -78,7 +76,6 @@ public class AdminController {
         return updated;
     }
 
-    /** The statuses the UI may offer, so the list lives in one place. */
     @GetMapping("/delivery-statuses")
     public List<String> deliveryStatuses() {
         return AdminService.DELIVERY_STATUSES.stream().sorted().toList();
@@ -132,7 +129,6 @@ public class AdminController {
         return updated;
     }
 
-    /** Runs the payment reconciliation sweep now rather than waiting for the timer. */
     @PostMapping("/reconcile")
     public com.greenhaven.service.ReconciliationService.Result reconcile(
             Principal principal, HttpServletRequest http) {

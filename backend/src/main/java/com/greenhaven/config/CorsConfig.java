@@ -7,21 +7,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-/**
- * Which origins may call the API.
- *
- * The two Vite ports are always allowed so local development needs no
- * configuration at all. Deployed environments add their own domain through
- * CORS_ALLOWED_ORIGINS, because in production the React build and the API sit
- * on different hosts and the browser blocks the call otherwise.
- *
- * Deliberately a list rather than "*": credentials are allowed on these
- * requests, and a wildcard with credentials is both refused by the browser and
- * an invitation for any site to call this API with a visitor's token.
- */
 @Configuration
 public class CorsConfig implements WebMvcConfigurer {
-
     private static final String[] DEV_ORIGINS = {
             "http://localhost:5173",
             "http://localhost:4173",
@@ -50,7 +37,6 @@ public class CorsConfig implements WebMvcConfigurer {
                 .allowCredentials(true)
                 .maxAge(3600);
 
-        // Uploaded photographs are fetched by the same deployed frontend.
         registry.addMapping("/uploads/**")
                 .allowedOrigins(allowed)
                 .allowedMethods("GET")

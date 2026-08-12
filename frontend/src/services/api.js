@@ -1,39 +1,21 @@
 import { readString, writeString, remove } from '../utils/storage.js';
 
-/** Green Haven — the single place the app talks to the Spring Boot API. */
-
-/**
- * Where the backend lives.
- *
- * Empty in development, so every call stays a relative "/api/..." and Vite's
- * proxy forwards it to localhost:8080 — no CORS involved. In production the
- * frontend and backend sit on different domains, so VITE_API_BASE_URL is set at
- * build time to the deployed API's origin.
- */
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
 
-/** Absolute in production, relative in development. */
 export const apiUrl = (path) => `${API_BASE}${path}`;
 
-/**
- * Uploaded images are served by the backend, so they need the same base.
- * A path that is already absolute (http...) is left alone.
- */
 export const fileUrl = (path) =>
   !path || /^https?:\/\//.test(path) ? path : `${API_BASE}${path}`;
 
 const TOKEN_KEY = 'greenhaven.token';
 
-// Storage can be unavailable (Safari Private Browsing, enterprise policy) or full.
 export const getToken = () => readString(TOKEN_KEY);
 export const setToken = (t) => {
-  // Guarding against the string "undefined", which is truthy and would make every later request.
   if (typeof t !== 'string' || !t) return;
   writeString(TOKEN_KEY, t);
 };
 export const clearToken = () => remove(TOKEN_KEY);
 
-/** Throws an Error carrying the server's own message and, when the failure is per-field. */
 async function request(path, { method = 'GET', body, auth = false } = {}) {
   const headers = { Accept: 'application/json' };
   if (body) headers['Content-Type'] = 'application/json';
@@ -50,7 +32,6 @@ async function request(path, { method = 'GET', body, auth = false } = {}) {
       body: body ? JSON.stringify(body) : undefined,
     });
   } catch {
-    // The API being down is the commonest failure while developing, and the browser's own message.
     throw new Error('Cannot reach the server. Is the Spring Boot API running on port 8080?');
   }
 
@@ -59,7 +40,6 @@ async function request(path, { method = 'GET', body, auth = false } = {}) {
   try {
     data = text ? JSON.parse(text) : null;
   } catch {
-    // A proxy error page or a challenge page is HTML, not JSON.
     if (response.ok) throw new Error('The server sent a response we could not read.');
   }
 
@@ -72,7 +52,6 @@ async function request(path, { method = 'GET', body, auth = false } = {}) {
   return data;
 }
 
-/** Fetches a file rather than JSON, and hands back a Blob. */
 async function download(path) {
   const headers = {};
   const token = getToken();
@@ -86,13 +65,12 @@ async function download(path) {
   }
 
   if (!response.ok) {
-    // The error body is JSON even when the happy path is a PDF.
     let message = `Download failed (${response.status})`;
     try {
       const data = JSON.parse(await response.text());
       if (data?.message) message = data.message;
     } catch {
-      /* not JSON — keep the status message */
+      // ignore
     }
     const error = new Error(message);
     error.status = response.status;
@@ -104,7 +82,6 @@ async function download(path) {
   return { blob: await response.blob(), filename: named ? named[1] : 'download.pdf' };
 }
 
-/** Saves a fetched Blob to disk, then releases the object URL. */
 export async function saveFile(path) {
   const { blob, filename } = await download(path);
   const url = URL.createObjectURL(blob);
@@ -114,7 +91,6 @@ export async function saveFile(path) {
   document.body.appendChild(link);
   link.click();
   link.remove();
-  // Revoked on the next tick: released synchronously, Safari cancels the download it has only just.
   setTimeout(() => URL.revokeObjectURL(url), 1000);
   return filename;
 }
@@ -126,24 +102,20 @@ export const authApi = {
     request('/auth/login', { method: 'POST', body: { email, password } }),
   me: () => request('/auth/me', { auth: true }),
 
-  // Always resolves the same way whether or not the address has an account — the server.
   forgotPassword: (email) =>
     request('/auth/forgot-password', { method: 'POST', body: { email } }),
   resetPassword: (token, newPassword, confirmPassword) =>
     request('/auth/reset-password', { method: 'POST', body: { token, newPassword, confirmPassword } }),
 };
 
-/** Orders and payment. */
 export const orderApi = {
   start: (shipping, items, couponCode) =>
     request('/orders', {
       method: 'POST',
       auth: true,
-      // The code only. What it is worth is the server's to decide.
       body: { ...shipping, items, couponCode: couponCode || null },
     }),
   verify: (payload) => request('/orders/verify', { method: 'POST', auth: true, body: payload }),
-  // Test mode only — the server refuses this once real Razorpay keys are set.
   simulate: (razorpayOrderId, succeed = true) =>
     request(`/orders/${razorpayOrderId}/simulate?succeed=${succeed}`, {
       method: 'POST',
@@ -154,14 +126,12 @@ export const orderApi = {
   mine: () => request('/orders', { auth: true }),
 };
 
-/** My Profile. */
 export const profileApi = {
   me: () => request('/profile', { auth: true }),
   update: (body) => request('/profile', { method: 'PATCH', auth: true, body }),
 
   requestEmailChange: (email, password) =>
     request('/profile/email', { method: 'POST', auth: true, body: { email, password } }),
-  // The reply carries a NEW token: a JWT names its subject by email, so the one in hand stops.
   confirmEmailChange: async (token) => {
     const session = await request(`/profile/email/confirm?token=${encodeURIComponent(token)}`, {
       method: 'POST',
@@ -189,7 +159,6 @@ export const profileApi = {
     }),
   reorder: (orderNumber) => request(`/profile/orders/${orderNumber}/reorder`, { auth: true }),
   downloadInvoice: (orderNumber) => saveFile(`/profile/orders/${orderNumber}/invoice`),
-  // By document number — an order can carry an invoice and a credit note.
   downloadDocument: (number) => saveFile(`/profile/documents/${encodeURIComponent(number)}`),
 
   payments: () => request('/profile/payments', { auth: true }),
@@ -200,9 +169,7 @@ export const profileApi = {
     request('/profile/notifications/read', { method: 'POST', auth: true }),
 };
 
-/** Ratings and reviews. */
 export const reviewApi = {
-  // auth: true so a signed-in reader gets `mine` marked on their own review — the endpoint itself.
   list: (slug, page = 0, size = 10) =>
     request(`/plants/${slug}/reviews?page=${page}&size=${size}`, { auth: true }),
   eligibility: (slug) => request(`/reviews/${slug}/eligibility`, { auth: true }),
@@ -211,7 +178,6 @@ export const reviewApi = {
   remove: (id) => request(`/reviews/${id}`, { method: 'DELETE', auth: true }),
   mine: () => request('/reviews/mine', { auth: true }),
 
-  /** Multipart, so it cannot go through request(): that sets a JSON content type, and the browser. */
   uploadImage: async (file) => {
     const body = new FormData();
     body.append('file', file);
@@ -232,13 +198,11 @@ export const reviewApi = {
   },
 };
 
-/** Discount codes. */
 export const couponApi = {
   quote: (code, items) =>
     request('/coupons/quote', { method: 'POST', auth: true, body: { code, items } }),
 };
 
-/** Saved delivery addresses. */
 export const addressApi = {
   list: () => request('/addresses', { auth: true }),
   add: (body) => request('/addresses', { method: 'POST', auth: true, body }),
@@ -247,7 +211,6 @@ export const addressApi = {
   remove: (id) => request(`/addresses/${id}`, { method: 'DELETE', auth: true }),
 };
 
-/** The two public forms. Neither needs a signed-in user. */
 export const contactApi = {
   send: ({ name, email, subject, message }) =>
     request('/contact', { method: 'POST', body: { name, email, subject, message } }),

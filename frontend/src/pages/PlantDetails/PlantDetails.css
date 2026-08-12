@@ -1,5 +1,3 @@
-/* auto-FIT, not auto-fill. */
-
 .pdp {
   padding-top: calc(var(--navbar-height) + var(--space-xl));
   padding-bottom: var(--space-3xl);
@@ -122,7 +120,6 @@
   color: var(--color-green);
 }
 
-/* the value and its label need their own column — the <li> being a column does not stack the. */
 .pdp__quick li > div {
   display: flex;
   flex-direction: column;
@@ -184,7 +181,6 @@
   transition: color var(--dur-base) var(--ease-out);
 }
 
-/* It jumps to the reviews now, so it says so on hover. */
 .pdp__rating:hover .pdp__reviews {
   color: var(--color-primary);
   text-decoration: underline;
@@ -518,7 +514,6 @@
   }
 }
 
-/* Added with the buy panel. */
 .pdp__badge {
   display: inline-flex;
   align-items: center;
@@ -532,7 +527,6 @@
   white-space: nowrap;
 }
 
-/* Pet safety is the one a buyer with a cat needs to see first, so a warning tone overrides the. */
 .pdp__badge.is-warn {
   color: #fff;
   background: var(--color-secondary);
@@ -576,7 +570,6 @@
   color: var(--color-text-muted);
 }
 
-/* The tab buttons themselves — .pdp__tab-list only styled the row. */
 .pdp__tab-list button {
   padding: 0 0 var(--space-sm);
   font: inherit;
@@ -614,7 +607,6 @@
   }
 }
 
-/* Placeholder while the catalogue loads, shaped like the real page so the layout does not jump. */
 .pdp__loading {
   display: grid;
   grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);

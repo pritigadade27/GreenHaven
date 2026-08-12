@@ -12,7 +12,6 @@ const ITEMS = [
   { to: '/profile/password', icon: 'lock', label: 'Change Password' },
 ];
 
-/** The signed-in customer's menu. */
 export default function ProfileMenu({ user, unread = 0, onSignOut }) {
   const [open, setOpen] = useState(false);
   const wrapRef = useRef(null);

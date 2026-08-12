@@ -38,7 +38,6 @@ export default function About() {
     <div ref={ref}>
       <h1 className="sr-only">About Green Haven</h1>
 
-      {/* ------------------------------------------------------------ story */}
       <section className="about-story section">
         <div className="container about-story__inner">
           <figure className="about-story__art reveal reveal--left">
@@ -68,7 +67,6 @@ export default function About() {
         </div>
       </section>
 
-      {/* --------------------------------------------------- mission / vision */}
       <section className="about-mv section section--tint">
         <div className="container about-mv__grid">
           <article className="reveal reveal--up delay-1">
@@ -102,7 +100,6 @@ export default function About() {
         </div>
       </section>
 
-      {/* ----------------------------------------------------------- values */}
       <section className="about-values section">
         <div className="container">
           <header className="section-heading section-heading--center reveal">
@@ -124,7 +121,6 @@ export default function About() {
         </div>
       </section>
 
-      {/* -------------------------------------------------------------- cta */}
       <section className="about-cta section">
         <div className="container about-cta__inner reveal reveal--zoom">
           <figure>

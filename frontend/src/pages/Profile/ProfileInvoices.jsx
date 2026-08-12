@@ -27,7 +27,6 @@ export default function ProfileInvoices() {
     };
   }, []);
 
-  // By document number, not by order: a cancelled paid order carries both an invoice and the credit.
   async function download(number) {
     setBusy(number);
     try {
@@ -96,7 +95,6 @@ export default function ProfileInvoices() {
                   </td>
                   <td data-label="Date">{formatDate(inv.invoiceDate)}</td>
                   <td data-label="Items">{inv.totalItems}</td>
-                  {/* A credit note is money going the other way, so it is signed rather than sitting in the column. */}
                   <td className="ptable__amount" data-label="Total">
                     {inv.docType === 'CREDIT_NOTE' ? '−' : ''}
                     {formatPrice(inv.total)}

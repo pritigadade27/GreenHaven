@@ -1,7 +1,3 @@
-/* Explicit column counts, not auto-fit. */
-
-/* auto-FIT, not auto-fill. */
-
 .featured__head {
   display: flex;
   align-items: flex-end;
@@ -26,12 +22,10 @@
 
 .featured__grid {
   display: grid;
-  /* 320px rather than 250px as the minimum track. */
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: var(--space-lg);
 }
 
-/* the reveal wrapper must not collapse the card's full-height stretch */
 .featured__grid > * {
   display: flex;
 }
@@ -39,7 +33,6 @@
 .featured__more {
   display: flex;
   justify-content: center;
-  /* --space-3xl (4rem) put this section 5px over a 900px viewport on its own. */
   margin-top: var(--space-xl);
 }
 

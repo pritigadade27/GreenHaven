@@ -33,13 +33,11 @@ export default function WhyChooseUs() {
   const { PLANTS } = useCatalogue();
   const ref = useScrollReveal();
 
-  // Counted from the catalogue so the claim can never outrun the stock.
   const petSafe = PLANTS.filter((p) => p.petSafety === 'safe').length;
 
   return (
     <section className="why section" id="why" ref={ref}>
       <div className="container why__inner">
-        {/* ------------------------------------------------------------ art */}
         <div className="why__visual reveal reveal--left">
           <figure className="why__photo why__photo--main">
             <img src={philodendron} alt="A philodendron in afternoon light" loading="lazy" />
@@ -58,7 +56,6 @@ export default function WhyChooseUs() {
           </div>
         </div>
 
-        {/* ---------------------------------------------------------- copy */}
         <div className="why__content">
           <header className="reveal">
             <span className="eyebrow">Why Green Haven</span>

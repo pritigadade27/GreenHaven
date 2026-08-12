@@ -1,5 +1,3 @@
-/* Shared by Cart and Wishlist when there is nothing to show. */
-
 .cart.section {
   padding-top: var(--space-xl);
 }

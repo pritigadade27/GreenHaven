@@ -29,14 +29,10 @@ import com.greenhaven.repository.PaymentRepository;
 import com.greenhaven.repository.PlantRepository;
 import com.greenhaven.repository.ReviewRepository;
 
-/** Everything the admin dashboard reads and writes. */
 @Service
 public class AdminService {
-
-    /** At or below this, a product is flagged for restocking. */
     public static final int LOW_STOCK_AT = 5;
 
-    /** The fulfilment states an order may be moved between. */
     public static final Set<String> DELIVERY_STATUSES = Set.of(
             "PENDING", "CONFIRMED", "PROCESSING", "PACKED",
             "SHIPPED", "OUT_FOR_DELIVERY", "DELIVERED", "CANCELLED");
@@ -79,7 +75,6 @@ public class AdminService {
                 categories.count(),
                 users.count(),
                 orders.count(),
-                // Revenue is the sum of CAPTURED payments, not of order totals: an unpaid order is not money, and counting it would overstate takings by every abandoned checkout.
                 payments.sumAmountByStatus(Payment.CAPTURED),
                 payments.countByStatus(Payment.CAPTURED),
                 payments.countByStatus(Payment.FAILED),
@@ -119,7 +114,6 @@ public class AdminService {
                 order.getTax(), order.getDiscount(), lines, attempts);
     }
 
-    /** Moves an order along the fulfilment track. */
     @Transactional
     public AdminDtos.OrderRow updateDeliveryStatus(Long id, String status) {
         String next = status == null ? "" : status.trim().toUpperCase().replace(' ', '_');
@@ -141,7 +135,6 @@ public class AdminService {
             order.setCancelledBy("ADMIN");
         }
         Order saved = orders.save(order);
-        // The customer hears about it in their profile the moment it changes.
         notifier.deliveryChanged(saved, next);
         return toRow(saved);
     }
@@ -159,7 +152,6 @@ public class AdminService {
     public Page<AdminDtos.UserRow> users(String q, int page, int size) {
         Pageable pageable = PageRequest.of(Math.max(0, page), Math.min(Math.max(1, size), 100));
         return users.searchForAdmin(blank(q), pageable).map(user -> {
-            // Per-user totals are two aggregates rather than loading their orders.
             long count = orders.countByUserId(user.getId());
             BigDecimal spent = orders.sumPaidTotalByUserId(user.getId());
             return new AdminDtos.UserRow(user.getId(), user.getFullName(), user.getEmail(),
@@ -173,7 +165,6 @@ public class AdminService {
         AppUser user = users.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No user with id " + id));
         if ("ADMIN".equals(user.getRole()) && blocked) {
-            // Locking the last admin out of the dashboard is not recoverable from inside the dashboard.
             throw new IllegalArgumentException("An admin account cannot be blocked.");
         }
         user.setBlocked(blocked);
@@ -212,7 +203,6 @@ public class AdminService {
         Page<Review> found = blank(status) == null
                 ? reviews.findAllByOrderByIdDesc(pageable)
                 : reviews.findByStatusOrderByIdDesc(status.trim().toUpperCase(), pageable);
-        // One query for the page's photographs rather than one per review.
         Map<Long, List<String>> photos = new LinkedHashMap<>();
         List<Long> ids = found.getContent().stream().map(Review::getId).toList();
         if (!ids.isEmpty()) {
@@ -231,7 +221,6 @@ public class AdminService {
                 photos.getOrDefault(r.getId(), List.of())));
     }
 
-    /** Moderates a review. */
     @Transactional
     public void setReviewStatus(Long id, String status, String reason) {
         String next = status == null ? "" : status.trim().toUpperCase();
@@ -255,7 +244,6 @@ public class AdminService {
                 .orElseThrow(() -> new ResourceNotFoundException("No review with id " + id));
         Long plantId = review.getPlant().getId();
 
-        // Read before the delete: the FK cascade takes the rows, and with them the only record of which.
         List<String> files = reviewImages.findByReviewIdOrderBySortOrderAscIdAsc(id).stream()
                 .map(com.greenhaven.entity.ReviewImage::getUrl)
                 .toList();
@@ -299,7 +287,6 @@ public class AdminService {
     }
 
     private AdminDtos.OrderDetail.Line toLine(OrderItem i) {
-        // Prefer the snapshot taken at purchase time; fall back to the live product only for rows written.
         String name = i.getProductName() != null ? i.getProductName()
                 : i.getPlant() != null ? i.getPlant().getName() : "(removed)";
         String image = i.getProductImage() != null ? i.getProductImage()
@@ -332,7 +319,6 @@ public class AdminService {
                 Boolean.TRUE.equals(p.getNewArrival()));
     }
 
-    /** Treats an empty filter as absent, so "" does not become a literal match. */
     private static String blank(String value) {
         return value == null || value.isBlank() ? null : value.trim();
     }

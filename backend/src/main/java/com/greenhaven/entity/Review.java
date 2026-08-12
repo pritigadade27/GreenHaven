@@ -12,17 +12,12 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
-/** A customer's review of a product. */
 @Entity
 @Table(name = "review")
 public class Review {
-
-    /** Awaiting moderation. Written before the storefront could post reviews. */
     public static final String PENDING = "PENDING";
-    /** Visible on the product page. Where a verified purchase lands. */
     public static final String APPROVED = "APPROVED";
     public static final String REJECTED = "REJECTED";
-    /** Taken down by an admin. */
     public static final String HIDDEN = "HIDDEN";
 
     @Id
@@ -37,12 +32,10 @@ public class Review {
     @JoinColumn(name = "user_id", nullable = false)
     private AppUser user;
 
-    /** The delivered order that earned the right to write this. */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
     private Order order;
 
-    /** Settled when the review is written, not looked up when it is read: it is a fact about that. */
     @Column(name = "verified_purchase", nullable = false)
     private boolean verifiedPurchase = false;
 
@@ -64,7 +57,6 @@ public class Review {
     @Column(name = "created_at", insertable = false, updatable = false)
     private Instant createdAt;
 
-    /** Null until the customer edits it — an edited review says so. */
     @Column(name = "updated_at")
     private Instant updatedAt;
 

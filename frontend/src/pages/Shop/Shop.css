@@ -1,11 +1,9 @@
-/* No page banner here — the navbar is fixed, so the search bar needs to clear it itself and then. */
 .shop.section {
   padding-top: calc(var(--navbar-height) + var(--space-lg));
 }
 
 .shop__layout {
   display: grid;
-  /* The sidebar is allowed to breathe a little on very wide screens rather than pinning to one. */
   grid-template-columns: clamp(232px, 18vw, 300px) minmax(0, 1fr);
   align-items: start;
   gap: var(--space-2xl);
@@ -14,7 +12,6 @@
 .shop__filters {
   position: sticky;
   top: calc(var(--navbar-height-scrolled) + var(--space-lg));
-  /* A sticky column taller than the screen simply clips its own bottom, which put the Care level and Light filters permanently out of reach. */
   max-height: calc(100vh - var(--navbar-height-scrolled) - var(--space-2xl));
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -168,7 +165,6 @@
 }
 
 .filter-pills button {
-  /* .filter-group > ul button sets width:100% for the category list — these are pills, so opt back. */
   width: auto;
   padding: 5px var(--space-sm);
   border: 1px solid var(--color-border-strong);
@@ -263,7 +259,6 @@
 
 .shop__grid {
   display: grid;
-  /* auto-fill, not a fixed column count: at 1280px this is 3 across, at 1920px it is 5, on a phone it is 1 — with no breakpoint doing the work. */
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr));
   gap: clamp(0.9rem, 1.6vw, 1.75rem);
 }
@@ -371,7 +366,6 @@
   cursor: not-allowed;
 }
 
-/* The previous-page arrow is the same glyph, mirrored. */
 .shop__pages button:first-child svg {
   transform: rotate(180deg);
 }
@@ -381,7 +375,6 @@
   color: var(--color-text-muted);
 }
 
-/* Card-shaped placeholders, so the grid does not reflow when products land. */
 .shop__skeleton {
   display: grid;
   gap: 10px;
@@ -391,7 +384,6 @@
   border-radius: var(--radius-lg);
 }
 
-/* Two range handles stacked for a price band. */
 .filter-group input[type='range'] + input[type='range'] {
   margin-top: 6px;
 }

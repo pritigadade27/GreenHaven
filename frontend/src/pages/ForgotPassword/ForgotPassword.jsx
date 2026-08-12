@@ -6,7 +6,6 @@ import Icon from '../../components/common/Icon/Icon.jsx';
 import { authApi } from '../../services/api.js';
 import '../Login/Auth.css';
 
-/** Asks for a reset link, then lets one be used. */
 export default function ForgotPassword() {
   const [params] = useSearchParams();
   const tokenFromLink = params.get('token') ?? '';
@@ -20,7 +19,6 @@ export default function ForgotPassword() {
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
 
-  // A token in the URL means the customer came from the email, so go straight to setting a new.
   const stage = done ? 'done' : token ? 'reset' : 'request';
 
   async function request(event) {
@@ -30,7 +28,6 @@ export default function ForgotPassword() {
     try {
       const result = await authApi.forgotPassword(email.trim());
       setSent(result.message);
-      // Present only while no mail server is connected; in production the token arrives by email and.
       if (result.token) setToken(result.token);
     } catch (err) {
       setError(err.message);

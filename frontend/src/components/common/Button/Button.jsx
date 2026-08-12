@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import Icon from '../Icon/Icon.jsx';
 import './Button.css';
 
-/** The site's one button. */
 export default function Button({
   children,
   variant = 'primary',

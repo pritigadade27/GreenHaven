@@ -1,4 +1,3 @@
-/** The admin dashboard's own API client. */
 import { readString, writeString, remove } from '../utils/storage.js';
 import { apiUrl } from './api.js';
 
@@ -11,7 +10,6 @@ export const setAdminToken = (t) => {
 };
 export const clearAdminToken = () => remove(TOKEN_KEY);
 
-/** Throws an Error carrying the server's message. */
 async function request(path, { method = 'GET', body, auth = true } = {}) {
   const headers = { Accept: 'application/json' };
   if (body) headers['Content-Type'] = 'application/json';
@@ -42,7 +40,6 @@ async function request(path, { method = 'GET', body, auth = true } = {}) {
   if (!response.ok) {
     const error = new Error(data?.message || `Request failed (${response.status})`);
     error.status = response.status;
-    // The session may have been revoked by a logout elsewhere, an idle timeout, or a sign-in on.
     error.sessionEnded = response.status === 401 || response.status === 403;
     throw error;
   }
@@ -85,7 +82,6 @@ export const adminApi = {
   setProductListing: (id, discontinued) =>
     request(`/products/${id}/listing?discontinued=${discontinued}`, { method: 'PATCH' }),
 
-  /** Multipart, so it cannot go through request(): that sets a JSON content type, and the browser. */
   uploadProductImage: async (file) => {
     const body = new FormData();
     body.append('file', file);
@@ -107,12 +103,10 @@ export const adminApi = {
   coupons: (params = {}) => request(`/coupons${query(params)}`),
   createCoupon: (body) => request('/coupons', { method: 'POST', body }),
   updateCoupon: (id, body) => request(`/coupons/${id}`, { method: 'PUT', body }),
-  // Off, not deleted: paid orders name the code they used.
   setCouponState: (id, active) =>
     request(`/coupons/${id}/state?active=${active}`, { method: 'PATCH' }),
 };
 
-/** Builds a query string, dropping empty values so "" is not sent as a filter. */
 function query(params) {
   const search = new URLSearchParams();
   Object.entries(params).forEach(([key, value]) => {

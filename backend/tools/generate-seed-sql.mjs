@@ -1,18 +1,3 @@
-/**
- * Green Haven — turns the React catalogue into MySQL seed data.
- *
- * frontend/src/data/ is the single source of truth for the catalogue. Rather
- * than maintaining the same products twice, this reads those modules, replaces
- * the image references Node cannot resolve with the filename the API serves,
- * and writes data.sql covering EVERY product: plants.js, plants-extra.js and
- * merchandise.js (seeds, pots, tools, care products).
- *
- * Merchandise carries `specs` where a plant carries `care`; a trowel has no
- * watering schedule, so those columns are simply left NULL and Plant Details
- * hides the tab.
- *
- * Run:  node backend/tools/generate-seed-sql.mjs
- */
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -21,21 +6,6 @@ const here = dirname(fileURLToPath(import.meta.url));
 const FRONTEND = resolve(here, '..', '..', 'frontend', 'src', 'data');
 const OUT = resolve(here, '..', 'db', 'data.sql');
 
-/**
- * Loads a data module the way Node cannot on its own.
- *
- * Three things get in the way, and each is handled here rather than by editing
- * the source of truth:
- *
- *   1. `import photo from '../assets/images/tools/trowel.jpg'` — Node has no
- *      loader for .jpg. Rewritten to the relative path the API stores, keeping
- *      the sub-folder so tools/, seeds/ and plants/ stay distinct.
- *   2. `new URL(`../assets/images/plants/${name}.jpg`, import.meta.url).href` —
- *      the same idea expressed at run time, used by plants-extra.js.
- *   3. `import { MERCHANDISE } from './merchandise.js'` — a sibling data module
- *      that has problems 1 and 2 of its own, so it is processed recursively and
- *      inlined. Pointing at the raw file instead is what used to break this.
- */
 const moduleCache = new Map();
 
 async function moduleUri(file) {
@@ -43,19 +13,16 @@ async function moduleUri(file) {
 
   let src = readFileSync(join(FRONTEND, file), 'utf8');
 
-  // 1. static image imports, sub-folder preserved
   src = src.replace(
     /import\s+(\w+)\s+from\s+'[^']*\/images\/([\w-]+)\/([\w-]+\.(?:jpg|jpeg|png|webp))';/g,
     (_m, ident, dir, filename) => `const ${ident} = '${dir}/${filename}';`
   );
 
-  // 2. run-time URL construction
   src = src.replace(
     /new URL\(`\.\.\/assets\/images\/([\w-]+)\/\$\{(\w+)\}\.(\w+)`,\s*import\.meta\.url\)\.href/g,
     (_m, dir, ident, ext) => `\`${dir}/\${${ident}}.${ext}\``
   );
 
-  // 3. sibling data modules — process first, then inline
   const siblings = [...src.matchAll(/from\s+'\.\/([\w.-]+)'/g)].map((m) => m[1]);
   for (const name of new Set(siblings)) {
     const uri = await moduleUri(name.endsWith('.js') ? name : `${name}.js`);
@@ -78,8 +45,6 @@ const { BADGES } = await loadDataModule('badges.js');
 const { EXTRA_PLANTS } = await loadDataModule('plants-extra.js');
 const { MERCHANDISE } = await loadDataModule('merchandise.js');
 
-// One list, in the same order the shop renders them. Every row the site can
-// show must exist in the database, or the two disagree about what is for sale.
 const CATALOGUE = [...PLANTS, ...EXTRA_PLANTS, ...MERCHANDISE];
 
 const codes = new Set();
@@ -101,7 +66,6 @@ lines.push('');
 lines.push('SET NAMES utf8mb4;');
 lines.push('');
 
-// ---------------------------------------------------------------- categories
 lines.push('-- categories -------------------------------------------------------------');
 lines.push('INSERT INTO category (slug, name, blurb, sort_order) VALUES');
 lines.push(
@@ -109,7 +73,6 @@ lines.push(
 );
 lines.push('');
 
-// -------------------------------------------------------------------- badges
 lines.push('-- badges -----------------------------------------------------------------');
 lines.push('INSERT INTO badge (code, label, tone, icon, detail) VALUES');
 lines.push(
@@ -119,10 +82,8 @@ lines.push(
 );
 lines.push('');
 
-// -------------------------------------------------------------------- plants
 lines.push('-- plants -----------------------------------------------------------------');
 for (const p of CATALOGUE) {
-  // Merchandise has no care regimen; NULL is the honest value, not invention.
   const c = p.care ?? {};
   lines.push(
     `INSERT INTO plant (code, slug, name, botanical_name, category_id, price, mrp, stock, image,\n` +
@@ -143,7 +104,6 @@ for (const p of CATALOGUE) {
 }
 lines.push('');
 
-// ------------------------------------------------------------- plant_badge
 lines.push('-- badge assignments ------------------------------------------------------');
 for (const p of CATALOGUE) {
   for (const badge of p.badges ?? []) {

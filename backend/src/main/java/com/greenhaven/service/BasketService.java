@@ -18,10 +18,8 @@ import com.greenhaven.repository.CartItemRepository;
 import com.greenhaven.repository.PlantRepository;
 import com.greenhaven.repository.WishlistItemRepository;
 
-/** The cart and wishlist that belong to an account rather than to a browser. */
 @Service
 public class BasketService {
-
     private static final org.slf4j.Logger log =
             org.slf4j.LoggerFactory.getLogger(BasketService.class);
 
@@ -49,13 +47,12 @@ public class BasketService {
     public List<BasketDto.Line> replaceCart(String email, List<BasketDto.Line> lines) {
         AppUser owner = user(email);
         carts.deleteByUserId(owner.getId());
-        // Flush the delete before inserting, or the UNIQUE (user_id, plant_id) constraint fires against.
         carts.flush();
 
         List<CartItem> rows = merge(lines).entrySet().stream()
                 .map(entry -> {
                     Plant plant = plants.findBySlug(entry.getKey()).orElse(null);
-                    if (plant == null) return null;   // delisted since it was saved
+                    if (plant == null) return null;
                     CartItem item = new CartItem();
                     item.setUser(owner);
                     item.setPlant(plant);
@@ -100,7 +97,6 @@ public class BasketService {
         return rows.stream().map(r -> r.getPlant().getSlug()).toList();
     }
 
-    /** Empties the saved cart after a purchase. */
     @Transactional
     public void clearCartQuietly(Long userId) {
         try {
@@ -110,13 +106,11 @@ public class BasketService {
         }
     }
 
-    /** Collapses duplicate slugs, so one product is one row. */
     private static Map<String, Integer> merge(List<BasketDto.Line> lines) {
         Map<String, Integer> wanted = new LinkedHashMap<>();
         if (lines == null) return wanted;
         lines.forEach(line ->
                 wanted.merge(line.slug(), Math.max(1, Math.min(99, line.quantity())), Integer::sum));
-        // The sum can exceed the per-product cap once duplicates are folded in.
         wanted.replaceAll((slug, qty) -> Math.min(99, qty));
         return wanted;
     }

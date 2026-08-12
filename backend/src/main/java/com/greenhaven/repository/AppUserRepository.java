@@ -11,13 +11,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.greenhaven.entity.AppUser;
 
 public interface AppUserRepository extends JpaRepository<AppUser, Long> {
-
-    /** Case-insensitivity comes from the column's utf8mb4_unicode_ci collation, NOT from an IgnoreCase keyword. */
     Optional<AppUser> findByEmail(String email);
 
     boolean existsByEmail(String email);
 
-    /** Customer search by name or email. */
     @Query("""
             SELECT u FROM AppUser u
             WHERE (:q IS NULL

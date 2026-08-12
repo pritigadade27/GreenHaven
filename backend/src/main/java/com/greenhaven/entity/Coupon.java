@@ -10,11 +10,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
-/** A discount code. */
 @Entity
 @Table(name = "coupon")
 public class Coupon {
-
     public static final String PERCENT = "PERCENT";
     public static final String FLAT = "FLAT";
 
@@ -22,7 +20,6 @@ public class Coupon {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /** Held uppercase, so "SPRING20" and "spring20" are the same coupon. */
     @Column(nullable = false, length = 40, unique = true)
     private String code;
 
@@ -35,7 +32,6 @@ public class Coupon {
     @Column(name = "discount_value", nullable = false, precision = 10, scale = 2)
     private BigDecimal discountValue = BigDecimal.ZERO;
 
-    /** Caps a percentage — "20% off, up to ₹500". Null means uncapped. */
     @Column(name = "max_discount", precision = 10, scale = 2)
     private BigDecimal maxDiscount;
 
@@ -51,7 +47,6 @@ public class Coupon {
     @Column(name = "expires_at")
     private Instant expiresAt;
 
-    /** Null means no overall ceiling. */
     @Column(name = "usage_limit")
     private Integer usageLimit;
 

@@ -62,7 +62,6 @@
   }
 }
 
-/* Slow drift for the hero's floating leaves. */
 @keyframes float {
   0%,
   100% {
@@ -115,13 +114,11 @@
   will-change: opacity, transform;
 }
 
-/* Release the promoted layer once the animation is done — ~30 of these were being held. */
 .reveal.is-visible {
   will-change: auto;
 }
 
 .reveal.is-visible {
-  /* opacity: 1 explicitly, NOT only via the animation's forwards fill. */
   opacity: 1;
   animation: fadeUp var(--dur-reveal) var(--ease-out) forwards;
 }
@@ -145,7 +142,6 @@
   animation-name: fadeIn;
 }
 
-/* Stagger children of a grid so cards arrive one after another. */
 .delay-1 {
   animation-delay: 80ms;
 }
@@ -172,7 +168,6 @@
   animation: floatSlow 11s var(--ease-in-out) infinite;
 }
 
-/* Skeleton placeholder while an image or product list loads. */
 .skeleton {
   background: linear-gradient(
     90deg,
@@ -184,7 +179,6 @@
   animation: shimmer 1.5s linear infinite;
 }
 
-/* Images inside a rounded frame gently scale on hover. */
 .img-hover {
   overflow: hidden;
 }

@@ -1,8 +1,6 @@
 import Icon from '../../components/common/Icon/Icon.jsx';
 import Button from '../../components/common/Button/Button.jsx';
 
-/** The bits every profile screen needs, so none of them reinvents them. */
-
 export function SectionHead({ title, subtitle, children }) {
   return (
     <header className="psec__head">
@@ -15,7 +13,6 @@ export function SectionHead({ title, subtitle, children }) {
   );
 }
 
-/** The loading state. */
 export function Skeletons({ rows = 3, height = 96 }) {
   return (
     <div className="psec__skeletons" aria-hidden="true">
@@ -44,7 +41,6 @@ export function Empty({ icon = 'leaf', title, children, action }) {
   );
 }
 
-/** A short-lived confirmation or complaint above a form. */
 export function Flash({ tone = 'good', message, onDismiss }) {
   if (!message) return null;
   return (
@@ -60,7 +56,6 @@ export function Flash({ tone = 'good', message, onDismiss }) {
   );
 }
 
-/** Order and payment states, in the customer's language and the site's colours. */
 const TONES = {
   PAID: 'good',
   CAPTURED: 'good',
@@ -97,7 +92,6 @@ const WORDS = {
   DELIVERED: 'Delivered',
 };
 
-/** PENDING means two different things depending on which column it came from: a payment not yet. */
 const DELIVERY_WORDS = {
   PENDING: 'Preparing',
   CONFIRMED: 'Confirmed',

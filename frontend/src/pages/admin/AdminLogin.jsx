@@ -4,7 +4,6 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import Icon from '../../components/common/Icon/Icon.jsx';
 import { useAdminAuth } from '../../context/AdminAuthContext.jsx';
 
-/** The only way into the dashboard. */
 export default function AdminLogin() {
   const { login, isAdmin, ready } = useAdminAuth();
   const navigate = useNavigate();
@@ -15,7 +14,6 @@ export default function AdminLogin() {
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
 
-  // Requirement 7: an admin who is already signed in never sees this form.
   useEffect(() => {
     if (ready && isAdmin) {
       navigate(location.state?.from || '/admin/dashboard', { replace: true });
@@ -29,14 +27,13 @@ export default function AdminLogin() {
 
   async function submit(event) {
     event.preventDefault();
-    if (busy) return; // double-click guard
+    if (busy) return;
     setBusy(true);
     setError('');
     try {
       await login(form.email.trim(), form.password);
       navigate(location.state?.from || '/admin/dashboard', { replace: true });
     } catch (err) {
-      // The server returns one message for every kind of rejection; repeating it verbatim keeps it that.
       setError(err.message);
       setBusy(false);
     }

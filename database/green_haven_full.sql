@@ -1,41 +1,8 @@
--- ===========================================================================
---  Green Haven - complete database, in one file
---
---  Everything the site needs: the tables, the 154-product catalogue and every
---  migration applied in order. Open it in MySQL Workbench and run it once.
---
---      File > Open SQL Script...   pick this file
---      then the lightning-bolt button (or Ctrl+Shift+Enter) to run it all
---
---  It creates the green_haven database itself, so there is nothing to set up
---  first. Running it a second time rebuilds the database from scratch - handy
---  if you want a clean slate, but it does mean any orders or accounts you
---  created while testing are wiped.
---
---  When it finishes, the last result grid should read 154 products.
--- ===========================================================================
-
 CREATE DATABASE IF NOT EXISTS green_haven
   CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
 
 USE green_haven;
-
-
--- ===========================================================================
---  schema.sql
--- ===========================================================================
-
--- ===========================================================================
---  Green Haven — MySQL schema
---  Run once against an empty database:
---      CREATE DATABASE green_haven CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
---      USE green_haven;
---      SOURCE schema.sql;
---      SOURCE data.sql;
---
---  utf8mb4 throughout so ₹, °C and — survive round trips.
--- ===========================================================================
 
 SET FOREIGN_KEY_CHECKS = 0;
 
@@ -53,8 +20,6 @@ DROP TABLE IF EXISTS app_user;
 
 SET FOREIGN_KEY_CHECKS = 1;
 
--- ------------------------------------------------------------------ catalogue
-
 CREATE TABLE category (
   id          BIGINT AUTO_INCREMENT PRIMARY KEY,
   slug        VARCHAR(80)  NOT NULL UNIQUE,
@@ -65,7 +30,7 @@ CREATE TABLE category (
 
 CREATE TABLE plant (
   id             BIGINT AUTO_INCREMENT PRIMARY KEY,
-  code           VARCHAR(12)  NOT NULL UNIQUE,          -- p01, p02 …
+  code           VARCHAR(12)  NOT NULL UNIQUE,
   slug           VARCHAR(120) NOT NULL UNIQUE,
   name           VARCHAR(150) NOT NULL,
   botanical_name VARCHAR(150),
@@ -83,9 +48,6 @@ CREATE TABLE plant (
   description       TEXT,
   care_tip          VARCHAR(400),
 
-  -- the "tabs" a buyer filters on
-  -- plain VARCHAR rather than ENUM: Hibernate's schema validation rejects
-  -- MySQL ENUM against a String field, and ENUMs are a pain to extend anyway
   pet_safety     VARCHAR(10) NOT NULL DEFAULT 'safe',
   difficulty     VARCHAR(10) NOT NULL DEFAULT 'Easy',
   light_need     VARCHAR(10) NOT NULL DEFAULT 'medium',
@@ -94,7 +56,6 @@ CREATE TABLE plant (
   growth_rate    VARCHAR(40),
   mature_size    VARCHAR(60),
 
-  -- care card
   care_light       VARCHAR(400),
   care_water       VARCHAR(400),
   care_soil        VARCHAR(400),
@@ -115,7 +76,7 @@ CREATE TABLE plant (
 
 CREATE TABLE badge (
   id      BIGINT AUTO_INCREMENT PRIMARY KEY,
-  code    VARCHAR(40)  NOT NULL UNIQUE,   -- petFriendly, beginner …
+  code    VARCHAR(40)  NOT NULL UNIQUE,
   label   VARCHAR(60)  NOT NULL,
   tone    VARCHAR(20)  NOT NULL,
   icon    VARCHAR(40),
@@ -130,13 +91,11 @@ CREATE TABLE plant_badge (
   CONSTRAINT fk_pb_badge FOREIGN KEY (badge_id) REFERENCES badge(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ----------------------------------------------------------------- customers
-
 CREATE TABLE app_user (
   id            BIGINT AUTO_INCREMENT PRIMARY KEY,
   full_name     VARCHAR(120) NOT NULL,
   email         VARCHAR(160) NOT NULL UNIQUE,
-  password_hash VARCHAR(255) NOT NULL,      -- BCrypt. Never a plain password.
+  password_hash VARCHAR(255) NOT NULL,
   phone         VARCHAR(20),
   role          VARCHAR(10) NOT NULL DEFAULT 'CUSTOMER',
   created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -163,8 +122,6 @@ CREATE TABLE wishlist_item (
   CONSTRAINT fk_wish_plant FOREIGN KEY (plant_id) REFERENCES plant(id)    ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- -------------------------------------------------------------------- orders
-
 CREATE TABLE orders (
   id            BIGINT AUTO_INCREMENT PRIMARY KEY,
   order_number  VARCHAR(30) NOT NULL UNIQUE,
@@ -177,8 +134,6 @@ CREATE TABLE orders (
   city          VARCHAR(80),
   state         VARCHAR(80),
   pincode       VARCHAR(10),
-  -- Razorpay handles. razorpay_order_id is UNIQUE so a replayed callback can
-  -- never create a second order for the same payment.
   razorpay_order_id   VARCHAR(64) NULL,
   razorpay_payment_id VARCHAR(64) NULL,
   UNIQUE KEY uq_rzp_order (razorpay_order_id),
@@ -191,12 +146,10 @@ CREATE TABLE order_item (
   order_id   BIGINT NOT NULL,
   plant_id   BIGINT NOT NULL,
   quantity   INT NOT NULL,
-  unit_price DECIMAL(10,2) NOT NULL,     -- captured at purchase time
+  unit_price DECIMAL(10,2) NOT NULL,
   CONSTRAINT fk_oi_order FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
   CONSTRAINT fk_oi_plant FOREIGN KEY (plant_id) REFERENCES plant(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- ------------------------------------------------------------------- contact
 
 CREATE TABLE contact_message (
   id         BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -213,19 +166,8 @@ CREATE TABLE newsletter_subscriber (
   subscribed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ===========================================================================
---  data.sql
--- ===========================================================================
-
--- ===========================================================================
---  Green Haven — seed data
---  GENERATED by backend/tools/generate-seed-sql.mjs from
---  frontend/src/data/plants.js — do not edit by hand, regenerate instead.
--- ===========================================================================
-
 SET NAMES utf8mb4;
 
--- categories -------------------------------------------------------------
 INSERT INTO category (slug, name, blurb, sort_order) VALUES
   ('indoor-plants', 'Indoor Plants', 'Living decor for every room.', 1),
   ('outdoor-plants', 'Outdoor Plants', 'Balconies, terraces and gardens.', 2),
@@ -237,7 +179,6 @@ INSERT INTO category (slug, name, blurb, sort_order) VALUES
   ('seeds', 'Seeds', 'Non-GMO, open pollinated.', 8),
   ('plant-care', 'Plant Care Products', 'Feed, protect, repot.', 9);
 
--- badges -----------------------------------------------------------------
 INSERT INTO badge (code, label, tone, icon, detail) VALUES
   ('petFriendly', 'Pet Friendly', 'good', 'paw', 'Non-toxic to cats and dogs if nibbled.'),
   ('petCaution', 'Keep From Pets', 'warn', 'paw', 'Mildly irritating if chewed — best placed out of reach.'),
@@ -255,7 +196,6 @@ INSERT INTO badge (code, label, tone, icon, detail) VALUES
   ('statement', 'Statement Plant', 'accent', 'star', 'Large and sculptural — designed to be the focal point.'),
   ('vastu', 'Vastu / Lucky', 'accent', 'shield', 'Traditionally kept for prosperity and good fortune.');
 
--- plants -----------------------------------------------------------------
 INSERT INTO plant (code, slug, name, botanical_name, category_id, price, mrp, stock, image,
   rating, review_count, short_description, description, care_tip,
   pet_safety, difficulty, light_need, water_need, maintenance, growth_rate, mature_size,
@@ -1664,9 +1604,6 @@ INSERT INTO plant (code, slug, name, botanical_name, category_id, price, mrp, st
 SELECT 's01', 'marigold-seeds', 'Marigold Seeds', 'African Crackerjack', c.id,
   149, 199, 60, 'seeds/seed-marigold-front.jpg',
   4.8, 214, '50 seeds. Blooms in 50 days and keeps pests off everything nearby.', 'Our own open-pollinated Crackerjack marigold. Sow in June, deadhead through the season, and you will have colour into September. Planted beside vegetables the roots deter nematodes.', NULL,
-  -- Not plants, so there is no care profile to state. These four columns
-  -- are NOT NULL, so they carry their neutral values rather than NULL:
-  -- a strict-mode MySQL refuses the insert outright otherwise.
   'safe', 'Easy', 'medium', 'low',
   '—', '—', '—',
   NULL, NULL, NULL, NULL,
@@ -2416,7 +2353,6 @@ SELECT 'm48', 'moisture-meter', 'Soil Moisture Meter', 'No batteries', c.id,
   FALSE, TRUE
 FROM category c WHERE c.slug = 'plant-care';
 
--- badge assignments ------------------------------------------------------
 INSERT INTO plant_badge (plant_id, badge_id) SELECT p.id, b.id FROM plant p, badge b WHERE p.code = 'p01' AND b.code = 'beginner';
 INSERT INTO plant_badge (plant_id, badge_id) SELECT p.id, b.id FROM plant p, badge b WHERE p.code = 'p01' AND b.code = 'lowMaintenance';
 INSERT INTO plant_badge (plant_id, badge_id) SELECT p.id, b.id FROM plant p, badge b WHERE p.code = 'p01' AND b.code = 'droughtTolerant';
@@ -2936,31 +2872,11 @@ INSERT INTO plant_badge (plant_id, badge_id) SELECT p.id, b.id FROM plant p, bad
 INSERT INTO plant_badge (plant_id, badge_id) SELECT p.id, b.id FROM plant p, badge b WHERE p.code = 'm46' AND b.code = 'beginner';
 INSERT INTO plant_badge (plant_id, badge_id) SELECT p.id, b.id FROM plant p, badge b WHERE p.code = 'm48' AND b.code = 'beginner';
 
--- ===========================================================================
---  migration-002-admin-and-payments.sql
--- ===========================================================================
-
--- ===========================================================================
---  Green Haven — migration 002
---  Admin dashboard + first-class payments
---
---  Additive only. No table is dropped and no column is removed, so running
---  this against a database with live orders is safe.
---
---    mysql --default-character-set=utf8mb4 -u priti green_haven < migration-002-admin-and-payments.sql
--- ===========================================================================
-
 SET NAMES utf8mb4;
 
--- ---------------------------------------------------------------- orders ---
--- `status` was VARCHAR(12). "Out for Delivery" is 16 characters and would have
--- been silently truncated to "Out for Deli" — MySQL in non-strict mode does not
--- complain. Widened before any status work depends on it.
 ALTER TABLE orders
   MODIFY COLUMN status VARCHAR(24) NOT NULL DEFAULT 'PENDING';
 
--- Fulfilment is a separate axis from payment. An order can be PAID and still
--- be PACKED; collapsing both into one column loses that.
 ALTER TABLE orders
   ADD COLUMN delivery_status VARCHAR(24) NOT NULL DEFAULT 'PENDING' AFTER status;
 
@@ -2972,17 +2888,11 @@ ALTER TABLE orders
 
 CREATE INDEX idx_orders_delivery ON orders (delivery_status, placed_at);
 
--- ------------------------------------------------------------ order_item ---
--- An invoice must not change when the catalogue does. unit_price was already
--- snapshotted; the rest of the line was still read live through plant_id, so
--- renaming a plant silently rewrote every historical invoice.
 ALTER TABLE order_item
   ADD COLUMN product_name     VARCHAR(150) NULL AFTER plant_id,
   ADD COLUMN product_image    VARCHAR(255) NULL AFTER product_name,
   ADD COLUMN product_category VARCHAR(120) NULL AFTER product_image;
 
--- Backfill the rows that already exist, so history is complete rather than half
--- populated. New rows are written with these values at purchase time.
 UPDATE order_item oi
   JOIN plant p ON p.id = oi.plant_id
   JOIN category c ON c.id = p.category_id
@@ -2991,49 +2901,36 @@ UPDATE order_item oi
        oi.product_category = c.name
  WHERE oi.product_name IS NULL;
 
--- ----------------------------------------------------------------- plant ---
 ALTER TABLE plant
   ADD COLUMN is_new_arrival TINYINT(1) NOT NULL DEFAULT 0 AFTER is_best_seller;
 
 CREATE INDEX idx_plant_stock ON plant (stock);
 
--- --------------------------------------------------------------- payment ---
--- Payments were two columns on `orders`. They are their own thing: an order can
--- have a failed attempt and then a successful one, and each attempt has its own
--- signature, method and timestamp worth keeping.
 CREATE TABLE IF NOT EXISTS payment (
   id                  BIGINT AUTO_INCREMENT PRIMARY KEY,
   order_id            BIGINT       NOT NULL,
   razorpay_order_id   VARCHAR(64)  NOT NULL,
   razorpay_payment_id VARCHAR(64)  NULL,
-  -- Kept for dispute resolution: it is the proof the payment was genuine.
   razorpay_signature  VARCHAR(255) NULL,
-  method              VARCHAR(40)  NULL,          -- upi / card / netbanking
+  method              VARCHAR(40)  NULL,
   currency            VARCHAR(8)   NOT NULL DEFAULT 'INR',
   amount              DECIMAL(10,2) NOT NULL,
-  -- CREATED -> AUTHORISED -> CAPTURED, or FAILED
   status              VARCHAR(24)  NOT NULL DEFAULT 'CREATED',
-  -- Whether OUR server verified the HMAC. Distinct from status: Razorpay may
-  -- say captured while our verification failed, and that gap is the fraud case.
   verification_status VARCHAR(24)  NOT NULL DEFAULT 'UNVERIFIED',
   failure_reason      VARCHAR(255) NULL,
   refund_status       VARCHAR(24)  NOT NULL DEFAULT 'NONE',
   refund_amount       DECIMAL(10,2) NULL,
-  -- How we found out: BROWSER (the customer's callback) or WEBHOOK.
   source              VARCHAR(16)  NOT NULL DEFAULT 'BROWSER',
   created_at          TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
   verified_at         TIMESTAMP    NULL,
 
   CONSTRAINT fk_payment_order FOREIGN KEY (order_id)
     REFERENCES orders (id) ON DELETE RESTRICT,
-  -- One row per Razorpay payment id, so a repeated webhook cannot duplicate it.
   UNIQUE KEY uq_payment_rzp_payment (razorpay_payment_id),
   KEY idx_payment_status (status, created_at),
   KEY idx_payment_rzp_order (razorpay_order_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Carry the payments already recorded on `orders` across, so payment history
--- does not start empty for customers who have already bought something.
 INSERT INTO payment (order_id, razorpay_order_id, razorpay_payment_id, amount,
                      status, verification_status, verified_at, created_at)
 SELECT o.id, o.razorpay_order_id, o.razorpay_payment_id, o.total,
@@ -3045,78 +2942,47 @@ SELECT o.id, o.razorpay_order_id, o.razorpay_payment_id, o.total,
  WHERE o.razorpay_order_id IS NOT NULL
    AND NOT EXISTS (SELECT 1 FROM payment p WHERE p.order_id = o.id);
 
--- ----------------------------------------------------- document_sequence ---
--- Order and invoice numbers must be gapless-ish, per year, and unique under
--- concurrency. MAX(id)+1 collides the moment two checkouts overlap; a row we
--- can lock with SELECT ... FOR UPDATE does not.
 CREATE TABLE IF NOT EXISTS document_sequence (
-  name      VARCHAR(32) NOT NULL,   -- 'ORDER' | 'INVOICE'
+  name      VARCHAR(32) NOT NULL,
   year      INT         NOT NULL,
   next_value BIGINT     NOT NULL DEFAULT 1,
   PRIMARY KEY (name, year)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ------------------------------------------------------------------ user ---
 ALTER TABLE app_user
   ADD COLUMN is_blocked TINYINT(1) NOT NULL DEFAULT 0 AFTER role;
 
 CREATE INDEX idx_user_role ON app_user (role);
 
--- ---------------------------------------------------------------- review ---
--- Products carry a rating and a review count in the seed data, but no customer
--- has ever written one. This is where real ones will live.
 CREATE TABLE IF NOT EXISTS review (
   id         BIGINT AUTO_INCREMENT PRIMARY KEY,
   plant_id   BIGINT       NOT NULL,
   user_id    BIGINT       NOT NULL,
-  -- INT, not TINYINT: Hibernate maps a Java Integer to INTEGER and
-  -- ddl-auto=validate rejects the narrower column at startup.
   rating     INT          NOT NULL,
   title      VARCHAR(150) NULL,
   body       VARCHAR(2000) NULL,
-  -- PENDING until an admin approves it, so the shop cannot be defaced.
   status     VARCHAR(16)  NOT NULL DEFAULT 'PENDING',
   created_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
   CONSTRAINT fk_review_plant FOREIGN KEY (plant_id) REFERENCES plant (id) ON DELETE CASCADE,
   CONSTRAINT fk_review_user  FOREIGN KEY (user_id)  REFERENCES app_user (id) ON DELETE CASCADE,
   CONSTRAINT chk_review_rating CHECK (rating BETWEEN 1 AND 5),
-  -- One review per person per product.
   UNIQUE KEY uq_review_user_plant (user_id, plant_id),
   KEY idx_review_status (status, created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ===========================================================================
---  migration-003-admin-sessions-and-audit.sql
--- ===========================================================================
-
--- ===========================================================================
---  Green Haven — migration 003
---  Admin session control + activity audit
---
---  Additive only.
---    mysql --default-character-set=utf8mb4 -u priti green_haven < migration-003-admin-sessions-and-audit.sql
--- ===========================================================================
-
 SET NAMES utf8mb4;
 
--- --------------------------------------------------------- admin_session ---
--- A JWT is self-contained and cannot be withdrawn once issued: "log out" on a
--- bearer token normally just deletes the browser's copy while the token stays
--- valid for its full lifetime. This table is the server's record of which
--- tokens it still honours, which is what makes real logout, an inactivity
--- timeout and one-session-at-a-time possible.
 CREATE TABLE IF NOT EXISTS admin_session (
   id            BIGINT AUTO_INCREMENT PRIMARY KEY,
   user_id       BIGINT       NOT NULL,
-  -- The JWT's `jti` claim. The token is only accepted while this row lives.
   jti           VARCHAR(64)  NOT NULL,
-  ip_address    VARCHAR(45)  NULL,         -- 45 = longest IPv6 text form
+  ip_address    VARCHAR(45)  NULL,
   user_agent    VARCHAR(255) NULL,
   created_at    TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
   last_seen_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
   revoked       TINYINT(1)   NOT NULL DEFAULT 0,
-  revoked_reason VARCHAR(60) NULL,          -- LOGOUT | SUPERSEDED | TIMEOUT
+  revoked_reason VARCHAR(60) NULL,
 
   CONSTRAINT fk_session_user FOREIGN KEY (user_id)
     REFERENCES app_user (id) ON DELETE CASCADE,
@@ -3124,19 +2990,15 @@ CREATE TABLE IF NOT EXISTS admin_session (
   KEY idx_session_user (user_id, revoked)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ---------------------------------------------------- admin_activity_log ---
--- Who did what, when, and from where. Kept even if the admin account is later
--- deleted — an audit trail that disappears with its subject is not an audit
--- trail, which is why admin_name is copied in rather than joined.
 CREATE TABLE IF NOT EXISTS admin_activity_log (
   id          BIGINT AUTO_INCREMENT PRIMARY KEY,
   admin_id    BIGINT       NULL,
   admin_name  VARCHAR(120) NOT NULL,
   admin_email VARCHAR(160) NOT NULL,
-  action      VARCHAR(60)  NOT NULL,   -- LOGIN, PRODUCT_UPDATED, ORDER_STATUS_CHANGED …
-  entity_type VARCHAR(40)  NULL,       -- ORDER | PRODUCT | USER | REVIEW
+  action      VARCHAR(60)  NOT NULL,
+  entity_type VARCHAR(40)  NULL,
   entity_id   VARCHAR(64)  NULL,
-  detail      VARCHAR(500) NULL,       -- human-readable: "stock 100 -> 3"
+  detail      VARCHAR(500) NULL,
   ip_address  VARCHAR(45)  NULL,
   created_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -3147,25 +3009,8 @@ CREATE TABLE IF NOT EXISTS admin_activity_log (
   KEY idx_log_admin (admin_id, created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ===========================================================================
---  migration-004-profile.sql
--- ===========================================================================
-
--- ===========================================================================
---  Green Haven — migration 004
---  My Profile: saved addresses, notifications, richer account and order fields
---
---  Additive only. Nothing is dropped and no history is touched: orders,
---  order_item, payment and the invoice numbers on them are append-only by
---  design, and this migration keeps them that way.
---    mysql --default-character-set=utf8mb4 -u priti green_haven < migration-004-profile.sql
--- ===========================================================================
-
 SET NAMES utf8mb4;
 
--- ------------------------------------------------------------- app_user ---
--- MySQL has no ADD COLUMN IF NOT EXISTS, so each add is guarded by a lookup
--- against information_schema. That makes the whole file safe to re-run.
 SET @sql := IF(
   (SELECT COUNT(*) FROM information_schema.COLUMNS
     WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'app_user'
@@ -3174,9 +3019,6 @@ SET @sql := IF(
   'SELECT 1');
 PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
 
--- A changed email is not trusted until the customer proves they can read it.
--- The account keeps signing in with the old address until then, so a typo
--- cannot lock anyone out of their own order history.
 SET @sql := IF(
   (SELECT COUNT(*) FROM information_schema.COLUMNS
     WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'app_user'
@@ -3188,10 +3030,6 @@ SET @sql := IF(
   'SELECT 1');
 PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
 
--- --------------------------------------------------------------- orders ---
--- payment_method is copied from the gateway rather than joined at read time:
--- an order is a record of what happened, and "UPI" has to keep reading UPI
--- long after the payment row is archived.
 SET @sql := IF(
   (SELECT COUNT(*) FROM information_schema.COLUMNS
     WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'orders'
@@ -3208,8 +3046,6 @@ SET @sql := IF(
   'SELECT 1');
 PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
 
--- Who cancelled, when, and why. A cancellation is an event worth keeping, not
--- a status flag to overwrite.
 SET @sql := IF(
   (SELECT COUNT(*) FROM information_schema.COLUMNS
     WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'orders'
@@ -3221,21 +3057,14 @@ SET @sql := IF(
   'SELECT 1');
 PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
 
--- Backfill the delivery estimate for orders placed before this column existed,
--- so the profile does not show a blank where every other row has a date.
 UPDATE orders
    SET estimated_delivery = DATE_ADD(DATE(placed_at), INTERVAL 5 DAY)
  WHERE estimated_delivery IS NULL AND placed_at IS NOT NULL;
 
--- -------------------------------------------------------------- address ---
--- A saved address is a template the customer picks from at checkout. It is
--- deliberately NOT what an order points at: order rows keep their own copy of
--- the address as it was on the day, so editing or deleting a saved address can
--- never rewrite where a past parcel went.
 CREATE TABLE IF NOT EXISTS address (
   id           BIGINT AUTO_INCREMENT PRIMARY KEY,
   user_id      BIGINT       NOT NULL,
-  label        VARCHAR(30)  NOT NULL DEFAULT 'Home',   -- Home | Work | Other
+  label        VARCHAR(30)  NOT NULL DEFAULT 'Home',
   full_name    VARCHAR(120) NOT NULL,
   phone        VARCHAR(20)  NOT NULL,
   line1        VARCHAR(255) NOT NULL,
@@ -3253,15 +3082,9 @@ CREATE TABLE IF NOT EXISTS address (
   KEY idx_address_user (user_id, is_default)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- --------------------------------------------------------- notification ---
--- order_id is ON DELETE SET NULL rather than CASCADE: orders are never
--- deleted, and if one ever were, the customer should still be able to read
--- what they were told at the time.
 CREATE TABLE IF NOT EXISTS notification (
   id         BIGINT AUTO_INCREMENT PRIMARY KEY,
   user_id    BIGINT       NOT NULL,
-  -- ORDER_PLACED | PAYMENT_SUCCESSFUL | PAYMENT_FAILED | ORDER_SHIPPED
-  -- | OUT_FOR_DELIVERY | ORDER_DELIVERED | ORDER_CANCELLED
   type       VARCHAR(32)  NOT NULL,
   title      VARCHAR(120) NOT NULL,
   body       VARCHAR(255) NOT NULL,
@@ -3276,26 +3099,8 @@ CREATE TABLE IF NOT EXISTS notification (
   KEY idx_notification_user (user_id, read_at, id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ===========================================================================
---  migration-005-reviews.sql
--- ===========================================================================
-
--- ===========================================================================
---  Green Haven — migration 005
---  Product ratings and reviews
---
---  Additive only. The review table already existed for admin moderation; this
---  ties each review to the order that earns the right to write it, and adds
---  the columns the storefront needs.
---    mysql --default-character-set=utf8mb4 -u priti green_haven < migration-005-reviews.sql
--- ===========================================================================
-
 SET NAMES utf8mb4;
 
--- --------------------------------------------------------------- review ---
--- order_id is the purchase the review was written against. ON DELETE SET NULL
--- rather than CASCADE: orders are never deleted, and if one somehow were, the
--- customer's words should not vanish with it.
 SET @sql := IF(
   (SELECT COUNT(*) FROM information_schema.COLUMNS
     WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'review'
@@ -3313,9 +3118,6 @@ SET @sql := IF(
   'SELECT 1');
 PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
 
--- Recorded on the row rather than recomputed at read time: whether the writer
--- had really bought the plant is a fact about the moment they wrote, and it
--- must keep reading true even if the order is later archived.
 SET @sql := IF(
   (SELECT COUNT(*) FROM information_schema.COLUMNS
     WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'review'
@@ -3324,8 +3126,6 @@ SET @sql := IF(
   'SELECT 1');
 PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
 
--- An edited review says so, rather than quietly presenting new words under the
--- original date.
 SET @sql := IF(
   (SELECT COUNT(*) FROM information_schema.COLUMNS
     WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'review'
@@ -3334,7 +3134,6 @@ SET @sql := IF(
   'SELECT 1');
 PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
 
--- Who hid it and why, so moderation is answerable rather than silent.
 SET @sql := IF(
   (SELECT COUNT(*) FROM information_schema.COLUMNS
     WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'review'
@@ -3343,8 +3142,6 @@ SET @sql := IF(
   'SELECT 1');
 PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
 
--- The storefront reads one plant's visible reviews, newest first, over and
--- over — that is the query worth an index.
 SET @sql := IF(
   (SELECT COUNT(*) FROM information_schema.STATISTICS
     WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'review'
@@ -3352,36 +3149,6 @@ SET @sql := IF(
   'CREATE INDEX idx_review_plant_status ON review (plant_id, status, id)',
   'SELECT 1');
 PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
-
--- The UNIQUE (user_id, plant_id) key already on this table is deliberate and
--- stays: one voice per customer per plant. Keyed on the order instead, someone
--- could buy the same plant five times and rate it five times, and the average
--- would stop meaning anything.
-
--- Reviews written before moderation existed default to PENDING, which the
--- storefront does not show. Nothing to backfill today — the table is empty —
--- but if that changes, approve them explicitly rather than by default.
-
--- ===========================================================================
---  migration-006-drop-seeded-ratings.sql
--- ===========================================================================
-
--- ===========================================================================
---  Green Haven — migration 006
---  Retire the seeded ratings
---
---  The catalogue shipped with invented ratings (4.1–4.9) and invented review
---  counts totalling 28,223, while not one review had been written. Now that
---  customers can review what they have received, a product's stars have to
---  come from those reviews or not exist at all — a number that means nothing
---  is worse on a shop than no number.
---
---  Only products with no real reviews are cleared: anything already reviewed
---  is carrying a computed figure and must keep it.
---
---  To undo: backend/db/backups/seeded-ratings-restore.sql
---    mysql --default-character-set=utf8mb4 -u priti green_haven < migration-006-drop-seeded-ratings.sql
--- ===========================================================================
 
 SET NAMES utf8mb4;
 
@@ -3392,25 +3159,8 @@ UPDATE plant p
        SELECT 1 FROM review r
         WHERE r.plant_id = p.id AND r.status = 'APPROVED');
 
--- ===========================================================================
---  migration-007-herbs-and-new-arrivals.sql
--- ===========================================================================
-
--- ===========================================================================
---  Green Haven — migration 007
---  A Herbs category, and honest New Arrivals
---
---  Additive and reversible. Only the six plants that are unambiguously
---  culinary herbs move; Aloe Vera stays in Succulents (it is a succulent that
---  happens to be medicinal) and the seed packets stay in Seeds.
---    mysql --default-character-set=utf8mb4 -u priti green_haven < migration-007-herbs-and-new-arrivals.sql
--- ===========================================================================
-
 SET NAMES utf8mb4;
 
--- INSERT IGNORE rather than a NOT EXISTS guard: the guard has an aggregate in
--- its SELECT, so it always yields one row and the second run collides on the
--- unique slug. The unique key is the guard.
 INSERT IGNORE INTO category (slug, name, blurb, sort_order)
 SELECT 'herbs', 'Herbs',
        'Kitchen herbs that earn their windowsill — pick, cook, repeat.',
@@ -3421,28 +3171,9 @@ UPDATE plant
    SET category_id = (SELECT id FROM category WHERE slug = 'herbs')
  WHERE slug IN ('tulsi', 'basil', 'mint', 'coriander', 'lemongrass', 'curry-leaf');
 
--- New Arrivals had a column and a badge in the admin but nothing ever set it,
--- so the storefront had nothing to show. The twelve most recently added
--- products are the honest answer to "what is new" for a catalogue that has
--- never had a restock date.
 UPDATE plant SET is_new_arrival = 0;
 UPDATE plant SET is_new_arrival = 1
  WHERE id IN (SELECT id FROM (SELECT id FROM plant ORDER BY id DESC LIMIT 12) newest);
-
--- ===========================================================================
---  migration-008-product-management.sql
--- ===========================================================================
-
--- ===========================================================================
---  Green Haven — migration 008
---  Product management: discontinuing rather than deleting
---
---  order_item.plant_id is ON DELETE NO ACTION, so a product that has ever been
---  bought cannot be removed — and should not be. An invoice that loses the
---  thing it was for is not an invoice. So a sold product is discontinued: it
---  leaves the shop, keeps its history, and can be brought back.
---    mysql --default-character-set=utf8mb4 -u priti green_haven < migration-008-product-management.sql
--- ===========================================================================
 
 SET NAMES utf8mb4;
 
@@ -3454,7 +3185,6 @@ SET @sql := IF(
   'SELECT 1');
 PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
 
--- The storefront filters on it constantly; the index keeps that free.
 SET @sql := IF(
   (SELECT COUNT(*) FROM information_schema.STATISTICS
     WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'plant'
@@ -3462,21 +3192,6 @@ SET @sql := IF(
   'CREATE INDEX idx_plant_listed ON plant (discontinued, id)',
   'SELECT 1');
 PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
-
--- ===========================================================================
---  migration-009-product-gallery.sql
--- ===========================================================================
-
--- ===========================================================================
---  Green Haven — migration 009
---  More than one photograph per product
---
---  A separate table rather than image2/image3 columns: the number of shots a
---  product needs is not knowable in advance, and ordering them matters.
---  plant.image stays as the primary shot so every existing query, card and
---  order snapshot keeps working untouched.
---    mysql --default-character-set=utf8mb4 -u priti green_haven < migration-009-product-gallery.sql
--- ===========================================================================
 
 SET NAMES utf8mb4;
 
@@ -3489,32 +3204,15 @@ CREATE TABLE IF NOT EXISTS plant_image (
 
   CONSTRAINT fk_plant_image_plant FOREIGN KEY (plant_id)
     REFERENCES plant (id) ON DELETE CASCADE,
-  -- The same photograph twice on one product is always a mistake.
   UNIQUE KEY uq_plant_image (plant_id, url),
   KEY idx_plant_image_order (plant_id, sort_order, id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- ===========================================================================
---  migration-010-password-reset.sql
--- ===========================================================================
-
--- ===========================================================================
---  Green Haven — migration 010
---  Password reset
---
---  The token is stored HASHED. A reset token is a temporary password: anyone
---  holding one can take an account. Storing them in the clear would mean a
---  read-only leak of this table hands over every account with a live token,
---  which is exactly the disaster the hashed password column exists to prevent.
---    mysql --default-character-set=utf8mb4 -u priti green_haven < migration-010-password-reset.sql
--- ===========================================================================
 
 SET NAMES utf8mb4;
 
 CREATE TABLE IF NOT EXISTS password_reset (
   id         BIGINT AUTO_INCREMENT PRIMARY KEY,
   user_id    BIGINT      NOT NULL,
-  -- SHA-256 of the token that was emailed. The token itself is never stored.
   token_hash VARCHAR(64) NOT NULL,
   expires_at DATETIME    NOT NULL,
   used_at    DATETIME    NULL,
@@ -3526,19 +3224,6 @@ CREATE TABLE IF NOT EXISTS password_reset (
   UNIQUE KEY uq_reset_token (token_hash),
   KEY idx_reset_user (user_id, used_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- ===========================================================================
---  migration-011-review-images.sql
--- ===========================================================================
-
--- ===========================================================================
---  Green Haven — migration 011
---  Photographs attached to a review
---
---  ON DELETE CASCADE: a photograph of a plant only means anything alongside
---  the words it illustrates. When the review goes, so does the picture.
---    mysql --default-character-set=utf8mb4 -u priti green_haven < migration-011-review-images.sql
--- ===========================================================================
 
 SET NAMES utf8mb4;
 
@@ -3555,22 +3240,6 @@ CREATE TABLE IF NOT EXISTS review_image (
   KEY idx_review_image_order (review_id, sort_order, id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ===========================================================================
---  migration-012-coupons.sql
--- ===========================================================================
-
--- ===========================================================================
---  Green Haven — migration 012
---  Discount codes
---
---  Two tables. `coupon` is what the shop offers; `coupon_redemption` is what
---  was actually taken, one row per order, which is what makes both the
---  per-customer limit and the overall limit answerable by counting rather
---  than by keeping a running total that can drift.
---
---    mysql --default-character-set=utf8mb4 -u priti green_haven < migration-012-coupons.sql
--- ===========================================================================
-
 SET NAMES utf8mb4;
 
 CREATE TABLE IF NOT EXISTS coupon (
@@ -3578,30 +3247,22 @@ CREATE TABLE IF NOT EXISTS coupon (
   code            VARCHAR(40)   NOT NULL,
   description     VARCHAR(200),
 
-  -- PERCENT takes a share of the goods; FLAT takes a fixed number of rupees.
   discount_type   VARCHAR(10)   NOT NULL,
   discount_value  DECIMAL(10,2) NOT NULL,
-  -- Caps a percentage: "20% off, up to ₹500". Null means uncapped.
   max_discount    DECIMAL(10,2),
   min_order_value DECIMAL(10,2) NOT NULL DEFAULT 0.00,
 
   free_shipping   BOOLEAN       NOT NULL DEFAULT FALSE,
 
-  -- DATETIME, not TIMESTAMP: these are dates an admin chooses, and TIMESTAMP
-  -- cannot hold anything after 2038-01-19. See migration 013.
   starts_at       DATETIME      NULL,
   expires_at      DATETIME      NULL,
 
-  -- Null means no ceiling. per_user_limit is never null: an unlimited
-  -- per-person coupon is a mistake far more often than an intention.
   usage_limit     INT,
   per_user_limit  INT           NOT NULL DEFAULT 1,
 
   active          BOOLEAN       NOT NULL DEFAULT TRUE,
   created_at      TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-  -- Codes are stored and compared uppercase, so this is genuinely unique
-  -- rather than unique-per-capitalisation.
   UNIQUE KEY uq_coupon_code (code),
   KEY idx_coupon_active (active, expires_at),
   CONSTRAINT ck_coupon_type  CHECK (discount_type IN ('PERCENT','FLAT')),
@@ -3619,17 +3280,12 @@ CREATE TABLE IF NOT EXISTS coupon_redemption (
 
   CONSTRAINT fk_redemption_coupon FOREIGN KEY (coupon_id) REFERENCES coupon (id),
   CONSTRAINT fk_redemption_user   FOREIGN KEY (user_id)   REFERENCES app_user (id),
-  -- The order owns the redemption: delete the order and the record of what it
-  -- used goes with it. One coupon per order, enforced here and not only in code.
   CONSTRAINT fk_redemption_order  FOREIGN KEY (order_id)  REFERENCES orders (id)
     ON DELETE CASCADE,
   UNIQUE KEY uq_redemption_order (order_id),
   KEY idx_redemption_user (coupon_id, user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- The order carries what was taken off it. Denormalised on purpose: an invoice
--- must still read correctly years later, after the coupon has been edited,
--- deactivated or deleted.
 SET @c := (SELECT COUNT(*) FROM information_schema.columns
             WHERE table_schema = DATABASE() AND table_name = 'orders'
               AND column_name = 'discount');
@@ -3646,63 +3302,19 @@ SET @s := IF(@c = 0,
   'SELECT 1');
 PREPARE st FROM @s; EXECUTE st; DEALLOCATE PREPARE st;
 
--- ===========================================================================
---  migration-013-coupon-dates.sql
--- ===========================================================================
-
--- ===========================================================================
---  Green Haven — migration 013
---  Coupon windows must reach past 2038
---
---  starts_at and expires_at were TIMESTAMP, which MySQL stores as a 32-bit
---  offset from the epoch and cannot hold a date after 2038-01-19. Every other
---  timestamp in this schema records when something happened, so the limit is
---  academic for them — but these two are dates an admin CHOOSES, and a shop
---  setting a long-dated code got "that could not be saved" with nothing to
---  suggest the year was the problem.
---
---  DATETIME has no such ceiling. The session runs in UTC (see the JDBC url),
---  so the values written are unchanged.
---
---    mysql --default-character-set=utf8mb4 -u priti green_haven < migration-013-coupon-dates.sql
--- ===========================================================================
-
 SET NAMES utf8mb4;
 
 ALTER TABLE coupon
   MODIFY COLUMN starts_at  DATETIME NULL,
   MODIFY COLUMN expires_at DATETIME NULL;
 
--- ===========================================================================
---  migration-014-invoices.sql
--- ===========================================================================
-
--- ===========================================================================
---  Green Haven — migration 014
---  A document ledger, so a cancellation can be recorded rather than erased
---
---  Until now the only record of an invoice was orders.invoice_number, which
---  says an invoice exists but not what it said or when it was issued — and
---  gives a cancelled paid order nowhere to record that the money is owed back.
---
---  An issued invoice is not editable. That is the whole point of one. So a
---  cancellation after payment does not rub out the invoice; it issues a CREDIT
---  NOTE that offsets it, and both documents stand. This table is where both
---  live.
---
---    mysql --default-character-set=utf8mb4 -u priti green_haven < migration-014-invoices.sql
--- ===========================================================================
-
 SET NAMES utf8mb4;
 
 CREATE TABLE IF NOT EXISTS invoice (
   id         BIGINT AUTO_INCREMENT PRIMARY KEY,
   number     VARCHAR(40)   NOT NULL,
-  -- INVOICE is what was charged; CREDIT_NOTE is what is owed back.
   doc_type   VARCHAR(15)   NOT NULL,
   order_id   BIGINT        NOT NULL,
-  -- Always positive. A credit note's sign is carried by its type, not by a
-  -- negative number that could be summed by mistake.
   amount     DECIMAL(10,2) NOT NULL,
   reason     VARCHAR(200),
   issued_at  DATETIME      NOT NULL,
@@ -3713,41 +3325,14 @@ CREATE TABLE IF NOT EXISTS invoice (
   CONSTRAINT ck_invoice_type CHECK (doc_type IN ('INVOICE','CREDIT_NOTE'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Every invoice already issued becomes a row, so the ledger is complete from
--- the first day rather than only covering orders placed after this migration.
--- INSERT IGNORE on the unique number makes this safe to run twice.
 INSERT IGNORE INTO invoice (number, doc_type, order_id, amount, issued_at)
 SELECT o.invoice_number, 'INVOICE', o.id, o.total,
        COALESCE(o.placed_at, CURRENT_TIMESTAMP)
   FROM orders o
  WHERE o.invoice_number IS NOT NULL AND o.invoice_number <> '';
 
--- ===========================================================================
---  migration-015-half-star-ratings.sql
--- ===========================================================================
-
--- ===========================================================================
---  Green Haven — migration 015
---  Half stars
---
---  review.rating becomes DECIMAL(2,1) so 3.5 can be stored. Displaying half
---  stars already worked — the average has always been rendered to the nearest
---  half — but a reviewer could only ever GIVE a whole one.
---
---  The CHECK does two jobs: it keeps the range at 0.5–5, and it refuses
---  anything that is not a multiple of 0.5. Without the second half, 3.7 is a
---  perfectly valid DECIMAL(2,1) and would sit in the table forever, drawn as
---  three and a half and counted as four.
---
---  Widening INT to DECIMAL(2,1) preserves every existing value exactly: 4
---  becomes 4.0, which is the same rating.
---
---    mysql --default-character-set=utf8mb4 -u priti green_haven < migration-015-half-star-ratings.sql
--- ===========================================================================
-
 SET NAMES utf8mb4;
 
--- The old constraint names a column that is about to change type.
 SET @c := (SELECT COUNT(*) FROM information_schema.table_constraints
             WHERE table_schema = DATABASE() AND table_name = 'review'
               AND constraint_name = 'chk_review_rating');
@@ -3765,34 +3350,8 @@ SET @s := IF(@c = 0,
   'SELECT 1');
 PREPARE st FROM @s; EXECUTE st; DEALLOCATE PREPARE st;
 
--- ===========================================================================
---  migration-016-orders-phone.sql
--- ===========================================================================
-
--- ===========================================================================
---  Green Haven — migration 016
---  Restore orders.phone to the migration history
---
---  The Order entity has mapped `phone` since checkout was written, and the
---  column exists in the development database — but nothing in this directory
---  ever created it, so it must have been added by hand. The consequence only
---  shows up on a fresh install: schema.sql plus migrations 001-015 produce an
---  orders table without phone, and because ddl-auto=validate compares the
---  entities against the real schema, the application refuses to start rather
---  than failing later on the first checkout.
---
---  Deploying to a new database is what exposed it. This migration closes the
---  gap so the SQL in this repository reproduces a working database on its own.
---
---  Idempotent, because the development database already has the column.
---    mysql --default-character-set=utf8mb4 -u priti green_haven < migration-016-orders-phone.sql
--- ===========================================================================
-
 SET NAMES utf8mb4;
 
--- Nullable and VARCHAR(20), matching the entity and the column that already
--- exists in development. AFTER address_line keeps the delivery fields
--- together, which is where it sits there.
 SET @sql := IF(
   (SELECT COUNT(*) FROM information_schema.COLUMNS
     WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'orders'
@@ -3801,7 +3360,4 @@ SET @sql := IF(
   'SELECT 1');
 PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
 
--- ===========================================================================
---  Finished. This should say 154.
--- ===========================================================================
-SELECT COUNT(*) AS `products loaded (should be 154)` FROM plant;
+SELECT COUNT(*) AS `products loaded` FROM plant;

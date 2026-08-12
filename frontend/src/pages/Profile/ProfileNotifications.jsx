@@ -5,7 +5,6 @@ import Icon from '../../components/common/Icon/Icon.jsx';
 import { profileApi } from '../../services/api.js';
 import { Empty, SectionHead, Skeletons, formatDateTime } from './ProfileParts.jsx';
 
-/** How each event reads at a glance. */
 const KIND = {
   ORDER_PLACED: { icon: 'box', tone: 'wait' },
   PAYMENT_SUCCESSFUL: { icon: 'card', tone: 'good' },
@@ -28,7 +27,6 @@ export default function ProfileNotifications() {
       .then((list) => {
         if (!alive) return;
         setItems(list);
-        // Opening this page is what "reading" them means, so the badge clears as soon as they are on.
         if (list.some((n) => !n.read)) {
           profileApi
             .markNotificationsRead()

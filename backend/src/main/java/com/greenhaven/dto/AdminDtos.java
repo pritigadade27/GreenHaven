@@ -4,12 +4,9 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
-/** The shapes the admin dashboard consumes. */
 public final class AdminDtos {
-
     private AdminDtos() { }
 
-    /** The dashboard stat cards. Every figure is counted in SQL, never guessed. */
     public record Stats(
             long totalProducts,
             long totalCategories,
@@ -26,7 +23,6 @@ public final class AdminDtos {
             long newsletterSubscribers) {
     }
 
-    /** One row of the orders table. */
     public record OrderRow(
             Long id,
             String orderNumber,
@@ -41,7 +37,6 @@ public final class AdminDtos {
             int itemCount) {
     }
 
-    /** A full order, for the detail drawer. */
     public record OrderDetail(
             OrderRow summary,
             String addressLine,
@@ -55,7 +50,6 @@ public final class AdminDtos {
             BigDecimal discount,
             List<Line> items,
             List<PaymentRow> payments) {
-
         public record Line(String name, String image, String category,
                            int quantity, BigDecimal unitPrice, BigDecimal subtotal) {
         }
@@ -99,7 +93,6 @@ public final class AdminDtos {
             String category,
             BigDecimal price,
             Integer stock,
-            /** Derived, never stored: OUT_OF_STOCK, LOW_STOCK or IN_STOCK. */
             String stockStatus,
             boolean featured,
             boolean bestSeller,
@@ -121,11 +114,9 @@ public final class AdminDtos {
             String orderNumber,
             Instant createdAt,
             Instant updatedAt,
-            /** Customer photographs — the part of a review most needing an eye on it. */
             List<String> images) {
     }
 
-    /** One month of takings, for the revenue chart. */
     public record MonthlyPoint(String month, long orders, BigDecimal revenue) {
     }
 

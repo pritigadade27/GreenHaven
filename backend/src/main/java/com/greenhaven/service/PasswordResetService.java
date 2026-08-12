@@ -20,13 +20,10 @@ import com.greenhaven.entity.PasswordReset;
 import com.greenhaven.repository.AppUserRepository;
 import com.greenhaven.repository.PasswordResetRepository;
 
-/** Forgotten passwords. */
 @Service
 public class PasswordResetService {
-
     private static final Logger log = LoggerFactory.getLogger(PasswordResetService.class);
 
-    /** Long enough to be unguessable, short enough to paste from an email. */
     private static final int TOKEN_BYTES = 32;
     private static final SecureRandom RANDOM = new SecureRandom();
 
@@ -47,14 +44,12 @@ public class PasswordResetService {
         this.exposeToken = exposeToken;
     }
 
-    /** Starts a reset. */
     @Transactional
     public Optional<String> request(String email, String ip) {
         String address = email == null ? "" : email.trim().toLowerCase();
         Optional<AppUser> found = users.findByEmail(address);
 
         if (found.isEmpty()) {
-            // Deliberately silent. The caller gets the same answer either way.
             log.info("Password reset requested for an address with no account.");
             return Optional.empty();
         }
@@ -65,7 +60,6 @@ public class PasswordResetService {
             return Optional.empty();
         }
 
-        // Any earlier token stops working the moment a new one is issued, so a link forwarded or left in.
         resets.markAllUsedFor(user.getId(), Instant.now());
 
         byte[] raw = new byte[TOKEN_BYTES];
@@ -80,13 +74,11 @@ public class PasswordResetService {
         resets.save(row);
 
         if (!exposeToken) {
-            // The link belongs in an email.
             log.info("Password reset token for {}: {}", user.getEmail(), token);
         }
         return exposeToken ? Optional.of(token) : Optional.empty();
     }
 
-    /** Completes a reset. */
     @Transactional
     public void complete(String token, String newPassword, String confirmPassword) {
         if (newPassword == null || newPassword.length() < 8) {
@@ -111,13 +103,11 @@ public class PasswordResetService {
         user.setPasswordHash(encoder.encode(newPassword));
         users.save(user);
 
-        // Single use, marked before the method returns so a double submit cannot spend the same token.
         row.setUsedAt(Instant.now());
         resets.save(row);
         log.info("Password reset completed for user {}.", user.getId());
     }
 
-    /** Whether a token is still good, so the form can say so before asking. */
     @Transactional(readOnly = true)
     public boolean isUsable(String token) {
         return resets.findByTokenHash(sha256(token == null ? "" : token.trim()))

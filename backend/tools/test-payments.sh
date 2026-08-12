@@ -1,19 +1,6 @@
 #!/usr/bin/env bash
-# Green Haven — the payment journey, end to end, against the simulated gateway.
-#
-#   bash backend/tools/test-payments.sh
-#
-# Requires RAZORPAY_MODE=simulated in backend/.env. The simulator only signs a
-# stand-in gateway response; every order still goes through the ordinary
-# /verify call, signature check included, so what this exercises is the real
-# payment path rather than a shortcut around it.
-#
-# RESTART THE API FIRST — /api/orders is rate limited to 30 per hour.
 API=${API:-http://localhost:8080/api}
 MYSQL=${MYSQL:-/c/Users/vnp12/mysql/mysql-8.4.9-winx64/bin/mysql.exe}
-# Credentials come from backend/tools/test-env.sh, which is gitignored. There
-# is deliberately no built-in default: a fallback password in a committed
-# script is a published password.
 HERE="$(cd "$(dirname "$0")" && pwd)"
 [ -f "$HERE/test-env.sh" ] && . "$HERE/test-env.sh"
 : "${MYSQL_PWD:?set MYSQL_PWD — copy test-env.example.sh to test-env.sh}"
@@ -24,8 +11,6 @@ ENV_FILE="$(dirname "$0")/../.env"
 
 Q() { "$MYSQL" --default-character-set=utf8mb4 -u priti green_haven -N -B -e "$1"; }
 
-# Shared, foreign-key-ordered teardown. Each suite used to roll its own and
-# every one was incomplete, so cleanup aborted on the first FK error.
 . "$(cd "$(dirname "$0")" && pwd)/cleanup.sh"
 pass=0; fail=0
 check() {
@@ -42,11 +27,11 @@ if [ "$MODE" != "simulated" ]; then
 fi
 
 CART='{"addressLine":"12 Test Lane, Kothrud","phone":"9876543210","city":"Pune","state":"Maharashtra","pincode":"411038","items":[{"slug":"aloe-vera","quantity":2}]}'
-buyer() {  # register a throwaway customer, print their token
+buyer() {
   curl -s -m 20 -X POST $API/auth/register -H 'Content-Type: application/json' \
     -d "{\"fullName\":\"Pay Test\",\"email\":\"$1\",\"password\":\"Testing@123\"}" | jq_ token
 }
-open_order() {  # print the razorpay order id for a new PENDING order
+open_order() {
   curl -s -m 20 -X POST $API/orders -H "Authorization: Bearer $1" \
     -H 'Content-Type: application/json' -d "$CART" | jq_ razorpayOrderId
 }
@@ -83,14 +68,12 @@ check "a FAILED order cannot then be paid" 400 \
   "$(code -X POST $API/orders/verify -H "Authorization: Bearer $TOK" -H 'Content-Type: application/json' -d "$GOOD")"
 
 echo "== A FORGED SIGNATURE IS REFUSED =="
-forge() {  # post a hand-made signature against order $1, print the status code
+forge() {
   code -X POST $API/orders/verify -H "Authorization: Bearer $TOK" -H 'Content-Type: application/json' \
     -d "{\"razorpayOrderId\":\"$1\",\"razorpayPaymentId\":\"pay_forged\",\"razorpaySignature\":\"deadbeefdeadbeef\"}"
 }
 R2=$(open_order "$TOK")
 check "hand-made signature rejected" 400 "$(forge "$R2")"
-# The same claimed id against a second order used to hit the UNIQUE index on
-# razorpay_payment_id and come back 409, rolling back the FAILED marking with it.
 R2B=$(open_order "$TOK")
 check "the same forged id on another order" 400 "$(forge "$R2B")"
 check "and that order really is FAILED" "FAILED" "$(Q "SELECT status FROM orders WHERE razorpay_order_id='$R2B';")"
@@ -148,11 +131,8 @@ Q "DELETE p FROM payment p JOIN orders o ON o.id = p.order_id
    UPDATE plant SET stock = $STOCK WHERE slug='aloe-vera';" >/dev/null
 echo "  test orders removed, stock restored to $STOCK"
 
-# Shared teardown: returns consumed stock, then removes the run in
-# foreign-key order. Rolling its own left accounts behind on every run.
 purge_test_accounts "paytest%@example.com"
 assert_clean "paytest%@example.com"
-
 
 echo
 echo "  $pass passed, $fail failed"

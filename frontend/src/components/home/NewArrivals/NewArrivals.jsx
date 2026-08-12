@@ -6,7 +6,6 @@ import { useCatalogue } from '../../../context/CatalogueContext.jsx';
 import useScrollReveal from '../../../hooks/useScrollReveal.js';
 import './NewArrivals.css';
 
-/** The most recently added plants. */
 export default function NewArrivals() {
   const ref = useScrollReveal();
   const { CATALOGUE } = useCatalogue();

@@ -11,11 +11,9 @@ import hibiscus from '../../../assets/images/plants/hibiscus.jpg';
 import jade from '../../../assets/images/plants/jade-plant.jpg';
 import peaceLily from '../../../assets/images/plants/peace-lily.jpg';
 import basil from '../../../assets/images/plants/basil.jpg';
-// Merchandise — the branded shots, so the logo is visible on every product image
 import pots from '../../../assets/images/care/terracotta-set.jpg';
 import toolSet from '../../../assets/images/tools/tool-set-2.jpg';
 import plantCare from '../../../assets/images/care/neem-mister.jpg';
-// Our own packets, fanned into a flat lay — better than a stock photo of somebody else's seeds.
 import seedFlatlay from '../../../assets/images/care/seed-flatlay.jpg';
 
 const IMAGES = {
@@ -57,14 +55,12 @@ export default function Categories() {
                 className={`cat-card reveal reveal--zoom delay-${(index % 6) + 1}`}
               >
                 <div className="cat-card__media">
-                  {/* Only when there is one. */}
                   {IMAGES[slug] && <img src={IMAGES[slug]} alt="" loading="lazy" />}
                 </div>
 
                 <div className="cat-card__body">
                   <div className="cat-card__text">
                     <h3>{name}</h3>
-                    {/* Show a real count where we have stock, the pitch where we don't — never a hard-coded number. */}
                     <p>{count > 0 ? `${count} product${count === 1 ? '' : 's'}` : blurb}</p>
                   </div>
 

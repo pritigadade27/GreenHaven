@@ -41,10 +41,8 @@ export default function Login() {
     setBusy(true);
     try {
       await login(form.email, form.password);
-      // back to whatever they were trying to do, not the home page
       navigate(from, { replace: true });
     } catch (err) {
-      // The API deliberately returns one message for both a wrong password and an unknown email, so it.
       setServerError(err.message);
     } finally {
       setBusy(false);

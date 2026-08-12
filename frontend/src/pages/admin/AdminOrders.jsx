@@ -25,7 +25,6 @@ export default function AdminOrders() {
   );
 
   async function advance(row, status) {
-    // Guard the double click: two PATCHes for one intent write two audit rows.
     if (busyId) return;
     setBusyId(row.id);
     try {

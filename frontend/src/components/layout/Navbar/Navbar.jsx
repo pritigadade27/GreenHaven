@@ -22,7 +22,6 @@ const LINKS = [
   { label: 'Contact', to: '/contact' },
 ];
 
-/** The same destinations as the desktop profile menu, for the drawer. */
 const ACCOUNT_LINKS = [
   { label: 'My Profile', to: '/profile', icon: 'user' },
   { label: 'My Orders', to: '/profile/orders', icon: 'truck' },
@@ -38,12 +37,10 @@ export default function Navbar() {
   const scrolled = useScrolled(40);
   const { pathname, hash } = useLocation();
   const panelRef = useRef(null);
-  // Signing out is easy to hit by accident, and on this site it also puts the basket away — so it.
   const [confirmingLogout, setConfirmingLogout] = useState(false);
   const { user, isSignedIn, logout } = useAuth();
   const { totalItems: cartCount } = useCart();
   const { totalItems: wishlistCount } = useWishlist();
-  // Only the count, so the badge is right without the menu having to open.
   const [unread, setUnread] = useState(0);
 
   useEffect(() => {
@@ -55,7 +52,6 @@ export default function Navbar() {
     profileApi
       .notifications()
       .then((list) => alive && setUnread(list.filter((n) => !n.read).length))
-      // A failed count is not worth a message; the badge simply stays hidden.
       .catch(() => {});
     return () => {
       alive = false;
@@ -64,13 +60,11 @@ export default function Navbar() {
 
   useLockBodyScroll(menuOpen);
 
-  // Any navigation closes whatever layer is open.
   useEffect(() => {
     setMenuOpen(false);
     setSearchOpen(false);
   }, [pathname, hash]);
 
-  // Escape closes the drawer, focus moves into it on open and returns to the burger on close.
   useEffect(() => {
     if (!menuOpen) return undefined;
 
@@ -97,7 +91,6 @@ export default function Navbar() {
           <ul className="navbar__links">
             {LINKS.map(({ label, to }) => (
               <li key={label}>
-                {/* Plant Care is a section of the home page, not its own route, so it uses a plain Link and never. */}
                 {to.includes('#') ? (
                   <Link className="navbar__link" to={to}>
                     {label}
@@ -163,7 +156,6 @@ export default function Navbar() {
         </nav>
       </header>
 
-      {/* ------------------------------------------------ mobile / tablet menu */}
       <div
         className={`mobile-menu ${menuOpen ? 'mobile-menu--open' : ''}`}
         onClick={() => setMenuOpen(false)}
@@ -174,7 +166,6 @@ export default function Navbar() {
           ref={panelRef}
           tabIndex={-1}
           onClick={(event) => event.stopPropagation()}
-          // Only a dialog while it is actually open.
           role={menuOpen ? 'dialog' : undefined}
           aria-modal={menuOpen ? 'true' : undefined}
           aria-label="Menu"
@@ -195,7 +186,6 @@ export default function Navbar() {
           <ul className="mobile-menu__links">
             {LINKS.map(({ label, to }, index) => (
               <li key={label} style={{ '--i': index }}>
-                {/* Closing explicitly, not relying on the route change: tapping the link for the page you are. */}
                 <Link to={to} tabIndex={menuOpen ? 0 : -1} onClick={() => setMenuOpen(false)}>
                   <span>{label}</span>
                   <Icon name="chevronRight" size={18} />

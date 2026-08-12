@@ -50,7 +50,6 @@
   color: var(--color-border-strong);
 }
 
-/* Hide the browser's own clear button — it clashes with the type scale. */
 .search-overlay__form input::-webkit-search-cancel-button {
   display: none;
 }

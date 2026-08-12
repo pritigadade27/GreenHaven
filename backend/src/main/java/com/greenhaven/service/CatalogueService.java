@@ -16,7 +16,6 @@ import com.greenhaven.repository.PlantRepository;
 @Service
 @Transactional(readOnly = true)
 public class CatalogueService {
-
     private final CategoryRepository categories;
     private final BadgeRepository badges;
     private final PlantRepository plants;
@@ -29,7 +28,6 @@ public class CatalogueService {
     }
 
     public List<CategoryDto> allCategories() {
-        // One GROUP BY, not the whole plant table.
         Map<Long, Long> counts = plants.countByCategory().stream()
                 .collect(Collectors.toMap(row -> (Long) row[0], row -> (Long) row[1]));
 

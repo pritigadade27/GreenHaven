@@ -12,7 +12,6 @@ const SORTS = {
   featured: { label: 'Featured', fn: (a, b) => Number(!!b.featured) - Number(!!a.featured) },
   'price-asc': { label: 'Price: low to high', fn: (a, b) => a.price - b.price },
   'price-desc': { label: 'Price: high to low', fn: (a, b) => b.price - a.price },
-  // Unrated products sort last rather than first: `null - 4.8` is NaN, and a NaN comparator leaves.
   rating: { label: 'Best rated', fn: (a, b) => (b.rating ?? -1) - (a.rating ?? -1) },
   popular: { label: 'Most reviewed', fn: (a, b) => (b.reviews ?? 0) - (a.reviews ?? 0) },
   name: { label: 'A – Z', fn: (a, b) => a.name.localeCompare(b.name) },
@@ -21,12 +20,10 @@ const SORTS = {
 export default function Shop() {
   const { CATALOGUE, CATEGORIES, ready, error } = useCatalogue();
 
-  // Derived from the live catalogue rather than a module constant: the ceiling has to follow whatever the shop actually sells, including anything an admin adds after this bundle was built.
   const MAX_PRICE = useMemo(
     () => (CATALOGUE.length ? Math.max(...CATALOGUE.map((p) => p.price)) : 5999),
     [CATALOGUE]
   );
-  // The URL is the source of truth for category and search, so links from the navbar, footer and category tiles all land on a correctly filtered page and the result stays shareable.
   const [params, setParams] = useSearchParams();
   const query = params.get('q') ?? '';
   const category = params.get('category') ?? '';
@@ -51,12 +48,10 @@ export default function Shop() {
     const q = query.trim().toLowerCase();
     return CATALOGUE.filter((p) => {
       if (category && p.category !== category) return false;
-      // Merchandise carries no pet rating, care level or light need — a wheelbarrow has none.
       if (petSafeOnly && p.petSafety !== 'safe') return false;
       if (difficulty && p.difficulty !== difficulty) return false;
       if (light && p.light !== light) return false;
       if (p.price > maxPrice) return false;
-      // Unknown stock is not "in stock" — a null means nobody has counted.
       if (inStockOnly && !(p.stock > 0)) return false;
       if (newArrivalOnly && !p.newArrival) return false;
       if (!q) return true;
@@ -64,11 +59,9 @@ export default function Shop() {
         .filter(Boolean)
         .some((field) => String(field).toLowerCase().includes(q));
     }).sort(SORTS[sort].fn);
-    // CATALOGUE must stay a dependency: it arrives from the API after first render, and omitting it.
   }, [CATALOGUE, query, category, petSafeOnly, difficulty, light, maxPrice,
       inStockOnly, newArrivalOnly, sort]);
 
-  // Rendering all 154 cards at once mounts 154 images and 154 components on a phone.
   const PAGE_SIZE = 24;
   const [page, setPage] = useState(1);
   const gridRef = useRef(null);
@@ -77,16 +70,13 @@ export default function Shop() {
   const safePage = Math.min(page, pageCount);
   const visible = results.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
-  // Any change to the result set must return to page one, or a customer who filters while on page 5.
   useEffect(() => {
     setPage(1);
-    // CATALOGUE must stay a dependency: it arrives from the API after first render, and omitting it.
   }, [CATALOGUE, query, category, petSafeOnly, difficulty, light, maxPrice,
       inStockOnly, newArrivalOnly, sort]);
 
   const goToPage = (next) => {
     setPage(next);
-    // Scroll to the top of the grid, not the document: the filters stay put.
     gridRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
@@ -100,7 +90,6 @@ export default function Shop() {
     (maxPrice < MAX_PRICE ? 1 : 0);
 
   const clearAll = () => {
-    // The URL is reset too — newArrival lives there, and leaving it behind would make "clear all" a.
     setParams(query ? { q: query } : {}, { replace: true });
     setMaxPrice(MAX_PRICE);
     setPetSafeOnly(false);
@@ -111,7 +100,6 @@ export default function Shop() {
 
   return (
     <>
-      {/* The visible header band was removed by design; a document still needs exactly one h1 for screen. */}
       <h1 className="sr-only">
         {category
           ? `Shop ${CATEGORIES.find((c) => c.slug === category)?.name ?? category}`
@@ -120,7 +108,6 @@ export default function Shop() {
 
       <section className="shop section">
         <div className="container shop__layout">
-          {/* ------------------------------------------------------ filters */}
           <aside className={`shop__filters ${filtersOpen ? 'is-open' : ''}`}>
             <div className="shop__filters-head">
               <h2>Filters {activeCount > 0 && <span>{activeCount}</span>}</h2>
@@ -163,7 +150,6 @@ export default function Shop() {
 
             <div className="filter-group">
               <h3>Maximum price</h3>
-              {/* One handle, not two. */}
               <input
                 type="range"
                 min={199}
@@ -251,7 +237,6 @@ export default function Shop() {
             </div>
           </aside>
 
-          {/* ------------------------------------------------------ results */}
           <div className="shop__results">
             <div className="shop__bar">
               <div className="shop__search">
@@ -298,7 +283,6 @@ export default function Shop() {
               )}
             </p>
 
-            {/* Loading is not the same as "nothing matches". */}
             {!ready ? (
               <div className="shop__grid" aria-hidden="true">
                 {Array.from({ length: 8 }, (_, i) => (
@@ -339,7 +323,6 @@ export default function Shop() {
                     </button>
 
                     {Array.from({ length: pageCount }, (_, i) => i + 1)
-                      // Show the ends and a window around the current page, so 30 pages do not produce 30 buttons on a.
                       .filter(
                         (n) =>
                           n === 1 ||

@@ -23,11 +23,9 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
-/** A customer order. */
 @Entity
 @Table(name = "orders")
 public class Order {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -35,7 +33,6 @@ public class Order {
     @Column(name = "order_number", nullable = false, unique = true, length = 30)
     private String orderNumber;
 
-    /** Allocated only once the payment is verified. */
     @Column(name = "invoice_number", unique = true, length = 32)
     private String invoiceNumber;
 
@@ -43,11 +40,9 @@ public class Order {
     @JoinColumn(name = "user_id", nullable = false)
     private AppUser user;
 
-    /** Payment lifecycle: PENDING, PAID, FAILED, CANCELLED, PAID_SHORT. */
     @Column(nullable = false, length = 24)
     private String status = "PENDING";
 
-    /** Fulfilment lifecycle, deliberately separate from payment: an order is PAID and PACKED at the. */
     @Column(name = "delivery_status", nullable = false, length = 24)
     private String deliveryStatus = "PENDING";
 
@@ -60,7 +55,6 @@ public class Order {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal tax = BigDecimal.ZERO;
 
-    /** What a coupon took off, and which code did it. */
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal discount = BigDecimal.ZERO;
 
@@ -73,7 +67,6 @@ public class Order {
     @Column(name = "address_line", length = 255)
     private String addressLine;
 
-    /** Required at checkout — no courier delivers without a number. */
     @Column(length = 20)
     private String phone;
 
@@ -89,14 +82,12 @@ public class Order {
     @Column(nullable = false, length = 60)
     private String country = "India";
 
-    /** Razorpay's own order id (order_XXXX) — the handle for reconciliation. */
     @Column(name = "razorpay_order_id", length = 64)
     private String razorpayOrderId;
 
     @Column(name = "razorpay_payment_id", length = 64)
     private String razorpayPaymentId;
 
-    /** Copied from the gateway, not joined at read time. */
     @Column(name = "payment_method", length = 40)
     private String paymentMethod;
 
@@ -106,14 +97,12 @@ public class Order {
     @Column(name = "cancelled_at")
     private Instant cancelledAt;
 
-    /** CUSTOMER or ADMIN — who ended it. */
     @Column(name = "cancelled_by", length = 16)
     private String cancelledBy;
 
     @Column(name = "cancel_reason", length = 255)
     private String cancelReason;
 
-    /** Set by the database default, and read back immediately after the insert. */
     @Generated(event = EventType.INSERT)
     @Column(name = "placed_at", insertable = false, updatable = false)
     private Instant placedAt;

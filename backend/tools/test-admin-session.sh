@@ -1,10 +1,6 @@
 #!/usr/bin/env bash
-# Admin session security: logout revokes, single-session, RBAC, audit trail.
 API=http://localhost:8080/api
 MYSQL="/c/Users/vnp12/mysql/mysql-8.4.9-winx64/bin/mysql.exe"
-# Credentials come from backend/tools/test-env.sh, which is gitignored. There
-# is deliberately no built-in default: a fallback password in a committed
-# script is a published password.
 HERE="$(cd "$(dirname "$0")" && pwd)"
 [ -f "$HERE/test-env.sh" ] && . "$HERE/test-env.sh"
 : "${MYSQL_PWD:?set MYSQL_PWD — copy test-env.example.sh to test-env.sh}"
@@ -32,10 +28,6 @@ echo "== ADMIN LOGIN IS ITS OWN ENDPOINT =="
 A1=$(login)
 check "admin signs in at /api/admin/auth/login" "yes" "$([ -n "$A1" ] && echo yes || echo no)"
 check "wrong password refused" 400 "$(code -X POST $API/admin/auth/login -H 'Content-Type: application/json' -d "{\"email\":\"$ADMIN_EMAIL\",\"password\":\"nope-not-it\"}")"
-# A throwaway customer, created here rather than assumed to exist. The
-# seeded account this used to sign in as can legitimately be deleted, and
-# when it was, CUST went empty and the RBAC checks below silently became
-# "no token is refused" instead of "a customer token is refused".
 RBAC_EM="rbac$(date +%s)@example.com"
 CUST=$(curl -s -m 20 -X POST $API/auth/register -H 'Content-Type: application/json' \
   -d "{\"fullName\":\"RBAC Customer\",\"email\":\"$RBAC_EM\",\"password\":\"Testing@123\"}" \
@@ -66,14 +58,12 @@ B2=$(login)
 check "second sign-in returned a token (not rate limited)" "yes" "$([ -n "$B2" ] && echo yes || echo no)"
 check "second sign-in works" 200 "$(code $API/admin/stats -H "Authorization: Bearer $B2")"
 check "FIRST session is now dead" 403 "$(code $API/admin/stats -H "Authorization: Bearer $B1")"
-# Scoped to this run — the tables keep every earlier run's rows.
 check "reason recorded as SUPERSEDED" SUPERSEDED "$(Q "SELECT revoked_reason FROM admin_session WHERE revoked=1 ORDER BY id DESC LIMIT 1;")"
 
 echo "== ACTIVITY LOG =="
 OID=$(Q "SELECT id FROM orders ORDER BY id DESC LIMIT 1;")
 PID=$(Q "SELECT id FROM plant WHERE slug='tulsi';")
 BEFORE=$(Q "SELECT stock FROM plant WHERE id=$PID;")
-# Delta, not a total — the log keeps every earlier run's rows.
 LOGGED_BEFORE=$(Q "SELECT COUNT(*) FROM admin_activity_log WHERE action='INVENTORY_UPDATED';")
 curl -s -o /dev/null -m 20 -X PATCH "$API/admin/inventory/$PID/stock" -H "Authorization: Bearer $B2" \
   -H 'Content-Type: application/json' -d '{"stock":7}'
@@ -88,7 +78,6 @@ check "activity endpoint serves it" 200 "$(code $API/admin/auth/activity -H "Aut
 Q "UPDATE plant SET stock=$BEFORE WHERE id=$PID;"
 
 echo "== IDLE TIMEOUT =="
-# Age the session past the configured idle window rather than waiting 20 minutes.
 JTI=$(Q "SELECT jti FROM admin_session WHERE revoked=0 ORDER BY id DESC LIMIT 1;")
 Q "UPDATE admin_session SET last_seen_at = DATE_SUB(last_seen_at, INTERVAL 45 MINUTE) WHERE jti='$JTI';"
 check "idle session is rejected" 403 "$(code $API/admin/stats -H "Authorization: Bearer $B2")"

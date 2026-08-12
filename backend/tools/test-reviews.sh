@@ -1,19 +1,6 @@
 #!/usr/bin/env bash
-# Green Haven — product ratings and reviews, end to end.
-#
-#   bash backend/tools/test-reviews.sh
-#
-# The rule this suite exists to hold down: only a customer who paid for a plant
-# AND had it delivered may rate it. Everything else — the verified badge, the
-# one-review-per-plant limit, the average being worth trusting — follows from
-# that, so each stage of the gate is checked separately.
-#
-# RESTART THE API FIRST — /api/orders is capped at 30 an hour.
 API=${API:-http://localhost:8080/api}
 MYSQL=${MYSQL:-/c/Users/vnp12/mysql/mysql-8.4.9-winx64/bin/mysql.exe}
-# Credentials come from backend/tools/test-env.sh, which is gitignored. There
-# is deliberately no built-in default: a fallback password in a committed
-# script is a published password.
 HERE="$(cd "$(dirname "$0")" && pwd)"
 [ -f "$HERE/test-env.sh" ] && . "$HERE/test-env.sh"
 : "${MYSQL_PWD:?set MYSQL_PWD — copy test-env.example.sh to test-env.sh}"
@@ -24,8 +11,6 @@ ENV_FILE="$(dirname "$0")/../.env"
 
 Q() { "$MYSQL" --default-character-set=utf8mb4 -u priti green_haven -N -B -e "$1"; }
 
-# Shared, foreign-key-ordered teardown. Each suite used to roll its own and
-# every one was incomplete, so cleanup aborted on the first FK error.
 . "$(cd "$(dirname "$0")" && pwd)/cleanup.sh"
 pass=0; fail=0
 check() {
@@ -33,8 +18,6 @@ check() {
   else printf "  FAIL  %-54s got %s want %s\n" "$1" "$3" "$2"; fail=$((fail+1)); fi
 }
 code() { curl -s -o /dev/null -m 20 -w '%{http_code}' "$@"; }
-# Ratings are DECIMAL(2,1) now, so a 4 comes back as 4.0. Comparing the printed
-# forms would fail on a difference that is not one — these compare as numbers.
 checkr() { check "$1" "$(python -c "print(float('$2'))")" "$(python -c "print(float('$3' or 0))")"; }
 jq_() { python -c "import json,sys
 d=json.load(sys.stdin)
@@ -43,8 +26,6 @@ for k in '$1'.split('.'):
     d = d[int(k)] if k.isdigit() else d.get(k)
 print('' if d is None else d)"; }
 
-# Bodies go through a file: an argument typed at this shell is not UTF-8, and
-# a stray byte is a 400 that looks like a product bug.
 BODY=$(mktemp)
 json() { python -c "
 import io, json, sys
@@ -56,8 +37,6 @@ postc() { json "$3"; code -X "$1" "$2" -H "Authorization: Bearer $TOK" \
 
 SLUG=snake-plant
 STAMP=$(date +%s)
-# Residue from an earlier run, cleared BEFORE this run creates anything —
-# doing it afterwards deletes the accounts the suite is about to use.
 purge_test_accounts "rev%@example.com"
 restore_plant snake-plant
 
@@ -72,19 +51,9 @@ TOK2=$(reg "$EM2" "Neha Joshi")
 A()  { curl -s -m 20 -H "Authorization: Bearer $TOK"  "$@"; }
 Ac() { code -H "Authorization: Bearer $TOK" "$@"; }
 
-# What the plant looked like before any of this, so it can be put back.
-# Restored to NULL/0, NOT to whatever is in the table right now. Capturing the
-# current value made this self-poisoning: an interrupted run left a rating
-# behind, the next run adopted it as "the seed", and the bad value became
-# permanent — a product showing stars with no reviews under it.
 SEED_RATING=NULL
 SEED_COUNT=0
 
-# The assertions below are absolute — "the average is 3.5", not "it moved by
-# 1.5" — because that is what makes them worth reading. So the product has to
-# start with no reviews. Residue from an earlier run is cleared; a real
-# customer review is not, and the suite stops rather than reporting a wall of
-# failures that look like defects.
 EXISTING=$(Q "SELECT COUNT(*) FROM review r JOIN plant p ON p.id = r.plant_id WHERE p.slug='$SLUG';")
 if [ "$EXISTING" != "0" ]; then
   echo "  $SLUG already has $EXISTING real review(s)."
@@ -165,9 +134,6 @@ check "someone else cannot delete mine" 404 \
   "$(code -X DELETE $API/reviews/$RVID -H "Authorization: Bearer $TOK2")"
 
 echo "== VALIDATION =="
-# Checked by which field the server complains about, not by the status code:
-# the eligibility gate also answers 400, so a bare code would let a rejection
-# for the wrong reason pass as a validation test.
 badfield() { json "$2"; curl -s -m 20 -X POST "$API/reviews/$SLUG" -H "Authorization: Bearer $TOK"   -H 'Content-Type: application/json; charset=utf-8' --data-binary @"$BODY"   | python -c "import json,sys;print(','.join(sorted((json.load(sys.stdin).get('fields') or {}).keys())))"; }
 check "0 stars names the field"  "rating" "$(badfield x '{"rating":0,"body":"Zero stars should not be allowed at all."}')"
 check "6 stars names the field"  "rating" "$(badfield x '{"rating":6,"body":"Six stars should not be allowed either."}')"
@@ -227,8 +193,6 @@ AD -X DELETE "$API/admin/reviews/$RVID2" >/dev/null
 check "admin delete removes it" "0"   "$(Q "SELECT COUNT(*) FROM review WHERE id=$RVID2;")"
 check "average recomputed"      "5.0" "$(Q "SELECT rating FROM plant WHERE slug='$SLUG';")"
 
-# Hiding the last visible review must clear the rating, not leave the old one
-# standing above a section showing nothing.
 AD -X PATCH "$API/admin/reviews/$RVID/status" -H 'Content-Type: application/json'   -d '{"status":"HIDDEN","reason":"Last one"}' >/dev/null
 check "hiding the last review clears the rating" "NULL" "$(Q "SELECT IFNULL(rating,'NULL') FROM plant WHERE slug='$SLUG';")"
 check "…and the count"                          "0"    "$(Q "SELECT review_count FROM plant WHERE slug='$SLUG';")"
@@ -240,15 +204,11 @@ check "delete accepted"   200 "$(Ac -X DELETE $API/reviews/$RVID)"
 check "row gone"          "0" "$(Q "SELECT COUNT(*) FROM review WHERE id=$RVID;")"
 check "summary is empty"  "0" "$(curl -s -m 20 $API/plants/$SLUG/reviews | jq_ summary.total)"
 check "eligible again"    "True" "$(A $API/reviews/$SLUG/eligibility | jq_ canReview)"
-# The last review going takes the rating with it. Leaving the old figure would
-# have the product page quote a rating with nothing behind it.
 check "rating is cleared with the last review" "NULL" "$(Q "SELECT IFNULL(rating,'NULL') FROM plant WHERE slug='$SLUG';")"
 check "count is cleared too" "0" "$(Q "SELECT review_count FROM plant WHERE slug='$SLUG';")"
 
 echo "== A TITLE IS OPTIONAL =="
 UNTITLED=$(post POST $API/reviews/$SLUG '{"rating":5,"body":"No title on this one at all, which the form allows."}')
-# The one still standing by the time the half-star section runs; the earlier
-# review was deleted several sections ago.
 LIVE_ID=$(echo "$UNTITLED" | jq_ id)
 checkr "accepted without a title" "5" "$(echo "$UNTITLED" | jq_ rating)"
 check "…and stored with none"    "1" "$(Q "SELECT COUNT(*) FROM review WHERE id=$(echo "$UNTITLED" | jq_ id) AND title IS NULL;")"
@@ -259,14 +219,11 @@ check "someone else's list is empty" "0" \
   "$(curl -s -m 20 -H "Authorization: Bearer $TOK2" $API/reviews/mine | python -c "import json,sys;print(len(json.load(sys.stdin)))")"
 
 echo "== HALF STARS =="
-# Ratings go in half steps. Anything finer is refused rather than rounded:
-# quietly turning a 3.7 into a 3.5 changes what the customer said.
 HALF='{"rating":3.5,"title":"Good with a caveat","body":"Healthy plant, well packed, but one leaf arrived with a tear in it."}'
 check "a half star is accepted" 200 "$(postc PUT $API/reviews/$LIVE_ID "$HALF")"
 checkr "…and stored as 3.5"     "3.5" "$(A $API/plants/$SLUG/reviews | jq_ reviews.0.rating)"
 checkr "the average follows"    "3.5" "$(A $API/plants/$SLUG/reviews | jq_ summary.average)"
 checkr "…and so does the card"  "3.5" "$(Q "SELECT rating FROM plant WHERE slug='$SLUG';")"
-# The bar chart stays five rows tall, so a half is counted into the row above.
 check "3.5 sits in the 4-star bar" "1"   "$(A $API/plants/$SLUG/reviews | python -c "import json,sys;print(json.load(sys.stdin)['summary']['breakdown']['4'])")"
 check "and not in the 3-star bar"  "0"   "$(A $API/plants/$SLUG/reviews | python -c "import json,sys;print(json.load(sys.stdin)['summary']['breakdown']['3'])")"
 check "a third of a star is refused" 400   "$(postc PUT $API/reviews/$LIVE_ID '{"rating":3.7,"body":"A rating that is not a half step at all here."}')"
@@ -277,13 +234,10 @@ check "5.5 is refused"  400 "$(postc PUT $API/reviews/$LIVE_ID '{"rating":5.5,"b
 echo "== CLEANUP =="
 rm -f "$BODY"
 
-# Teardown. Runs at the end as well as the start, so a finished run leaves
-# the database exactly as it found it.
 purge_test_accounts "rev%@example.com"
 restore_plant snake-plant
 assert_clean "rev%@example.com"
 rm -f "$BODY"
-
 
 echo
 echo "  $pass passed, $fail failed"

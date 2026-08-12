@@ -1,5 +1,3 @@
-/** Green Haven — customer testimonials. */
-
 export const TESTIMONIALS = [
   {
     id: 't1',
