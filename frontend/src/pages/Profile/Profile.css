@@ -476,6 +476,7 @@
   color: var(--color-text-muted);
 }
 
+/* Forms */
 .pform {
   display: flex;
   flex-direction: column;
@@ -550,6 +551,7 @@
   pointer-events: none;
 }
 
+/* Password strength */
 .pstrength {
   display: flex;
   align-items: center;
@@ -585,6 +587,7 @@
 .pstrength.is-good { color: #4b7a47; }
 .pstrength.is-strong { color: #3d6639; }
 
+/* Order cards */
 .porders {
   display: flex;
   flex-direction: column;
@@ -724,6 +727,7 @@
   font-size: var(--fs-sm);
 }
 
+/* Order tracker */
 .ptrack {
   display: grid;
   grid-auto-flow: column;
@@ -818,6 +822,7 @@
   font-size: var(--fs-sm);
 }
 
+/* Pulse animation */
 @keyframes pulseRing {
   0%,
   100% {
@@ -828,6 +833,7 @@
   }
 }
 
+/* Data tables */
 .ptable-wrap {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
@@ -901,6 +907,7 @@
   background: var(--color-bg);
 }
 
+/* Order summary */
 .ptotals {
   display: flex;
   flex-direction: column;
@@ -938,6 +945,7 @@
   color: var(--color-primary);
 }
 
+/* Addresses */
 .paddr {
   display: flex;
   flex-direction: column;
@@ -996,6 +1004,7 @@
   border-top: 1px solid var(--color-border);
 }
 
+/* Email preferences */
 .pemail {
   display: flex;
   flex-wrap: wrap;
@@ -1022,6 +1031,7 @@
   font-size: var(--fs-xs);
 }
 
+/* Wishlist */
 .pwish {
   display: flex;
   flex-direction: column;
@@ -1082,6 +1092,7 @@
   gap: var(--space-xs);
 }
 
+/* Notifications */
 .pnotifs {
   display: flex;
   flex-direction: column;
@@ -1145,6 +1156,7 @@
   font-size: var(--fs-xs);
 }
 
+/* Responsive layout */
 @media (max-width: 1024px) {
   .profile__grid {
     grid-template-columns: minmax(0, 1fr);
@@ -1229,6 +1241,7 @@
   }
 }
 
+/* Mobile tables */
 @media (max-width: 640px) {
   .ptable {
     min-width: 0;
@@ -1309,6 +1322,7 @@
   }
 }
 
+/* Mobile layout */
 @media (max-width: 620px) {
   .profile {
     padding-top: calc(var(--navbar-height-scrolled) + var(--space-lg));
@@ -1339,6 +1353,7 @@
   }
 }
 
+/* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .psec,
   .profile-menu__panel,
@@ -1351,6 +1366,7 @@
   }
 }
 
+/* Rate order */
 .porder__rate {
   display: inline-flex;
   align-items: center;

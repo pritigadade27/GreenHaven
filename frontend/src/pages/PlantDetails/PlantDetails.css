@@ -522,6 +522,7 @@
   }
 }
 
+/* Badges and promises */
 .pdp__badge {
   display: inline-flex;
   align-items: center;
@@ -601,6 +602,7 @@
   border-bottom-color: var(--color-primary);
 }
 
+/* Mobile tabs */
 @media (max-width: 575px) {
   .pdp__tab-list {
     gap: var(--space-md);
@@ -615,6 +617,7 @@
   }
 }
 
+/* Loading state */
 .pdp__loading {
   display: grid;
   grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
