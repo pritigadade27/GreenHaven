@@ -1,5 +1,11 @@
 # One-time setup: checks the tools, loads the database, installs packages.
-$ErrorActionPreference = 'Stop'
+#
+# Deliberately not 'Stop'. Every tool this script drives -- mysql, npm, java --
+# reports through stderr, and PowerShell 5.1 turns a native command's stderr
+# into error records that abort the script under 'Stop'. Ordinary output like
+# "table doesn't exist" on a first run would end setup instead of guiding it.
+# Each step is checked on its own below.
+$ErrorActionPreference = 'Continue'
 $root = Split-Path -Parent $PSScriptRoot
 
 function Say($msg, $colour = 'Gray') { Write-Host "  $msg" -ForegroundColor $colour }
@@ -69,8 +75,15 @@ $rootPw = [Runtime.InteropServices.Marshal]::PtrToStringAuto(
           [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure))
 
 $env:MYSQL_PWD = $rootPw
-$already = (& $mysql -h 127.0.0.1 -u root -N -e `
-    "SELECT COUNT(*) FROM green_haven.plant" 2>$null)
+
+# cmd performs the redirect so a failing query returns text instead of an
+# error record. This first one is expected to fail on a new machine: the
+# table does not exist until the script below creates it.
+function Ask-Mysql($sql) {
+    return (cmd /c "`"$mysql`" -h 127.0.0.1 -u root -N -e `"$sql`" 2>nul")
+}
+
+$already = Ask-Mysql 'SELECT COUNT(*) FROM green_haven.plant'
 
 if ($already -match '^\d+$' -and [int]$already -ge 154) {
     Ok "green_haven already loaded ($already products) - leaving it alone"
@@ -80,7 +93,7 @@ if ($already -match '^\d+$' -and [int]$already -ge 154) {
     # path containing a space, and this project lives in "green haven".
     $cmd = '"' + $mysql + '" -h 127.0.0.1 -u root --default-character-set=utf8mb4 < "' + $sqlFile + '"'
     cmd /c $cmd 2>&1 | Select-String -Pattern 'ERROR' | ForEach-Object { Bad $_ }
-    $count = (& $mysql -h 127.0.0.1 -u root -N -e "SELECT COUNT(*) FROM green_haven.plant" 2>$null)
+    $count = Ask-Mysql 'SELECT COUNT(*) FROM green_haven.plant'
     if ($count -match '^\d+$' -and [int]$count -eq 154) { Ok "$count products loaded" }
     else { Bad "Expected 154 products, got '$count'"; Read-Host '  Press Enter'; exit 1 }
 }
@@ -96,7 +109,14 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON green_haven.* TO 'priti'@'localhost';
 GRANT SELECT, INSERT, UPDATE, DELETE ON green_haven.* TO 'priti'@'127.0.0.1';
 FLUSH PRIVILEGES;
 "@
-& $mysql -h 127.0.0.1 -u root -e $grant 2>&1 | Select-String -Pattern 'ERROR' | ForEach-Object { Bad $_ }
+# Through a file rather than -e: the statements contain quotes that do not
+# survive the trip through cmd. It holds a password, so it is deleted straight
+# after rather than left in the temp folder.
+$grantFile = Join-Path $env:TEMP ('gh-grant-' + [Guid]::NewGuid().ToString('N') + '.sql')
+$grant | Set-Content -Path $grantFile -Encoding ascii
+cmd /c "`"$mysql`" -h 127.0.0.1 -u root < `"$grantFile`" 2>&1" |
+    Select-String -Pattern 'ERROR' | ForEach-Object { Bad $_ }
+Remove-Item $grantFile -Force -ErrorAction SilentlyContinue
 Ok "application user 'priti' ready"
 Remove-Item Env:\MYSQL_PWD -ErrorAction SilentlyContinue
 
@@ -133,8 +153,8 @@ ADMIN_NAME=Green Haven Admin
 Write-Host ""
 Say 'Frontend packages (this takes a minute)' Cyan
 Push-Location (Join-Path $root 'frontend')
-& npm install --no-fund --no-audit
-$npmOk = $?
+cmd /c 'npm install --no-fund --no-audit'
+$npmOk = ($LASTEXITCODE -eq 0)
 Pop-Location
 if ($npmOk) { Ok 'packages installed' } else { Bad 'npm install failed'; Read-Host '  Press Enter'; exit 1 }
 
