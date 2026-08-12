@@ -35,4 +35,18 @@ EXPOSE 8080
 # MaxRAMPercentage rather than a fixed -Xmx: the JVM then sizes its heap from
 # whatever the container is actually given, which on a 512 MB free tier is the
 # difference between starting and being killed.
-ENTRYPOINT ["java", "-XX:MaxRAMPercentage=70", "-jar", "app.jar"]
+#
+# 50%, not 70%. The heap is only part of what a JVM occupies -- metaspace, code
+# cache, thread stacks and GC structures live outside it, and at 70% those
+# pushed the container past 512 MB and it was killed mid-startup, crash-looping
+# until the deploy timed out. The remaining settings shrink the same overhead:
+# the serial collector keeps no per-thread GC structures worth speaking of,
+# smaller stacks matter once Tomcat has its threads, and one JIT tier compiles
+# less code into a cache this size.
+ENTRYPOINT ["java", \
+  "-XX:MaxRAMPercentage=50", \
+  "-XX:+UseSerialGC", \
+  "-XX:MaxMetaspaceSize=128m", \
+  "-XX:TieredStopAtLevel=1", \
+  "-Xss512k", \
+  "-jar", "app.jar"]
