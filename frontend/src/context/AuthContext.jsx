@@ -9,6 +9,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [ready, setReady] = useState(false);
 
+  // Restore session from token
   useEffect(() => {
     if (!getToken()) {
       setReady(true);
@@ -21,6 +22,7 @@ export function AuthProvider({ children }) {
       .finally(() => setReady(true));
   }, []);
 
+  // Save token and user
   const adopt = useCallback((response) => {
     setToken(response.token);
     setUser(response.user);
@@ -40,6 +42,7 @@ export function AuthProvider({ children }) {
       register: async (fullName, email, password, phone) =>
         adopt(await authApi.register(fullName, email, password, phone)),
       login: async (email, password) => adopt(await authApi.login(email, password)),
+      // Clear session and baskets
       logout: () => {
         clearToken();
         setUser(null);

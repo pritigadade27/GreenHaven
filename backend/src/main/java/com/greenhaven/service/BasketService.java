@@ -46,11 +46,13 @@ public class BasketService {
     @Transactional
     public List<BasketDto.Line> replaceCart(String email, List<BasketDto.Line> lines) {
         AppUser owner = user(email);
+        // Replace whole cart
         carts.deleteByUserId(owner.getId());
         carts.flush();
 
         List<CartItem> rows = merge(lines).entrySet().stream()
                 .map(entry -> {
+                    // Skip unknown plants
                     Plant plant = plants.findBySlug(entry.getKey()).orElse(null);
                     if (plant == null) return null;
                     CartItem item = new CartItem();
@@ -106,6 +108,7 @@ public class BasketService {
         }
     }
 
+    // Merge duplicates, clamp quantity
     private static Map<String, Integer> merge(List<BasketDto.Line> lines) {
         Map<String, Integer> wanted = new LinkedHashMap<>();
         if (lines == null) return wanted;

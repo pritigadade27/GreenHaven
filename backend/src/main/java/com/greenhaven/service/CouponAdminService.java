@@ -37,6 +37,7 @@ public class CouponAdminService {
 
     @Transactional
     public CouponDtos.CouponRow create(CouponDtos.CouponRequest r) {
+        // Reject duplicate code
         String code = CouponService.normalise(r.code());
         if (coupons.existsByCode(code)) {
             throw new IllegalArgumentException("A coupon with the code '" + code + "' already exists.");
@@ -72,6 +73,7 @@ public class CouponAdminService {
     }
 
     private void apply(Coupon c, CouponDtos.CouponRequest r) {
+        // Validate discount rules
         String type = r.discountType() == null ? "" : r.discountType().trim().toUpperCase(Locale.ROOT);
         if (!TYPES.contains(type)) {
             throw new IllegalArgumentException("A discount is either PERCENT or FLAT.");
@@ -110,6 +112,7 @@ public class CouponAdminService {
     }
 
     private static String state(Coupon c, long used) {
+        // Derive coupon status
         Instant now = Instant.now();
         if (!c.isActive()) return "Off";
         if (c.getStartsAt() != null && now.isBefore(c.getStartsAt())) return "Scheduled";

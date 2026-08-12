@@ -18,6 +18,7 @@ export default function Cart() {
   const requireAuth = useRequireAuth();
   const navigate = useNavigate();
 
+  // Cart totals with delivery fee
   const delivery = subtotal >= FREE_DELIVERY_OVER || subtotal === 0 ? 0 : DELIVERY_FEE;
   const total = subtotal + delivery;
   const toFreeDelivery = FREE_DELIVERY_OVER - subtotal;

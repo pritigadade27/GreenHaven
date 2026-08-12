@@ -51,6 +51,7 @@ export default function Checkout() {
   const delivery = coupon ? coupon.shipping : localDelivery;
   const total = coupon ? coupon.total : subtotal + localDelivery;
 
+  // Send guests to login
   useEffect(() => {
     if (ready && !isSignedIn) {
       navigate('/login', {
@@ -114,6 +115,7 @@ export default function Checkout() {
     setCouponError('');
   }
 
+  // Re-quote coupon when subtotal changes
   useEffect(() => {
     if (!coupon) return undefined;
     if (Math.round(coupon.subtotal * 100) === Math.round(subtotal * 100)) return undefined;
@@ -143,6 +145,7 @@ export default function Checkout() {
     event.preventDefault();
     setError('');
 
+    // Validate address fields
     const local = {};
     if (form.addressLine.trim().length < 6) local.addressLine = 'Enter the full address.';
     if (!/^([+]?91[- ]?|0)?[6-9]\d{9}$/.test(form.phone.trim()))
@@ -183,6 +186,7 @@ export default function Checkout() {
           .catch(() => {});
       }
 
+      // Stop if server total differs
       if (Math.round(order.total * 100) !== Math.round(total * 100)) {
         setBusy(false);
         setPriceChange({ was: total, now: order.total, order });
@@ -247,6 +251,7 @@ export default function Checkout() {
             setError('Payment cancelled. Your cart is still here whenever you are ready.');
           },
         },
+        // Verify payment signature server-side
         handler: async (response) => {
           settled.current = true;
           try {

@@ -104,6 +104,7 @@ public class ProfileService {
     @Transactional
     public String requestEmailChange(String email, ProfileDtos.ChangeEmailRequest r) {
         AppUser user = user(email);
+        // Verify password before change
         if (!encoder.matches(r.password(), user.getPasswordHash())) {
             throw new IllegalArgumentException("That password is not right.");
         }
@@ -143,6 +144,7 @@ public class ProfileService {
             throw new IllegalArgumentException("That email address has since been registered.");
         }
 
+        // Reissue token for new email
         String confirmed = user.getPendingEmail();
         user.setEmail(confirmed);
         clearPendingEmail(user);
@@ -168,6 +170,7 @@ public class ProfileService {
     @Transactional
     public void changePassword(String email, ProfileDtos.ChangePasswordRequest r) {
         AppUser user = user(email);
+        // Check current password
         if (!encoder.matches(r.currentPassword(), user.getPasswordHash())) {
             throw new IllegalArgumentException("Your current password is not right.");
         }
@@ -225,6 +228,7 @@ public class ProfileService {
                     : "This order has already left the nursery and can no longer be cancelled.");
         }
 
+        // Cancel and credit note
         order.setDeliveryStatus("CANCELLED");
         order.setCancelledAt(Instant.now());
         order.setCancelledBy("CUSTOMER");

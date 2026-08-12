@@ -41,6 +41,7 @@ public class ProductAdminService {
     @Transactional
     public ProductAdminDtos.ProductRow create(ProductAdminDtos.ProductRequest r) {
         String slug = slugify(r.slug() == null || r.slug().isBlank() ? r.name() : r.slug());
+        // Reject duplicate slug
         if (plants.findBySlug(slug).isPresent()) {
             throw new IllegalArgumentException("A product with the slug '" + slug + "' already exists.");
         }
@@ -69,6 +70,7 @@ public class ProductAdminService {
         apply(plant, r);
         Plant saved = plants.save(plant);
 
+        // Remove replaced image
         if (previousImage != null && !previousImage.equals(saved.getImage())) {
             uploads.deleteQuietly(previousImage);
         }
@@ -80,6 +82,7 @@ public class ProductAdminService {
         Plant plant = plants.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No product with id " + id));
 
+        // Discontinue if already ordered
         long sold = orderItems.countByPlantId(id);
         if (sold > 0) {
             plant.setDiscontinued(true);
@@ -119,6 +122,7 @@ public class ProductAdminService {
         java.util.List<String> previous = images.findByPlantIdOrderBySortOrderAscIdAsc(id)
                 .stream().map(com.greenhaven.entity.PlantImage::getUrl).toList();
 
+        // Replace gallery rows
         images.deleteByPlantId(id);
         images.flush();
 

@@ -38,6 +38,7 @@ public class PlantController {
             @RequestParam(defaultValue = "featured") String sort,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "24") int size) {
+        // Clamp paging limits
         int safeSize = Math.min(Math.max(size, 1), 100);
         return PageResponse.of(plants.search(q, category, petSafety, difficulty, light, water,
                 minPrice, maxPrice, inStock, newArrival, sort, Math.max(page, 0), safeSize));

@@ -39,6 +39,7 @@ public class AdminSessionService {
 
     @Transactional
     public String open(AppUser admin, HttpServletRequest request) {
+        // Revoke earlier admin sessions
         if (singleSession) {
             List<AdminSession> live = sessions.findByUserIdAndRevokedFalse(admin.getId());
             for (AdminSession old : live) {
@@ -66,6 +67,7 @@ public class AdminSessionService {
         if (session == null || session.isRevoked()) return false;
 
         Instant now = Instant.now();
+        // Expire idle session
         if (Duration.between(session.getLastSeenAt(), now).toMinutes() >= idleMinutes) {
             session.setRevoked(true);
             session.setRevokedReason(AdminSession.TIMEOUT);
@@ -73,6 +75,7 @@ public class AdminSessionService {
             return false;
         }
 
+        // Throttle last-seen writes
         if (Duration.between(session.getLastSeenAt(), now).toSeconds() >= 30) {
             session.setLastSeenAt(now);
             sessions.save(session);
@@ -101,6 +104,7 @@ public class AdminSessionService {
 
     public static String clientIp(HttpServletRequest request) {
         if (request == null) return null;
+        // Prefer proxy forwarded IP
         String forwarded = request.getHeader("X-Forwarded-For");
         if (forwarded != null && !forwarded.isBlank()) {
             int comma = forwarded.indexOf(',');

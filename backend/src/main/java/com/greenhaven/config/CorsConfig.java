@@ -23,6 +23,7 @@ public class CorsConfig implements WebMvcConfigurer {
                 .filter(o -> !o.isEmpty())
                 .toArray(String[]::new);
 
+        // Dev origins plus configured ones
         this.allowed = new String[DEV_ORIGINS.length + extra.length];
         System.arraycopy(DEV_ORIGINS, 0, allowed, 0, DEV_ORIGINS.length);
         System.arraycopy(extra, 0, allowed, DEV_ORIGINS.length, extra.length);
@@ -30,6 +31,7 @@ public class CorsConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
+        // Allow credentialed API calls
         registry.addMapping("/api/**")
                 .allowedOrigins(allowed)
                 .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")

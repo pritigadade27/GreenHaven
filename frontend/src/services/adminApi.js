@@ -13,6 +13,7 @@ export const clearAdminToken = () => remove(TOKEN_KEY);
 async function request(path, { method = 'GET', body, auth = true } = {}) {
   const headers = { Accept: 'application/json' };
   if (body) headers['Content-Type'] = 'application/json';
+  // Attach admin bearer token
   if (auth) {
     const token = getAdminToken();
     if (token) headers.Authorization = `Bearer ${token}`;
@@ -37,6 +38,7 @@ async function request(path, { method = 'GET', body, auth = true } = {}) {
     if (response.ok) throw new Error('The server sent a response we could not read.');
   }
 
+  // Flag expired admin session
   if (!response.ok) {
     const error = new Error(data?.message || `Request failed (${response.status})`);
     error.status = response.status;

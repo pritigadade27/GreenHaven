@@ -28,6 +28,7 @@ public class InvoiceService {
 
     @Transactional
     public Invoice issueFor(Order order, String number) {
+        // Reuse existing invoice
         if (invoices.existsByOrderIdAndDocType(order.getId(), Invoice.INVOICE)) {
             return invoices.findByOrderIdOrderByIdAsc(order.getId()).stream()
                     .filter(i -> Invoice.INVOICE.equals(i.getDocType()))
@@ -46,6 +47,7 @@ public class InvoiceService {
 
     @Transactional
     public Optional<Invoice> creditNoteFor(Order order, String reason) {
+        // Only refund paid orders
         boolean paid = "PAID".equals(order.getStatus()) || "PAID_SHORT".equals(order.getStatus());
         if (!paid) return Optional.empty();
 

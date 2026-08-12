@@ -47,6 +47,7 @@ public class AdminAuditService {
                        String entityId, String detail, HttpServletRequest request) {
         AppUser admin = adminEmail == null ? null : users.findByEmail(adminEmail).orElse(null);
 
+        // Write admin audit entry
         AdminActivityLog entry = new AdminActivityLog();
         entry.setAdminId(admin == null ? null : admin.getId());
         entry.setAdminName(admin == null ? "(unknown)" : admin.getFullName());
@@ -61,6 +62,7 @@ public class AdminAuditService {
 
     @Transactional(readOnly = true)
     public Page<AdminActivityLog> recent(String action, int page, int size) {
+        // Clamp page size
         Pageable pageable = PageRequest.of(Math.max(0, page), Math.min(Math.max(1, size), 100));
         return action == null || action.isBlank()
                 ? logs.findAllByOrderByIdDesc(pageable)

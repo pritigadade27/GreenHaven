@@ -52,6 +52,7 @@ public class AdminAuthController {
         String email = request.email() == null ? "" : request.email().trim();
         AppUser user = users.findByEmail(email).orElse(null);
 
+        // Password, admin role and block check
         boolean ok = user != null
                 && encoder.matches(request.password(), user.getPasswordHash())
                 && "ADMIN".equals(user.getRole())
@@ -59,6 +60,7 @@ public class AdminAuthController {
 
         if (!ok) {
             if (user == null) {
+                // Dummy hash hides timing
                 encoder.matches(request.password(),
                         "$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy");
             }
@@ -67,6 +69,7 @@ public class AdminAuthController {
             throw new IllegalArgumentException("Those credentials are not valid.");
         }
 
+        // Open session and issue JWT
         String jti = sessions.open(user, http);
         String token = jwt.issue(user.getEmail(), user.getRole(), jti, sessions.sessionMillis());
         audit.record(user.getEmail(), AdminAuditService.LOGIN, null, null,
@@ -86,6 +89,7 @@ public class AdminAuthController {
     @PreAuthorize("hasRole('ADMIN')")
     public ApiMessage logout(@RequestHeader(value = "Authorization", required = false) String header,
                              Principal principal, HttpServletRequest http) {
+        // Revoke the token's session
         if (header != null && header.startsWith("Bearer ")) {
             try {
                 sessions.revoke(jwt.claims(header.substring(7)).getId(), AdminSession.LOGOUT);

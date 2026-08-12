@@ -45,6 +45,7 @@ public class AuthController {
     public java.util.Map<String, String> forgotPassword(
             @RequestBody java.util.Map<String, String> body,
             jakarta.servlet.http.HttpServletRequest http) {
+        // Same reply hides unknown emails
         var token = passwordResets.request(body.get("email"), http.getRemoteAddr());
         java.util.Map<String, String> response = new java.util.LinkedHashMap<>();
         response.put("message",
@@ -61,6 +62,7 @@ public class AuthController {
 
     @PostMapping("/reset-password")
     public ApiMessage resetPassword(@RequestBody java.util.Map<String, String> body) {
+        // Set password against reset token
         passwordResets.complete(body.get("token"), body.get("newPassword"),
                 body.get("confirmPassword"));
         return new ApiMessage("Your password has been changed. You can sign in with it now.");

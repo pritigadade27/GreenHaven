@@ -88,6 +88,7 @@ public class PaymentService {
                     "Razorpay keys are not configured. Set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET.");
         }
 
+        // Convert rupees to paise
         long paise = rupees.setScale(2, RoundingMode.HALF_UP)
                 .multiply(BigDecimal.valueOf(100))
                 .longValueExact();
@@ -101,6 +102,7 @@ public class PaymentService {
         return client().orders.create(request).get("id").toString();
     }
 
+    // Lazy thread-safe client
     private RazorpayClient client() throws Exception {
         RazorpayClient local = client;
         if (local == null) {
@@ -115,6 +117,7 @@ public class PaymentService {
         return local;
     }
 
+    // Verify payment signature
     public boolean isSignatureValid(String razorpayOrderId, String razorpayPaymentId,
                                     String signature) {
         try {
@@ -133,6 +136,7 @@ public class PaymentService {
         }
     }
 
+    // Verify webhook signature
     public boolean isWebhookSignatureValid(String rawBody, String headerSignature) {
         if (webhookSecret == null || webhookSecret.isBlank()) return false;
         if (rawBody == null || headerSignature == null || headerSignature.isBlank()) return false;

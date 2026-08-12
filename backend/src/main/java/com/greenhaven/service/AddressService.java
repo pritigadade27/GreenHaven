@@ -33,6 +33,7 @@ public class AddressService {
     @Transactional
     public ProfileDtos.AddressDto add(String email, ProfileDtos.AddressRequest request) {
         AppUser owner = user(email);
+        // Cap saved addresses
         if (addresses.countByUserId(owner.getId()) >= MAX_PER_USER) {
             throw new IllegalArgumentException(
                     "You can save up to " + MAX_PER_USER + " addresses. Remove one first.");
@@ -42,6 +43,7 @@ public class AddressService {
         row.setUser(owner);
         apply(row, request);
 
+        // First address becomes default
         boolean first = addresses.countByUserId(owner.getId()) == 0;
         row.setDefaultAddress(first || request.makeDefault());
 
@@ -75,6 +77,7 @@ public class AddressService {
         boolean wasDefault = row.isDefaultAddress();
         addresses.delete(row);
 
+        // Promote next default address
         if (wasDefault) {
             addresses.findByUserIdOrderByDefaultAddressDescIdDesc(owner.getId()).stream()
                     .findFirst()
@@ -111,6 +114,7 @@ public class AddressService {
         return s == null || s.isBlank() ? null : s.trim();
     }
 
+    // Enforce address ownership
     private Address owned(AppUser owner, Long id) {
         return addresses.findByIdAndUserId(id, owner.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("No such saved address."));

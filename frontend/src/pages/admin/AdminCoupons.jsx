@@ -68,6 +68,7 @@ export default function AdminCoupons() {
     });
   }
 
+  // Create or update coupon
   async function save(event) {
     event.preventDefault();
     setBusy(true);
@@ -99,6 +100,7 @@ export default function AdminCoupons() {
     }
   }
 
+  // Turn coupon on or off
   async function toggle(row) {
     if (busyId) return;
     setBusyId(row.id);

@@ -11,6 +11,7 @@ export default function useAdminQuery(loader, deps = []) {
 
   const reload = useCallback(() => setNonce((n) => n + 1), []);
 
+  // Run loader, drop stale results
   useEffect(() => {
     let alive = true;
     setLoading(true);
@@ -23,6 +24,7 @@ export default function useAdminQuery(loader, deps = []) {
       })
       .catch((err) => {
         if (!alive) return;
+        // Expired admin session
         if (err.sessionEnded) {
           sessionEnded();
           return;

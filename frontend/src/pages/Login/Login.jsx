@@ -31,6 +31,7 @@ export default function Login() {
     e.preventDefault();
     setServerError('');
 
+    // Validate credentials format
     const next = {};
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(form.email))
       next.email = 'Enter a valid email address.';
@@ -40,6 +41,7 @@ export default function Login() {
 
     setBusy(true);
     try {
+      // Authenticate user
       await login(form.email, form.password);
       navigate(from, { replace: true });
     } catch (err) {

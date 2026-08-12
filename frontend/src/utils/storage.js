@@ -1,3 +1,4 @@
+// Fallback when localStorage blocked
 const memory = new Map();
 
 export function readJson(key, fallback, isValid = () => true) {

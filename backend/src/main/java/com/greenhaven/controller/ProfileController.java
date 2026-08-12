@@ -53,6 +53,7 @@ public class ProfileController {
         return profile.updateProfile(principal.getName(), body);
     }
 
+    // Issue email change token
     @PostMapping("/email")
     public Map<String, String> requestEmailChange(
             Principal principal, @Valid @RequestBody ProfileDtos.ChangeEmailRequest body) {
@@ -75,6 +76,7 @@ public class ProfileController {
         return new ApiMessage("That email change has been dropped.");
     }
 
+    // Change account password
     @PostMapping("/password")
     public ApiMessage changePassword(Principal principal,
                                      @Valid @RequestBody ProfileDtos.ChangePasswordRequest body) {
@@ -105,6 +107,7 @@ public class ProfileController {
         return profile.reorderLines(principal.getName(), orderNumber);
     }
 
+    // Owner-only invoice PDF
     @GetMapping(value = "/orders/{orderNumber}/invoice", produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<byte[]> invoice(Principal principal, @PathVariable String orderNumber) {
         Order order = profile.invoiceSource(principal.getName(), orderNumber);

@@ -21,6 +21,7 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.NOT_FOUND, ex.getMessage(), null);
     }
 
+    // Hide internal error details
     private static String safeMessage(Throwable ex, String fallback) {
         String message = ex.getMessage();
         if (message == null || message.isBlank() || message.length() > 200) return fallback;
@@ -73,6 +74,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> invalid(MethodArgumentNotValidException ex) {
+        // Collect per-field validation errors
         Map<String, String> fields = new LinkedHashMap<>();
         ex.getBindingResult().getFieldErrors()
                 .forEach(err -> fields.putIfAbsent(err.getField(), err.getDefaultMessage()));

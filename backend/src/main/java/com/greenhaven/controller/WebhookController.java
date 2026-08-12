@@ -36,11 +36,13 @@ public class WebhookController {
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("not configured");
         }
 
+        // Verify Razorpay signature
         if (!payments.isWebhookSignatureValid(rawBody, signature)) {
             log.warn("Webhook signature did not verify — refused.");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("bad signature");
         }
 
+        // Read payment entity from payload
         String event;
         JSONObject entity;
         try {
@@ -59,6 +61,7 @@ public class WebhookController {
             return ResponseEntity.ok("no order id");
         }
 
+        // Settle or fail the order
         String result = switch (event) {
             case "payment.captured" ->
                     orders.settleFromWebhook(razorpayOrderId, razorpayPaymentId,

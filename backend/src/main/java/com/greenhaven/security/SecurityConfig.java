@@ -32,6 +32,7 @@ public class SecurityConfig {
             .csrf(AbstractHttpConfigurer::disable)
             .cors(cors -> { })
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            // Public routes, admin locked
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers(HttpMethod.GET,
                             "/api/plants/**", "/api/categories/**", "/api/badges/**").permitAll()
@@ -46,6 +47,7 @@ public class SecurityConfig {
                     .anyRequest().authenticated())
             .httpBasic(AbstractHttpConfigurer::disable)
             .formLogin(AbstractHttpConfigurer::disable)
+            // Run JWT filter first
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

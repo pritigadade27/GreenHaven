@@ -67,6 +67,7 @@ public class CouponService {
         String code = normalise(rawCode);
         if (code.isEmpty()) return null;
 
+        // Lock the coupon row
         Coupon coupon = coupons.findByCodeForUpdate(code)
                 .orElseThrow(() -> new IllegalArgumentException("We do not recognise that code."));
 
@@ -87,6 +88,7 @@ public class CouponService {
     }
 
     private String whyNot(Coupon coupon, AppUser user, BigDecimal subtotal) {
+        // Check coupon eligibility
         Instant now = Instant.now();
 
         if (!coupon.isActive()) {
@@ -119,6 +121,7 @@ public class CouponService {
         if (request.items() == null || request.items().isEmpty()) {
             throw new IllegalArgumentException("Your cart is empty.");
         }
+        // Price cart from database
         BigDecimal subtotal = BigDecimal.ZERO;
         for (CouponDtos.QuoteRequest.Line line : request.items()) {
             Plant plant = plants.findBySlug(line.slug())

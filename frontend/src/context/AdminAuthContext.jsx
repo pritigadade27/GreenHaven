@@ -8,6 +8,7 @@ export function AdminAuthProvider({ children }) {
   const [admin, setAdmin] = useState(null);
   const [ready, setReady] = useState(false);
 
+  // Restore admin session
   useEffect(() => {
     if (!getAdminToken()) {
       setReady(true);
@@ -29,6 +30,7 @@ export function AdminAuthProvider({ children }) {
 
   const login = useCallback(async (email, password) => {
     const response = await adminAuthApi.login(email, password);
+    // Store admin token
     setAdminToken(response.token);
     setAdmin(response.user);
     return response.user;

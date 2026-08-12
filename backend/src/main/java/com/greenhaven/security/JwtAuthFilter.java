@@ -38,6 +38,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         if (header != null && header.startsWith("Bearer ")
                 && SecurityContextHolder.getContext().getAuthentication() == null) {
             try {
+                // Decode Bearer token claims
                 var claims = jwt.claims(header.substring(7));
                 String email = claims.getSubject();
                 String jti = claims.getId();
@@ -45,8 +46,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 users.findByEmail(email).ifPresent(user -> {
                     if (user.isBlocked()) return;
 
+                    // Admin session must still be live
                     if ("ADMIN".equals(user.getRole()) && !sessions.isLive(jti)) return;
 
+                    // Grant role for this request
                     var authority = new SimpleGrantedAuthority("ROLE_" + user.getRole());
                     var auth = new UsernamePasswordAuthenticationToken(
                             user.getEmail(), null, List.of(authority));

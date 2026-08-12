@@ -139,6 +139,7 @@ public class ReviewService {
                     "You have already reviewed this plant. Edit your review instead.");
         }
 
+        // Require delivered purchase
         List<Order> delivered = orders.deliveredContaining(user.getId(), slug);
         if (delivered.isEmpty()) {
             throw new IllegalArgumentException(
@@ -208,6 +209,7 @@ public class ReviewService {
             throw new IllegalArgumentException(
                     "You can attach up to " + MAX_IMAGES + " photographs.");
         }
+        // Reject unknown image paths
         for (String url : wanted) {
             if (!uploads.isStoredReviewImage(url)) {
                 throw new IllegalArgumentException("Attach photographs using the upload button.");
@@ -249,6 +251,7 @@ public class ReviewService {
 
     @Transactional
     public void recompute(Plant plant) {
+        // Recalculate average rating
         long count = reviews.countByPlantIdAndStatus(plant.getId(), Review.APPROVED);
         plant.setRating(count == 0 ? null
                 : BigDecimal.valueOf(reviews.averageFor(plant.getId()))

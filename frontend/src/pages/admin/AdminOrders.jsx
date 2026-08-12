@@ -19,11 +19,13 @@ export default function AdminOrders() {
   const [page, setPage] = useState(0);
   const [busyId, setBusyId] = useState(null);
 
+  // Fetch orders page
   const orders = useAdminQuery(
     () => adminApi.orders({ q, delivery, page, size: 20 }),
     [q, delivery, page]
   );
 
+  // Update delivery status
   async function advance(row, status) {
     if (busyId) return;
     setBusyId(row.id);

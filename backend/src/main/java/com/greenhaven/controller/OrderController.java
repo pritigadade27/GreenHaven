@@ -30,6 +30,7 @@ public class OrderController {
         this.orders = orders;
     }
 
+    // Create order, start payment
     @PostMapping
     public ResponseEntity<OrderDto> checkout(Principal principal,
                                              @Valid @RequestBody CheckoutRequest request)
@@ -38,6 +39,7 @@ public class OrderController {
                 .body(orders.startCheckout(principal.getName(), request));
     }
 
+    // Verify payment signature
     @PostMapping("/verify")
     public OrderDto verify(Principal principal,
                            @Valid @RequestBody PaymentVerificationRequest request) {
@@ -51,6 +53,7 @@ public class OrderController {
         return orders.simulateGateway(principal.getName(), razorpayOrderId, succeed);
     }
 
+    // Cancel unpaid order
     @PostMapping("/{razorpayOrderId}/cancel")
     public ApiMessage cancel(Principal principal, @PathVariable String razorpayOrderId) {
         boolean cancelled = orders.markCancelled(principal.getName(), razorpayOrderId);

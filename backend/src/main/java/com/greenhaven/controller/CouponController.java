@@ -21,6 +21,7 @@ public class CouponController {
         this.coupons = coupons;
     }
 
+    // Price cart with coupon
     @PostMapping("/quote")
     public CouponDtos.QuoteResponse quote(Principal principal,
                                           @Valid @RequestBody CouponDtos.QuoteRequest body) {

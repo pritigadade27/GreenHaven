@@ -83,6 +83,7 @@ export default function AdminDashboard() {
 }
 
 function RevenueChart({ points }) {
+  // Scale bars to peak
   const peak = Math.max(...points.map((p) => Number(p.revenue) || 0), 1);
 
   return (

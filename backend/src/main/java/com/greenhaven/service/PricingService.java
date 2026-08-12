@@ -31,6 +31,7 @@ public class PricingService {
         BigDecimal discount = discountFor(subtotal, coupon);
         BigDecimal goods = subtotal.subtract(discount);
 
+        // Free delivery threshold
         BigDecimal shipping = subtotal.compareTo(FREE_DELIVERY_OVER) >= 0
                 ? BigDecimal.ZERO : DELIVERY_FEE;
         if (coupon != null && coupon.isFreeShipping()) {
@@ -48,11 +49,13 @@ public class PricingService {
     public BigDecimal discountFor(BigDecimal subtotal, Coupon coupon) {
         if (coupon == null) return BigDecimal.ZERO;
 
+        // Percent or flat discount
         BigDecimal discount = Coupon.PERCENT.equals(coupon.getDiscountType())
                 ? subtotal.multiply(coupon.getDiscountValue())
                         .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP)
                 : coupon.getDiscountValue();
 
+        // Cap the discount
         if (coupon.getMaxDiscount() != null && discount.compareTo(coupon.getMaxDiscount()) > 0) {
             discount = coupon.getMaxDiscount();
         }

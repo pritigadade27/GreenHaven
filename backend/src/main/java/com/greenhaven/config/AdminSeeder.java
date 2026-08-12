@@ -26,12 +26,14 @@ public class AdminSeeder {
                 return;
             }
 
+            // Never overwrite an existing admin
             String normalised = email.trim().toLowerCase();
             if (users.existsByEmail(normalised)) {
                 log.info("Admin account already exists; leaving it untouched.");
                 return;
             }
 
+            // Enforce minimum password strength
             if (password.length() < 8) {
                 log.error("ADMIN_PASSWORD is shorter than 8 characters — admin NOT created.");
                 return;
@@ -40,6 +42,7 @@ public class AdminSeeder {
                 log.warn("ADMIN_PASSWORD is under 12 characters. Consider a longer one.");
             }
 
+            // Create the seeded admin
             AppUser admin = new AppUser();
             admin.setFullName(name.trim());
             admin.setEmail(normalised);

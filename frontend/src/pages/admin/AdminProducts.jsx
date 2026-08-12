@@ -60,6 +60,7 @@ export default function AdminProducts() {
       [key]: e.target.type === 'checkbox' ? e.target.checked : e.target.value,
     }));
 
+  // Run admin call, reload list
   async function act(fn, success) {
     setBusy(true);
     try {
@@ -75,6 +76,7 @@ export default function AdminProducts() {
     }
   }
 
+  // Upload product photo
   async function uploadImage(file) {
     if (!file) return;
     const result = await act(
@@ -84,6 +86,7 @@ export default function AdminProducts() {
     if (result?.url) setForm((prev) => ({ ...prev, image: result.url }));
   }
 
+  // Create or update product
   async function save(event) {
     event.preventDefault();
     const payload = {

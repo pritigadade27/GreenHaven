@@ -42,6 +42,7 @@ public class PlantService {
         };
     }
 
+    // Escape LIKE wildcards
     private static String escapeLike(String q) {
         if (q == null) return null;
         return q.replace("!", "!!").replace("%", "!%").replace("_", "!_");
@@ -91,6 +92,7 @@ public class PlantService {
             return sameCategory.stream().limit(limit).map(mapper::toSummary).toList();
         }
 
+        // Top up using shared badges
         List<Plant> filler = plants.findAll().stream()
                 .filter(p -> !p.getId().equals(plant.getId()))
                 .filter(p -> !sameCategory.contains(p))

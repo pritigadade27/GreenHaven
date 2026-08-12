@@ -43,6 +43,7 @@ public class ReviewController {
         return reviews.mine(principal.getName());
     }
 
+    // Check if user may review
     @GetMapping("/api/reviews/{slug}/eligibility")
     public ReviewDtos.Eligibility eligibility(Principal principal, @PathVariable String slug) {
         return reviews.eligibility(principal.getName(), slug);

@@ -44,6 +44,7 @@ export default function Shop() {
     setParams(next, { replace: true });
   };
 
+  // Apply filters and sort
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
     return CATALOGUE.filter((p) => {
@@ -70,6 +71,7 @@ export default function Shop() {
   const safePage = Math.min(page, pageCount);
   const visible = results.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
+  // Reset page on filter change
   useEffect(() => {
     setPage(1);
   }, [CATALOGUE, query, category, petSafeOnly, difficulty, light, maxPrice,
@@ -80,6 +82,7 @@ export default function Shop() {
     gridRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
+  // Count active filters
   const activeCount =
     (category ? 1 : 0) +
     (petSafeOnly ? 1 : 0) +

@@ -41,6 +41,7 @@ public class CouponAdminController {
         return coupons.list(page, size);
     }
 
+    // Create coupon and audit
     @PostMapping
     public ResponseEntity<CouponDtos.CouponRow> create(
             Principal principal, @Valid @RequestBody CouponDtos.CouponRequest body,
@@ -61,6 +62,7 @@ public class CouponAdminController {
         return row;
     }
 
+    // Toggle coupon state
     @PatchMapping("/{id}/state")
     public CouponDtos.CouponRow setActive(Principal principal, @PathVariable Long id,
                                           @RequestParam boolean active, HttpServletRequest http) {

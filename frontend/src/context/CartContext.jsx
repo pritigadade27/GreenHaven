@@ -26,6 +26,7 @@ function init() {
   }));
 }
 
+// Clamp quantity to stock
 const capped = (quantity, line) => {
   const ceiling = Number.isFinite(line?.stock) && line.stock > 0 ? line.stock : 99;
   return Math.max(1, Math.min(Math.round(quantity), ceiling));
@@ -55,6 +56,7 @@ function reducer(state, action) {
         line.id === action.id ? { ...line, quantity: capped(action.quantity, line) } : line
       );
 
+    // Merge saved server cart
     case 'MERGE_SERVER': {
       const merged = [...state];
       action.lines.forEach(({ slug, quantity }) => {
@@ -117,6 +119,7 @@ export function CartProvider({ children }) {
   });
 
   const value = useMemo(() => {
+    // Calculate cart totals
     const totalItems = items.reduce((sum, line) => sum + line.quantity, 0);
     const subtotal = items.reduce((sum, line) => sum + line.price * line.quantity, 0);
 

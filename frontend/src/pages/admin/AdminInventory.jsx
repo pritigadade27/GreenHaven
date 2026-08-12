@@ -19,11 +19,13 @@ export default function AdminInventory() {
   const [page, setPage] = useState(0);
   const [savingId, setSavingId] = useState(null);
 
+  // Fetch filtered inventory
   const items = useAdminQuery(
     () => adminApi.inventory({ filter, q, page, size: 20 }),
     [filter, q, page]
   );
 
+  // Write new stock count
   async function save(row, value) {
     const next = Number(value);
     if (!Number.isFinite(next) || next < 0 || next === row.stock) return;

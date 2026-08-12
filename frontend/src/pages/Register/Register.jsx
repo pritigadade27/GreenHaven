@@ -28,6 +28,7 @@ export default function Register() {
     e.preventDefault();
     setServerError('');
 
+    // Validate signup fields
     const next = {};
     if (form.name.trim().length < 2) next.name = 'Tell us what to call you.';
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(form.email))
@@ -39,6 +40,7 @@ export default function Register() {
 
     setBusy(true);
     try {
+      // Create account
       await register(form.name, form.email, form.password, form.phone.trim());
       navigate(from, { replace: true });
     } catch (err) {

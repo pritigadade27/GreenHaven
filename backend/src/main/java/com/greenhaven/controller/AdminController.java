@@ -68,6 +68,7 @@ public class AdminController {
     public AdminDtos.OrderRow updateDelivery(@PathVariable Long id,
                                              @RequestBody Map<String, String> body,
                                              Principal principal, HttpServletRequest http) {
+        // Change status, then audit it
         AdminDtos.OrderRow before = admin.order(id).summary();
         AdminDtos.OrderRow updated = admin.updateDeliveryStatus(id, body.get("status"));
         audit.record(principal.getName(), AdminAuditService.ORDER_STATUS_CHANGED,
@@ -101,6 +102,7 @@ public class AdminController {
     public AdminDtos.UserRow setBlocked(@PathVariable Long id,
                                         @RequestBody Map<String, Boolean> body,
                                         Principal principal, HttpServletRequest http) {
+        // Block or unblock a user
         boolean blocked = Boolean.TRUE.equals(body.get("blocked"));
         AdminDtos.UserRow updated = admin.setBlocked(id, blocked);
         audit.record(principal.getName(),
@@ -122,6 +124,7 @@ public class AdminController {
     public AdminDtos.InventoryRow updateStock(@PathVariable Long id,
                                               @RequestBody Map<String, Integer> body,
                                               Principal principal, HttpServletRequest http) {
+        // Adjust stock level
         AdminDtos.InventoryRow updated = admin.updateStock(id, body.get("stock"));
         audit.record(principal.getName(), AdminAuditService.INVENTORY_UPDATED,
                 "PRODUCT", updated.slug(),
@@ -132,6 +135,7 @@ public class AdminController {
     @PostMapping("/reconcile")
     public com.greenhaven.service.ReconciliationService.Result reconcile(
             Principal principal, HttpServletRequest http) {
+        // Settle pending payments
         var result = reconciliation.reconcile();
         audit.record(principal.getName(), AdminAuditService.RECONCILED, "SYSTEM", "reconcile",
                 result.examined() + " examined, " + result.settled() + " settled, "

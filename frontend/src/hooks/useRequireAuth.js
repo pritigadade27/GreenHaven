@@ -8,6 +8,7 @@ export default function useRequireAuth() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Gate action behind sign-in
   return useCallback(
     (action, reason = 'continue') =>
       (...args) => {

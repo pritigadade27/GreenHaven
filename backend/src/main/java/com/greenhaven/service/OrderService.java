@@ -89,6 +89,7 @@ public class OrderService {
                     .orElseThrow(() -> new ResourceNotFoundException(
                             "No product with slug '" + slug + "'"));
 
+            // Check stock
             int qty = entry.getValue();
             if (plant.getStock() == null || plant.getStock() < qty) {
                 throw new IllegalArgumentException(plant.getStock() == null
@@ -109,6 +110,7 @@ public class OrderService {
             subtotal = subtotal.add(plant.getPrice().multiply(BigDecimal.valueOf(qty)));
         }
 
+        // Apply coupon and totals
         Coupon coupon = couponService.claim(user, request.couponCode(), subtotal);
 
         PricingService.Totals totals = pricing.price(subtotal, coupon);
@@ -174,6 +176,7 @@ public class OrderService {
                             + " and can no longer be paid.");
         }
 
+        // Verify payment signature
         boolean valid = payments.isSignatureValid(
                 request.razorpayOrderId(), request.razorpayPaymentId(), request.razorpaySignature());
 
@@ -217,6 +220,7 @@ public class OrderService {
                         signature == null ? "webhook" : signature),
                 Payment.CAPTURED, Payment.VERIFIED, null, source);
 
+        // Deduct stock under lock
         for (OrderItem item : order.getItems()) {
             Plant plant = plants.findByIdForUpdate(item.getPlant().getId())
                     .orElseThrow(() -> new ResourceNotFoundException(

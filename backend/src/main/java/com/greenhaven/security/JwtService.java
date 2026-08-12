@@ -19,6 +19,7 @@ public class JwtService {
 
     public JwtService(@Value("${greenhaven.jwt.secret}") String secret,
                       @Value("${greenhaven.jwt.expiration-ms}") long expirationMs) {
+        // Reject weak JWT secret
         if (secret == null || secret.isBlank()) {
             throw new IllegalStateException(
                     "greenhaven.jwt.secret is not set. Put GREENHAVEN_JWT_SECRET in backend/.env "
@@ -43,6 +44,7 @@ public class JwtService {
 
     public String issue(String email, String role, String jti, long lifetimeMs) {
         Date now = new Date();
+        // Sign token with role
         var builder = Jwts.builder()
                 .subject(email)
                 .claim("role", role)
@@ -53,6 +55,7 @@ public class JwtService {
         return builder.compact();
     }
 
+    // Verify signature, read claims
     public Claims claims(String token) {
         return Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload();
     }

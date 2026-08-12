@@ -41,6 +41,7 @@ public class ProductAdminController {
         this.audit = audit;
     }
 
+    // Create product and audit
     @PostMapping
     public ResponseEntity<ProductAdminDtos.ProductRow> create(
             Principal principal, @Valid @RequestBody ProductAdminDtos.ProductRequest body,
@@ -71,6 +72,7 @@ public class ProductAdminController {
         return row;
     }
 
+    // Delete or discontinue product
     @DeleteMapping("/{id}")
     public ProductAdminDtos.DeleteOutcome delete(Principal principal, @PathVariable Long id,
                                                  HttpServletRequest http) {
@@ -91,6 +93,7 @@ public class ProductAdminController {
         return urls;
     }
 
+    // Store uploaded image
     @PostMapping(value = "/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ProductAdminDtos.UploadResult upload(Principal principal,
                                                 @RequestPart("file") MultipartFile file,

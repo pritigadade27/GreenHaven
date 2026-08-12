@@ -15,6 +15,7 @@ export default function AdminUsers() {
   const [busyId, setBusyId] = useState(null);
   const users = useAdminQuery(() => adminApi.users({ q, page, size: 20 }), [q, page]);
 
+  // Block or unblock customer
   async function toggle(row) {
     if (busyId) return;
     setBusyId(row.id);

@@ -41,6 +41,7 @@ export default function PlantDetails() {
   const [tab, setTab] = useState('care');
   const [added, setAdded] = useState(false);
 
+  // Clear added flag after delay
   useEffect(() => {
     if (!added) return undefined;
     const t = setTimeout(() => setAdded(false), 1800);
@@ -88,6 +89,7 @@ export default function PlantDetails() {
     .map((code) => (BADGES[code] ? { code, ...BADGES[code] } : null))
     .filter(Boolean);
 
+  // Check stock level
   const stock = plant.stock ?? 0;
   const inStock = stock > 0;
   const maxQty = Math.max(1, Math.min(stock, 10));
@@ -111,8 +113,10 @@ export default function PlantDetails() {
         'Pet safety': pet.text,
       };
 
+  // Clamp quantity to stock
   if (quantity > maxQty) setQuantity(maxQty);
 
+  // Add to cart
   const handleAdd = () => {
     addToCart(plant, quantity);
     setAdded(true);

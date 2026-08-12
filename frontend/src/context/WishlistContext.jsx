@@ -18,6 +18,7 @@ export function WishlistProvider({ children }) {
 
   const { getPlantBySlug, ready: catalogueReady } = useCatalogue();
 
+  // Merge saved server wishlist
   const restoreFromServer = useCallback(
     (slugs) => {
       if (!Array.isArray(slugs) || slugs.length === 0) return;

@@ -23,6 +23,7 @@ export default function AdminReviews() {
   const [reason, setReason] = useState('Inappropriate content');
   const reviews = useAdminQuery(() => adminApi.reviews({ status, page, size: 20 }), [status, page]);
 
+  // Run action then refresh
   async function act(row, fn) {
     if (busyId) return;
     setBusyId(row.id);
@@ -184,6 +185,7 @@ export default function AdminReviews() {
           <form
             className="admin-modal__card"
             onSubmit={(e) => {
+              // Hide review with reason
               e.preventDefault();
               const row = hiding;
               setHiding(null);

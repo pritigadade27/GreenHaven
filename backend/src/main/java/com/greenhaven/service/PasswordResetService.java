@@ -62,6 +62,7 @@ public class PasswordResetService {
 
         resets.markAllUsedFor(user.getId(), Instant.now());
 
+        // Generate random reset token
         byte[] raw = new byte[TOKEN_BYTES];
         RANDOM.nextBytes(raw);
         String token = HexFormat.of().formatHex(raw);
@@ -88,6 +89,7 @@ public class PasswordResetService {
             throw new IllegalArgumentException("The two passwords do not match.");
         }
 
+        // Match token by hash
         PasswordReset row = resets.findByTokenHash(sha256(token == null ? "" : token.trim()))
                 .orElseThrow(() -> new IllegalArgumentException(
                         "That reset link is not valid. Request a new one."));

@@ -28,6 +28,7 @@ public class AuthService {
     @Transactional
     public AuthResponse register(RegisterRequest request) {
         String email = request.email().trim().toLowerCase();
+        // Reject duplicate email
         if (users.existsByEmail(email)) {
             throw new IllegalArgumentException("An account with that email already exists.");
         }
@@ -35,6 +36,7 @@ public class AuthService {
         AppUser user = new AppUser();
         user.setFullName(request.fullName().trim());
         user.setEmail(email);
+        // Store hashed password only
         user.setPasswordHash(encoder.encode(request.password()));
         user.setPhone(request.phone() == null || request.phone().isBlank()
                 ? null : request.phone().trim());
@@ -50,6 +52,7 @@ public class AuthService {
     public AuthResponse login(LoginRequest request) {
         AppUser user = users.findByEmail(request.email().trim()).orElse(null);
 
+        // Dummy hash hides timing
         if (user == null) {
             encoder.matches(request.password(), DUMMY_HASH);
             throw new IllegalArgumentException("Email or password is incorrect.");
@@ -59,6 +62,7 @@ public class AuthService {
             throw new IllegalArgumentException("Email or password is incorrect.");
         }
 
+        // Deny suspended accounts
         if (user.isBlocked()) {
             throw new IllegalArgumentException(
                     "This account has been suspended. Please contact us at hello@greenhaven.in.");

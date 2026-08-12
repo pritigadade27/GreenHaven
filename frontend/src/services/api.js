@@ -19,6 +19,7 @@ export const clearToken = () => remove(TOKEN_KEY);
 async function request(path, { method = 'GET', body, auth = false } = {}) {
   const headers = { Accept: 'application/json' };
   if (body) headers['Content-Type'] = 'application/json';
+  // Attach JWT bearer token
   if (auth) {
     const token = getToken();
     if (token) headers.Authorization = `Bearer ${token}`;
@@ -43,6 +44,7 @@ async function request(path, { method = 'GET', body, auth = false } = {}) {
     if (response.ok) throw new Error('The server sent a response we could not read.');
   }
 
+  // Raise server error with fields
   if (!response.ok) {
     const error = new Error(data?.message || `Request failed (${response.status})`);
     error.fields = data?.fields;
@@ -82,6 +84,7 @@ async function download(path) {
   return { blob: await response.blob(), filename: named ? named[1] : 'download.pdf' };
 }
 
+// Trigger browser file download
 export async function saveFile(path) {
   const { blob, filename } = await download(path);
   const url = URL.createObjectURL(blob);
@@ -132,6 +135,7 @@ export const profileApi = {
 
   requestEmailChange: (email, password) =>
     request('/profile/email', { method: 'POST', auth: true, body: { email, password } }),
+  // Swap in the new session token
   confirmEmailChange: async (token) => {
     const session = await request(`/profile/email/confirm?token=${encodeURIComponent(token)}`, {
       method: 'POST',

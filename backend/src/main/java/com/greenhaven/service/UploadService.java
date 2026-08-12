@@ -65,6 +65,7 @@ public class UploadService {
         if (file == null || file.isEmpty()) {
             throw new IllegalArgumentException("Choose an image to upload.");
         }
+        // Check size and type
         if (file.getSize() > MAX_BYTES) {
             throw new IllegalArgumentException("Images must be 5 MB or smaller.");
         }
@@ -75,6 +76,7 @@ public class UploadService {
             throw new IllegalArgumentException("Upload a JPEG, PNG or WebP image.");
         }
 
+        // Verify real image content
         try (InputStream probe = file.getInputStream()) {
             if (ImageIO.read(probe) == null) {
                 throw new IllegalArgumentException("That file is not a readable image.");
@@ -91,6 +93,7 @@ public class UploadService {
         String name = UUID.randomUUID().toString().replace("-", "") + extension;
         Path target = root.resolve(folder).resolve(name).normalize();
 
+        // Block path traversal
         if (!target.startsWith(root)) {
             throw new IllegalArgumentException("That filename is not allowed.");
         }

@@ -9,6 +9,7 @@ export default function useScrollReveal({ threshold = 0.15, rootMargin = '0px 0p
 
     const show = (el) => el.classList.add('is-visible');
 
+    // Skip animation when reduced motion
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       const revealAll = () => root.querySelectorAll('.reveal').forEach(show);
       revealAll();
@@ -37,6 +38,7 @@ export default function useScrollReveal({ threshold = 0.15, rootMargin = '0px 0p
     const mutations = new MutationObserver(observeAll);
     mutations.observe(root, { childList: true, subtree: true });
 
+    // Failsafe reveal after delay
     let failsafe = setTimeout(() => {
       root.querySelectorAll('.reveal:not(.is-visible)').forEach(show);
     }, 2500);
