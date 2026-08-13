@@ -2,7 +2,7 @@
 $ErrorActionPreference = 'Stop'
 
 # Locate the SQL files
-$resources = Join-Path $PSScriptRoot '..\src\main\resources'
+$resources = Join-Path $PSScriptRoot '..\db'
 $setupUser = Join-Path $resources 'setup-user.sql'
 $schema    = Join-Path $resources 'schema.sql'
 $data      = Join-Path $resources 'data.sql'
@@ -52,15 +52,26 @@ if (-not $appPassword) {
 }
 
 Write-Host ''
-# Build the database in three steps
-Write-Host '1/3  creating database + application user ...' -ForegroundColor Cyan
+# Build the database in four steps, all as root
+Write-Host '1/4  creating database + application user ...' -ForegroundColor Cyan
 Invoke-Sql -File $setupUser -User 'root' -Password $plain
 
-Write-Host '2/3  creating tables ...' -ForegroundColor Cyan
-Invoke-Sql -File $schema -User 'priti' -Password $appPassword -Database 'green_haven'
+# As root, not priti: the application account is granted DML only and cannot
+# CREATE TABLE, which is the point of granting it no more than it needs.
+Write-Host '2/4  creating tables ...' -ForegroundColor Cyan
+Invoke-Sql -File $schema -User 'root' -Password $plain -Database 'green_haven'
 
-Write-Host '3/3  loading catalogue ...' -ForegroundColor Cyan
-Invoke-Sql -File $data -User 'priti' -Password $appPassword -Database 'green_haven'
+Write-Host '3/4  loading catalogue ...' -ForegroundColor Cyan
+Invoke-Sql -File $data -User 'root' -Password $plain -Database 'green_haven'
+
+# Numeric order matters: each migration builds on the one before it.
+Write-Host '4/4  applying migrations ...' -ForegroundColor Cyan
+Get-ChildItem (Join-Path $resources 'migration-*.sql') |
+    Sort-Object { [int]($_.Name -replace '\D+(\d+).*', '$1') } |
+    ForEach-Object {
+        Write-Host "      $($_.Name)" -ForegroundColor DarkGray
+        Invoke-Sql -File $_.FullName -User 'root' -Password $plain -Database 'green_haven'
+    }
 
 Write-Host ''
 # Verify row counts
