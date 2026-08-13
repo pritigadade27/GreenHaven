@@ -26,12 +26,7 @@ public class AdminSeeder {
                 return;
             }
 
-            // Never overwrite an existing admin
             String normalised = email.trim().toLowerCase();
-            if (users.existsByEmail(normalised)) {
-                log.info("Admin account already exists; leaving it untouched.");
-                return;
-            }
 
             // Enforce minimum password strength
             if (password.length() < 8) {
@@ -40,6 +35,24 @@ public class AdminSeeder {
             }
             if (password.length() < 12) {
                 log.warn("ADMIN_PASSWORD is under 12 characters. Consider a longer one.");
+            }
+
+            // Keep the account in step with the configured password. Reinstalling
+            // writes a fresh ADMIN_PASSWORD but leaves the database in place, so
+            // refusing to touch an existing admin locked the owner out of a
+            // password only that database knew, hashed and unreadable.
+            var existing = users.findByEmail(normalised);
+            if (existing.isPresent()) {
+                AppUser current = existing.get();
+                if (encoder.matches(password, current.getPasswordHash())) {
+                    log.info("Admin account already matches the configured password.");
+                    return;
+                }
+                current.setPasswordHash(encoder.encode(password));
+                current.setRole("ADMIN");
+                users.save(current);
+                log.info("Admin password updated to match configuration for {}", normalised);
+                return;
             }
 
             // Create the seeded admin
