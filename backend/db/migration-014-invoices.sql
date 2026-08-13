@@ -1,3 +1,4 @@
+-- Adds invoices and credit notes
 SET NAMES utf8mb4;
 
 CREATE TABLE IF NOT EXISTS invoice (

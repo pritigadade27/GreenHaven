@@ -1,16 +1,7 @@
-<
-  Green Haven — creates the database, the application user, the schema and the
-  seed data in one go.
-
-  Usage (from anywhere):
-      powershell -ExecutionPolicy Bypass -File "backend\tools\setup-database.ps1"
-
-  It will ask for your MySQL *root* password once. Everything after that is
-  automatic. Safe to re-run: the schema drops and recreates its own tables, so
-  a second run simply reloads a clean catalogue.
-
+# Create the database, tables and catalogue
 $ErrorActionPreference = 'Stop'
 
+# Locate the SQL files
 $resources = Join-Path $PSScriptRoot '..\src\main\resources'
 $setupUser = Join-Path $resources 'setup-user.sql'
 $schema    = Join-Path $resources 'schema.sql'
@@ -20,6 +11,7 @@ foreach ($f in @($setupUser, $schema, $data)) {
     if (-not (Test-Path $f)) { throw "Missing SQL file: $f" }
 }
 
+# Find the mysql client
 $mysql = (Get-Command mysql -ErrorAction SilentlyContinue).Source
 if (-not $mysql) {
     $candidates = @(
@@ -44,6 +36,7 @@ $rootPw = Read-Host 'MySQL root password' -AsSecureString
 $plain  = [Runtime.InteropServices.Marshal]::PtrToStringAuto(
             [Runtime.InteropServices.Marshal]::SecureStringToBSTR($rootPw))
 
+# Pipe a SQL file into mysql
 function Invoke-Sql {
     param([string]$File, [string]$User, [string]$Password, [string]$Database)
     $args = @("-u$User", "-p$Password", '--default-character-set=utf8mb4')
@@ -59,6 +52,7 @@ if (-not $appPassword) {
 }
 
 Write-Host ''
+# Build the database in three steps
 Write-Host '1/3  creating database + application user ...' -ForegroundColor Cyan
 Invoke-Sql -File $setupUser -User 'root' -Password $plain
 
@@ -69,6 +63,7 @@ Write-Host '3/3  loading catalogue ...' -ForegroundColor Cyan
 Invoke-Sql -File $data -User 'priti' -Password $appPassword -Database 'green_haven'
 
 Write-Host ''
+# Verify row counts
 Write-Host 'Verifying:' -ForegroundColor Green
 $check = @'
 SELECT 'categories' AS entity, COUNT(*) AS rows_loaded FROM category

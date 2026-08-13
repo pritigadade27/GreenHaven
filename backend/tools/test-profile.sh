@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Config and credentials
 API=${API:-http://localhost:8080/api}
 MYSQL=${MYSQL:-/c/Users/vnp12/mysql/mysql-8.4.9-winx64/bin/mysql.exe}
 HERE="$(cd "$(dirname "$0")" && pwd)"
@@ -9,8 +10,10 @@ ADMIN_PASSWORD=${ADMIN_PASSWORD:?set ADMIN_PASSWORD in test-env.sh}
 export MYSQL_PWD
 ENV_FILE="$(dirname "$0")/../.env"
 
+# MySQL query helper
 Q() { "$MYSQL" --default-character-set=utf8mb4 -u priti green_haven -N -B -e "$1"; }
 
+# Test helpers and cleanup
 . "$(cd "$(dirname "$0")" && pwd)/cleanup.sh"
 pass=0; fail=0
 check() {
@@ -25,6 +28,7 @@ for k in '$1'.split('.'):
     d = d[int(k)] if k.isdigit() else d.get(k)
 print('' if d is None else d)"; }
 
+# Register two test customers
 STAMP=$(date +%s)
 EM="prof$STAMP@example.com"
 EM2="prof2$STAMP@example.com"

@@ -7,6 +7,7 @@ Write-Host ""
 Write-Host "  Green Haven - starting" -ForegroundColor Magenta
 Write-Host ""
 
+# Require setup to have run
 $envFile = Join-Path $root 'backend\.env'
 if (-not (Test-Path $envFile)) {
     Write-Host "  backend\.env is missing - run SETUP.bat first." -ForegroundColor Red
@@ -14,6 +15,7 @@ if (-not (Test-Path $envFile)) {
     exit 1
 }
 
+# Read .env into environment variables
 Get-Content $envFile | ForEach-Object {
     $line = $_.Trim()
     if ($line -and -not $line.StartsWith('#') -and $line.Contains('=')) {
@@ -34,6 +36,7 @@ $pass = @('MYSQL_USER','MYSQL_PASSWORD','GREENHAVEN_JWT_SECRET','RAZORPAY_MODE',
 $exports = ($pass | Where-Object { Test-Path "Env:\$_" } |
             ForEach-Object { "`$env:$_='$((Get-Item Env:\$_).Value)'" }) -join '; '
 
+# Start the backend in its own window
 Say 'starting the API on port 8080...' Cyan
 Start-Process powershell -ArgumentList @(
     '-NoExit', '-Command',
@@ -41,6 +44,7 @@ Start-Process powershell -ArgumentList @(
 ) | Out-Null
 
 Say 'waiting for it to come up' Cyan
+# Poll the API until it answers
 $up = $false
 foreach ($i in 1..60) {
     Start-Sleep -Seconds 2
@@ -51,11 +55,13 @@ foreach ($i in 1..60) {
 }
 if ($up) { Say 'API is up' Green } else { Say 'API did not answer in 2 minutes - check its window' Yellow }
 
+# Start the frontend dev server
 Say 'starting the site on port 5173...' Cyan
 Start-Process powershell -ArgumentList @(
     '-NoExit', '-Command', "cd '$frontend'; npm run dev"
 ) | Out-Null
 
+# Open the site in a browser
 Start-Sleep -Seconds 6
 Start-Process 'http://localhost:5173'
 

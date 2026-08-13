@@ -1,3 +1,4 @@
+-- Adds profile, addresses and notifications
 SET NAMES utf8mb4;
 
 SET @sql := IF(
@@ -46,6 +47,7 @@ SET @sql := IF(
   'SELECT 1');
 PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
 
+-- Backfills delivery date for old orders
 UPDATE orders
    SET estimated_delivery = DATE_ADD(DATE(placed_at), INTERVAL 5 DAY)
  WHERE estimated_delivery IS NULL AND placed_at IS NOT NULL;

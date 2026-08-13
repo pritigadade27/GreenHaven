@@ -1,3 +1,4 @@
+-- Adds password reset tokens
 SET NAMES utf8mb4;
 
 CREATE TABLE IF NOT EXISTS password_reset (

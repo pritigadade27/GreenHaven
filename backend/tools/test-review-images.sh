@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Settings and credentials
 API=${API:-http://localhost:8080/api}
 MYSQL=${MYSQL:-/c/Users/vnp12/mysql/mysql-8.4.9-winx64/bin/mysql.exe}
 HERE="$(cd "$(dirname "$0")" && pwd)"
@@ -9,6 +10,7 @@ ADMIN_PASSWORD=${ADMIN_PASSWORD:?set ADMIN_PASSWORD in test-env.sh}
 export MYSQL_PWD
 UPLOADS="$(cd "$(dirname "$0")/.." && pwd)/uploads"
 
+# Query and request helpers
 Q() { "$MYSQL" --default-character-set=utf8mb4 -u priti green_haven -N -B -e "$1"; }
 
 . "$(cd "$(dirname "$0")" && pwd)/cleanup.sh"
@@ -39,6 +41,7 @@ STAMP=$(date +%s)
 WORK=$(mktemp -d)
 WIN=$(cygpath -m "$WORK")
 
+# Build test image files
 python - "$WIN" <<'PY'
 import struct, sys, zlib, os
 work = sys.argv[1]
@@ -65,9 +68,11 @@ open(os.path.join(work, 'notreally.png'), 'wb').write(
 PY
 echo "  fixtures in $WORK"
 
+# Clear leftovers from earlier runs
 purge_test_accounts "img%@example.com"
 restore_plant peace-lily
 
+# Register two test shoppers
 reg() {
   curl -s -m 20 -X POST $API/auth/register -H 'Content-Type: application/json' \
     -d "{\"fullName\":\"$2\",\"email\":\"$1\",\"password\":\"Testing@123\"}" | jq_ token
@@ -86,6 +91,7 @@ A() { curl -s -m 30 -H "Authorization: Bearer $TOK" "$@"; }
 up()  { curl -s -m 30 -X POST $API/reviews/image -H "Authorization: Bearer $1" -F "file=@$WIN/$2"; }
 upc() { code -X POST $API/reviews/image -H "Authorization: Bearer $1" -F "file=@$WIN/$2"; }
 
+# Refuse to touch real reviews
 EXISTING=$(Q "SELECT COUNT(*) FROM review r JOIN plant p ON p.id=r.plant_id WHERE p.slug='$SLUG';")
 if [ "$EXISTING" != "0" ]; then
   echo "  $SLUG already has $EXISTING real review(s). Point SLUG at another product."
@@ -243,6 +249,7 @@ curl -s -m 30 -X DELETE "$API/admin/reviews/$SID" -H "Authorization: Bearer $ATO
 check "the admin removed it" "0"  "$(Q "SELECT COUNT(*) FROM review WHERE id=$SID;")"
 check "the file went as well" "no" "$([ -f "$F6" ] && echo yes || echo no)"
 
+# Tidy up and report
 rm -rf "$WORK" "$BODY"
 
 purge_test_accounts "img%@example.com"

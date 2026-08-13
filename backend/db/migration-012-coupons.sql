@@ -1,3 +1,4 @@
+-- Adds coupon support
 SET NAMES utf8mb4;
 
 CREATE TABLE IF NOT EXISTS coupon (
@@ -44,6 +45,7 @@ CREATE TABLE IF NOT EXISTS coupon_redemption (
   KEY idx_redemption_user (coupon_id, user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Adds order columns only if missing
 SET @c := (SELECT COUNT(*) FROM information_schema.columns
             WHERE table_schema = DATABASE() AND table_name = 'orders'
               AND column_name = 'discount');

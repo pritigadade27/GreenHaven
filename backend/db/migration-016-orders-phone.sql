@@ -1,5 +1,7 @@
+-- Adds phone to orders
 SET NAMES utf8mb4;
 
+-- Only adds it if missing
 SET @sql := IF(
   (SELECT COUNT(*) FROM information_schema.COLUMNS
     WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'orders'

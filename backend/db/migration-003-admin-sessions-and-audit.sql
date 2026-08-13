@@ -1,3 +1,4 @@
+-- Adds admin sessions, audit log
 SET NAMES utf8mb4;
 
 CREATE TABLE IF NOT EXISTS admin_session (

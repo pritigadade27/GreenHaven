@@ -1,3 +1,4 @@
+-- Allows half-star review ratings
 SET NAMES utf8mb4;
 
 SET @c := (SELECT COUNT(*) FROM information_schema.table_constraints

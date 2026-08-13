@@ -1,3 +1,4 @@
+-- Adds product gallery images
 SET NAMES utf8mb4;
 
 CREATE TABLE IF NOT EXISTS plant_image (

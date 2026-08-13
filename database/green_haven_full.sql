@@ -1,9 +1,13 @@
+-- Full Green Haven database: schema, catalogue and every migration
+-- Run once in MySQL Workbench: File > Open SQL Script, then execute
+
 CREATE DATABASE IF NOT EXISTS green_haven
   CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
 
 USE green_haven;
 
+-- Clean rebuild of all tables
 SET FOREIGN_KEY_CHECKS = 0;
 
 DROP TABLE IF EXISTS order_item;
@@ -20,6 +24,7 @@ DROP TABLE IF EXISTS app_user;
 
 SET FOREIGN_KEY_CHECKS = 1;
 
+-- Catalogue: categories and plants
 CREATE TABLE category (
   id          BIGINT AUTO_INCREMENT PRIMARY KEY,
   slug        VARCHAR(80)  NOT NULL UNIQUE,
@@ -74,6 +79,7 @@ CREATE TABLE plant (
   INDEX idx_plant_flags (is_featured, is_best_seller)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Badges tagged onto plants
 CREATE TABLE badge (
   id      BIGINT AUTO_INCREMENT PRIMARY KEY,
   code    VARCHAR(40)  NOT NULL UNIQUE,
@@ -91,6 +97,7 @@ CREATE TABLE plant_badge (
   CONSTRAINT fk_pb_badge FOREIGN KEY (badge_id) REFERENCES badge(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Customer and admin accounts
 CREATE TABLE app_user (
   id            BIGINT AUTO_INCREMENT PRIMARY KEY,
   full_name     VARCHAR(120) NOT NULL,
@@ -101,6 +108,7 @@ CREATE TABLE app_user (
   created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Cart and wishlist
 CREATE TABLE cart_item (
   id       BIGINT AUTO_INCREMENT PRIMARY KEY,
   user_id  BIGINT NOT NULL,
@@ -122,6 +130,7 @@ CREATE TABLE wishlist_item (
   CONSTRAINT fk_wish_plant FOREIGN KEY (plant_id) REFERENCES plant(id)    ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Orders and payment references
 CREATE TABLE orders (
   id            BIGINT AUTO_INCREMENT PRIMARY KEY,
   order_number  VARCHAR(30) NOT NULL UNIQUE,
@@ -151,6 +160,7 @@ CREATE TABLE order_item (
   CONSTRAINT fk_oi_plant FOREIGN KEY (plant_id) REFERENCES plant(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Contact form and newsletter
 CREATE TABLE contact_message (
   id         BIGINT AUTO_INCREMENT PRIMARY KEY,
   name       VARCHAR(120) NOT NULL,
@@ -168,6 +178,7 @@ CREATE TABLE newsletter_subscriber (
 
 SET NAMES utf8mb4;
 
+-- Shop categories
 INSERT INTO category (slug, name, blurb, sort_order) VALUES
   ('indoor-plants', 'Indoor Plants', 'Living decor for every room.', 1),
   ('outdoor-plants', 'Outdoor Plants', 'Balconies, terraces and gardens.', 2),
@@ -179,6 +190,7 @@ INSERT INTO category (slug, name, blurb, sort_order) VALUES
   ('seeds', 'Seeds', 'Non-GMO, open pollinated.', 8),
   ('plant-care', 'Plant Care Products', 'Feed, protect, repot.', 9);
 
+-- Badge definitions
 INSERT INTO badge (code, label, tone, icon, detail) VALUES
   ('petFriendly', 'Pet Friendly', 'good', 'paw', 'Non-toxic to cats and dogs if nibbled.'),
   ('petCaution', 'Keep From Pets', 'warn', 'paw', 'Mildly irritating if chewed — best placed out of reach.'),
@@ -196,6 +208,7 @@ INSERT INTO badge (code, label, tone, icon, detail) VALUES
   ('statement', 'Statement Plant', 'accent', 'star', 'Large and sculptural — designed to be the focal point.'),
   ('vastu', 'Vastu / Lucky', 'accent', 'shield', 'Traditionally kept for prosperity and good fortune.');
 
+-- Plant catalogue
 INSERT INTO plant (code, slug, name, botanical_name, category_id, price, mrp, stock, image,
   rating, review_count, short_description, description, care_tip,
   pet_safety, difficulty, light_need, water_need, maintenance, growth_rate, mature_size,
@@ -1596,6 +1609,7 @@ SELECT 'x84', 'asparagus-fern', 'Asparagus Fern', 'Asparagus setaceus', c.id,
   '16–26 °C.', 'Monthly feed in growth.', 'Annually — the tubers fill a pot fast.',
   FALSE, FALSE
 FROM category c WHERE c.slug = 'air-purifying';
+-- Seed packets
 INSERT INTO plant (code, slug, name, botanical_name, category_id, price, mrp, stock, image,
   rating, review_count, short_description, description, care_tip,
   pet_safety, difficulty, light_need, water_need, maintenance, growth_rate, mature_size,
@@ -1764,6 +1778,7 @@ SELECT 's12', 'croton-seeds', 'Croton Seeds', 'Petra Mix', c.id,
   NULL, NULL, NULL,
   FALSE, FALSE
 FROM category c WHERE c.slug = 'seeds';
+-- Pots, tools and care products
 INSERT INTO plant (code, slug, name, botanical_name, category_id, price, mrp, stock, image,
   rating, review_count, short_description, description, care_tip,
   pet_safety, difficulty, light_need, water_need, maintenance, growth_rate, mature_size,
@@ -2353,6 +2368,7 @@ SELECT 'm48', 'moisture-meter', 'Soil Moisture Meter', 'No batteries', c.id,
   FALSE, TRUE
 FROM category c WHERE c.slug = 'plant-care';
 
+-- Attaches badges to plants
 INSERT INTO plant_badge (plant_id, badge_id) SELECT p.id, b.id FROM plant p, badge b WHERE p.code = 'p01' AND b.code = 'beginner';
 INSERT INTO plant_badge (plant_id, badge_id) SELECT p.id, b.id FROM plant p, badge b WHERE p.code = 'p01' AND b.code = 'lowMaintenance';
 INSERT INTO plant_badge (plant_id, badge_id) SELECT p.id, b.id FROM plant p, badge b WHERE p.code = 'p01' AND b.code = 'droughtTolerant';
@@ -2872,6 +2888,7 @@ INSERT INTO plant_badge (plant_id, badge_id) SELECT p.id, b.id FROM plant p, bad
 INSERT INTO plant_badge (plant_id, badge_id) SELECT p.id, b.id FROM plant p, badge b WHERE p.code = 'm46' AND b.code = 'beginner';
 INSERT INTO plant_badge (plant_id, badge_id) SELECT p.id, b.id FROM plant p, badge b WHERE p.code = 'm48' AND b.code = 'beginner';
 
+-- Adds payments, reviews, admin fields
 SET NAMES utf8mb4;
 
 ALTER TABLE orders
@@ -2931,6 +2948,7 @@ CREATE TABLE IF NOT EXISTS payment (
   KEY idx_payment_rzp_order (razorpay_order_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Backfills payments from old orders
 INSERT INTO payment (order_id, razorpay_order_id, razorpay_payment_id, amount,
                      status, verification_status, verified_at, created_at)
 SELECT o.id, o.razorpay_order_id, o.razorpay_payment_id, o.total,
@@ -2971,6 +2989,7 @@ CREATE TABLE IF NOT EXISTS review (
   KEY idx_review_status (status, created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Adds admin sessions, audit log
 SET NAMES utf8mb4;
 
 CREATE TABLE IF NOT EXISTS admin_session (
@@ -3009,6 +3028,7 @@ CREATE TABLE IF NOT EXISTS admin_activity_log (
   KEY idx_log_admin (admin_id, created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Adds profile, addresses and notifications
 SET NAMES utf8mb4;
 
 SET @sql := IF(
@@ -3057,6 +3077,7 @@ SET @sql := IF(
   'SELECT 1');
 PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
 
+-- Backfills delivery date for old orders
 UPDATE orders
    SET estimated_delivery = DATE_ADD(DATE(placed_at), INTERVAL 5 DAY)
  WHERE estimated_delivery IS NULL AND placed_at IS NOT NULL;
@@ -3099,6 +3120,7 @@ CREATE TABLE IF NOT EXISTS notification (
   KEY idx_notification_user (user_id, read_at, id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Adds verified purchase reviews
 SET NAMES utf8mb4;
 
 SET @sql := IF(
@@ -3150,6 +3172,7 @@ SET @sql := IF(
   'SELECT 1');
 PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
 
+-- Clears seeded ratings without reviews
 SET NAMES utf8mb4;
 
 UPDATE plant p
@@ -3159,6 +3182,7 @@ UPDATE plant p
        SELECT 1 FROM review r
         WHERE r.plant_id = p.id AND r.status = 'APPROVED');
 
+-- Adds herbs and new arrivals
 SET NAMES utf8mb4;
 
 INSERT IGNORE INTO category (slug, name, blurb, sort_order)
@@ -3175,6 +3199,7 @@ UPDATE plant SET is_new_arrival = 0;
 UPDATE plant SET is_new_arrival = 1
  WHERE id IN (SELECT id FROM (SELECT id FROM plant ORDER BY id DESC LIMIT 12) newest);
 
+-- Adds discontinued product flag
 SET NAMES utf8mb4;
 
 SET @sql := IF(
@@ -3193,6 +3218,7 @@ SET @sql := IF(
   'SELECT 1');
 PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
 
+-- Adds product gallery images
 SET NAMES utf8mb4;
 
 CREATE TABLE IF NOT EXISTS plant_image (
@@ -3208,6 +3234,7 @@ CREATE TABLE IF NOT EXISTS plant_image (
   KEY idx_plant_image_order (plant_id, sort_order, id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Adds password reset tokens
 SET NAMES utf8mb4;
 
 CREATE TABLE IF NOT EXISTS password_reset (
@@ -3225,6 +3252,7 @@ CREATE TABLE IF NOT EXISTS password_reset (
   KEY idx_reset_user (user_id, used_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Adds review images
 SET NAMES utf8mb4;
 
 CREATE TABLE IF NOT EXISTS review_image (
@@ -3240,6 +3268,7 @@ CREATE TABLE IF NOT EXISTS review_image (
   KEY idx_review_image_order (review_id, sort_order, id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Adds coupon support
 SET NAMES utf8mb4;
 
 CREATE TABLE IF NOT EXISTS coupon (
@@ -3286,6 +3315,7 @@ CREATE TABLE IF NOT EXISTS coupon_redemption (
   KEY idx_redemption_user (coupon_id, user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Adds order columns only if missing
 SET @c := (SELECT COUNT(*) FROM information_schema.columns
             WHERE table_schema = DATABASE() AND table_name = 'orders'
               AND column_name = 'discount');
@@ -3302,12 +3332,14 @@ SET @s := IF(@c = 0,
   'SELECT 1');
 PREPARE st FROM @s; EXECUTE st; DEALLOCATE PREPARE st;
 
+-- Makes coupon dates optional
 SET NAMES utf8mb4;
 
 ALTER TABLE coupon
   MODIFY COLUMN starts_at  DATETIME NULL,
   MODIFY COLUMN expires_at DATETIME NULL;
 
+-- Adds invoices and credit notes
 SET NAMES utf8mb4;
 
 CREATE TABLE IF NOT EXISTS invoice (
@@ -3331,6 +3363,7 @@ SELECT o.invoice_number, 'INVOICE', o.id, o.total,
   FROM orders o
  WHERE o.invoice_number IS NOT NULL AND o.invoice_number <> '';
 
+-- Allows half-star review ratings
 SET NAMES utf8mb4;
 
 SET @c := (SELECT COUNT(*) FROM information_schema.table_constraints
@@ -3350,8 +3383,10 @@ SET @s := IF(@c = 0,
   'SELECT 1');
 PREPARE st FROM @s; EXECUTE st; DEALLOCATE PREPARE st;
 
+-- Adds phone to orders
 SET NAMES utf8mb4;
 
+-- Only adds it if missing
 SET @sql := IF(
   (SELECT COUNT(*) FROM information_schema.COLUMNS
     WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'orders'

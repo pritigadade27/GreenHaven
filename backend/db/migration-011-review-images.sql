@@ -1,3 +1,4 @@
+-- Adds review images
 SET NAMES utf8mb4;
 
 CREATE TABLE IF NOT EXISTS review_image (

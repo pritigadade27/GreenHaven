@@ -1,3 +1,4 @@
+-- Adds discontinued product flag
 SET NAMES utf8mb4;
 
 SET @sql := IF(

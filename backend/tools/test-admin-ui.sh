@@ -1,14 +1,17 @@
 #!/usr/bin/env bash
+# Browser bridge and admin credentials
 BR=http://127.0.0.1:10086/command
 S=green-haven-qa
 PW=$(grep '^ADMIN_PASSWORD=' "/c/Users/vnp12/Desktop/green haven/backend/.env" | cut -d= -f2- | tr -d '\r')
 ADMIN_EMAIL=$(grep '^ADMIN_EMAIL=' "/c/Users/vnp12/Desktop/green haven/backend/.env" | cut -d= -f2- | tr -d '\r')
 
+# Open a page in the browser
 go() {
   curl -s -X POST $BR -H 'Content-Type: application/json' \
     -d "{\"action\":\"navigate\",\"args\":{\"url\":\"http://localhost:5173$1\"},\"session\":\"$S\"}" >/dev/null
   sleep "${2:-4}"
 }
+# Run JavaScript on the page
 ev() {
   python - "$1" <<'PY' > /tmp/ev.json
 import json,sys
@@ -22,6 +25,7 @@ v = r.get('data', {}).get('value')
 print('' if v is None else v)"
 }
 
+# Test result helpers
 pass=0; fail=0
 check() {
   if [ "$2" = "$3" ]; then printf "  PASS  %-50s %s\n" "$1" "$3"; pass=$((pass+1))

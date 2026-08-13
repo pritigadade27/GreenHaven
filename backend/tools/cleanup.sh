@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 
+# Remove test accounts and their data
 purge_test_accounts() {
   local pat="$1"
   [ -n "$pat" ] || return 0
 
+  # Give stock back from test orders
   Q "UPDATE plant p
        JOIN (SELECT oi.plant_id AS pid, SUM(oi.quantity) AS qty
                FROM order_item oi
@@ -14,6 +16,7 @@ purge_test_accounts() {
               GROUP BY oi.plant_id) t ON t.pid = p.id
         SET p.stock = p.stock + t.qty;" >/dev/null 2>&1
 
+  # Order and review child rows first
   Q "DELETE ri FROM review_image ri
        JOIN review r ON r.id = ri.review_id
        JOIN app_user u ON u.id = r.user_id WHERE u.email LIKE '$pat';" >/dev/null 2>&1
@@ -27,6 +30,7 @@ purge_test_accounts() {
        JOIN orders o ON o.id = oi.order_id
        JOIN app_user u ON u.id = o.user_id WHERE u.email LIKE '$pat';" >/dev/null 2>&1
 
+  # Everything owned by the user
   Q "DELETE cr FROM coupon_redemption cr JOIN app_user u ON u.id = cr.user_id WHERE u.email LIKE '$pat';" >/dev/null 2>&1
   Q "DELETE r  FROM review r            JOIN app_user u ON u.id = r.user_id  WHERE u.email LIKE '$pat';" >/dev/null 2>&1
   Q "DELETE o  FROM orders o            JOIN app_user u ON u.id = o.user_id  WHERE u.email LIKE '$pat';" >/dev/null 2>&1
@@ -37,13 +41,16 @@ purge_test_accounts() {
   Q "DELETE pr FROM password_reset pr    JOIN app_user u ON u.id = pr.user_id WHERE u.email LIKE '$pat';" >/dev/null 2>&1
   Q "DELETE s  FROM admin_session s      JOIN app_user u ON u.id = s.user_id  WHERE u.email LIKE '$pat';" >/dev/null 2>&1
 
+  # Finally the accounts themselves
   Q "DELETE FROM app_user WHERE email LIKE '$pat';" >/dev/null 2>&1
 }
 
+# Reset a plant's rating
 restore_plant() {
   Q "UPDATE plant SET rating = NULL, review_count = 0 WHERE slug = '$1';" >/dev/null 2>&1
 }
 
+# Warn if anything survived
 assert_clean() {
   local pat="$1"
   local left

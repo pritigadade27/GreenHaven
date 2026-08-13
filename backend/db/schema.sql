@@ -1,3 +1,4 @@
+-- Clean rebuild of all tables
 SET FOREIGN_KEY_CHECKS = 0;
 
 DROP TABLE IF EXISTS order_item;
@@ -14,6 +15,7 @@ DROP TABLE IF EXISTS app_user;
 
 SET FOREIGN_KEY_CHECKS = 1;
 
+-- Catalogue: categories and plants
 CREATE TABLE category (
   id          BIGINT AUTO_INCREMENT PRIMARY KEY,
   slug        VARCHAR(80)  NOT NULL UNIQUE,
@@ -68,6 +70,7 @@ CREATE TABLE plant (
   INDEX idx_plant_flags (is_featured, is_best_seller)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Badges tagged onto plants
 CREATE TABLE badge (
   id      BIGINT AUTO_INCREMENT PRIMARY KEY,
   code    VARCHAR(40)  NOT NULL UNIQUE,
@@ -85,6 +88,7 @@ CREATE TABLE plant_badge (
   CONSTRAINT fk_pb_badge FOREIGN KEY (badge_id) REFERENCES badge(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Customer and admin accounts
 CREATE TABLE app_user (
   id            BIGINT AUTO_INCREMENT PRIMARY KEY,
   full_name     VARCHAR(120) NOT NULL,
@@ -95,6 +99,7 @@ CREATE TABLE app_user (
   created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Cart and wishlist
 CREATE TABLE cart_item (
   id       BIGINT AUTO_INCREMENT PRIMARY KEY,
   user_id  BIGINT NOT NULL,
@@ -116,6 +121,7 @@ CREATE TABLE wishlist_item (
   CONSTRAINT fk_wish_plant FOREIGN KEY (plant_id) REFERENCES plant(id)    ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Orders and payment references
 CREATE TABLE orders (
   id            BIGINT AUTO_INCREMENT PRIMARY KEY,
   order_number  VARCHAR(30) NOT NULL UNIQUE,
@@ -145,6 +151,7 @@ CREATE TABLE order_item (
   CONSTRAINT fk_oi_plant FOREIGN KEY (plant_id) REFERENCES plant(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Contact form and newsletter
 CREATE TABLE contact_message (
   id         BIGINT AUTO_INCREMENT PRIMARY KEY,
   name       VARCHAR(120) NOT NULL,

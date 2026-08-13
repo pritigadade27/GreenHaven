@@ -1,5 +1,6 @@
 SET NAMES utf8mb4;
 
+-- Shop categories
 INSERT INTO category (slug, name, blurb, sort_order) VALUES
   ('indoor-plants', 'Indoor Plants', 'Living decor for every room.', 1),
   ('outdoor-plants', 'Outdoor Plants', 'Balconies, terraces and gardens.', 2),
@@ -11,6 +12,7 @@ INSERT INTO category (slug, name, blurb, sort_order) VALUES
   ('seeds', 'Seeds', 'Non-GMO, open pollinated.', 8),
   ('plant-care', 'Plant Care Products', 'Feed, protect, repot.', 9);
 
+-- Badge definitions
 INSERT INTO badge (code, label, tone, icon, detail) VALUES
   ('petFriendly', 'Pet Friendly', 'good', 'paw', 'Non-toxic to cats and dogs if nibbled.'),
   ('petCaution', 'Keep From Pets', 'warn', 'paw', 'Mildly irritating if chewed — best placed out of reach.'),
@@ -28,6 +30,7 @@ INSERT INTO badge (code, label, tone, icon, detail) VALUES
   ('statement', 'Statement Plant', 'accent', 'star', 'Large and sculptural — designed to be the focal point.'),
   ('vastu', 'Vastu / Lucky', 'accent', 'shield', 'Traditionally kept for prosperity and good fortune.');
 
+-- Plant catalogue
 INSERT INTO plant (code, slug, name, botanical_name, category_id, price, mrp, stock, image,
   rating, review_count, short_description, description, care_tip,
   pet_safety, difficulty, light_need, water_need, maintenance, growth_rate, mature_size,
@@ -1428,6 +1431,7 @@ SELECT 'x84', 'asparagus-fern', 'Asparagus Fern', 'Asparagus setaceus', c.id,
   '16–26 °C.', 'Monthly feed in growth.', 'Annually — the tubers fill a pot fast.',
   FALSE, FALSE
 FROM category c WHERE c.slug = 'air-purifying';
+-- Seed packets
 INSERT INTO plant (code, slug, name, botanical_name, category_id, price, mrp, stock, image,
   rating, review_count, short_description, description, care_tip,
   pet_safety, difficulty, light_need, water_need, maintenance, growth_rate, mature_size,
@@ -1596,6 +1600,7 @@ SELECT 's12', 'croton-seeds', 'Croton Seeds', 'Petra Mix', c.id,
   NULL, NULL, NULL,
   FALSE, FALSE
 FROM category c WHERE c.slug = 'seeds';
+-- Pots, tools and care products
 INSERT INTO plant (code, slug, name, botanical_name, category_id, price, mrp, stock, image,
   rating, review_count, short_description, description, care_tip,
   pet_safety, difficulty, light_need, water_need, maintenance, growth_rate, mature_size,
@@ -2185,6 +2190,7 @@ SELECT 'm48', 'moisture-meter', 'Soil Moisture Meter', 'No batteries', c.id,
   FALSE, TRUE
 FROM category c WHERE c.slug = 'plant-care';
 
+-- Attaches badges to plants
 INSERT INTO plant_badge (plant_id, badge_id) SELECT p.id, b.id FROM plant p, badge b WHERE p.code = 'p01' AND b.code = 'beginner';
 INSERT INTO plant_badge (plant_id, badge_id) SELECT p.id, b.id FROM plant p, badge b WHERE p.code = 'p01' AND b.code = 'lowMaintenance';
 INSERT INTO plant_badge (plant_id, badge_id) SELECT p.id, b.id FROM plant p, badge b WHERE p.code = 'p01' AND b.code = 'droughtTolerant';

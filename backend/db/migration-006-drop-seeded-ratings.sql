@@ -1,3 +1,4 @@
+-- Clears seeded ratings without reviews
 SET NAMES utf8mb4;
 
 UPDATE plant p

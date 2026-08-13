@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Browser bridge and credentials
 BR=http://127.0.0.1:10086/command
 MYSQL="/c/Users/vnp12/mysql/mysql-8.4.9-winx64/bin/mysql.exe"
 HERE="$(cd "$(dirname "$0")" && pwd)"
@@ -7,14 +8,17 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 ADMIN_EMAIL=${ADMIN_EMAIL:?set ADMIN_EMAIL in test-env.sh}
 ADMIN_PASSWORD=${ADMIN_PASSWORD:?set ADMIN_PASSWORD in test-env.sh}
 export MYSQL_PWD
+# Run one MySQL query
 Q() { "$MYSQL" --default-character-set=utf8mb4 -u priti green_haven -N -B -e "$1"; }
 
+# Open a page in the browser
 . "$(cd "$(dirname "$0")" && pwd)/cleanup.sh"
 go() {
   curl -s -X POST $BR -H 'Content-Type: application/json' \
     -d "{\"action\":\"navigate\",\"args\":{\"url\":\"http://localhost:5173$1\"},\"session\":\"green-haven-qa\"}" >/dev/null
   sleep "${2:-5}"
 }
+# Read a value from the page
 ev() {
   python - "$1" <<'PY' > /tmp/ev.json
 import json,sys
@@ -28,6 +32,7 @@ v = r.get('data', {}).get('value')
 print('' if v is None else v)"
 }
 
+# Pass and fail helper
 pass=0; fail=0
 check() {
   if [ "$2" = "$3" ]; then printf "  PASS  %-50s %s\n" "$1" "$3"; pass=$((pass+1))
@@ -54,6 +59,7 @@ go /plant/tulsi 6
 check "and the restored price" "yes" "$(ev 'document.body.innerText.includes("199") ? "yes":"no"')"
 
 echo "== AN ADMIN STOCK EDIT REACHES THE SHOP =="
+# Sign in as admin
 PW=$(grep '^ADMIN_PASSWORD=' "/c/Users/vnp12/Desktop/green haven/backend/.env" | cut -d= -f2- | tr -d '\r')
 ADMIN_EMAIL=$(grep '^ADMIN_EMAIL=' "/c/Users/vnp12/Desktop/green haven/backend/.env" | cut -d= -f2- | tr -d '\r')
 TOK=$(curl -s -m 20 -X POST http://localhost:8080/api/admin/auth/login -H 'Content-Type: application/json' \
@@ -102,6 +108,7 @@ check "no admin link on the shop" 0 "$(ev '[...document.querySelectorAll("a[href
 go /admin/dashboard 5
 check "admin still gated" "/admin/login" "$(ev 'location.pathname')"
 
+# Remove test accounts
 purge_test_accounts "other%@example.com"
 assert_clean "other%@example.com"
 

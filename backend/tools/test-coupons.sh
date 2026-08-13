@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Settings and test credentials
 API=${API:-http://localhost:8080/api}
 MYSQL=${MYSQL:-/c/Users/vnp12/mysql/mysql-8.4.9-winx64/bin/mysql.exe}
 HERE="$(cd "$(dirname "$0")" && pwd)"
@@ -8,8 +9,10 @@ ADMIN_EMAIL=${ADMIN_EMAIL:?set ADMIN_EMAIL in test-env.sh}
 ADMIN_PASSWORD=${ADMIN_PASSWORD:?set ADMIN_PASSWORD in test-env.sh}
 export MYSQL_PWD
 
+# Run one MySQL query
 Q() { "$MYSQL" --default-character-set=utf8mb4 -u priti green_haven -N -B -e "$1"; }
 
+# Pass, fail, money and JSON helpers
 . "$(cd "$(dirname "$0")" && pwd)/cleanup.sh"
 pass=0; fail=0
 check() {
@@ -30,6 +33,7 @@ for k in '$1'.split('.'):
     d = d[int(k)] if k.isdigit() else d.get(k)
 print('' if d is None else d)"; }
 
+# Send JSON as customer or admin
 BODY=$(mktemp)
 json() { python -c "
 import io, json, sys
@@ -41,6 +45,7 @@ postc() { json "$3"; code -X "$1" "$2" -H "Authorization: Bearer $TOK" \
 apost() { json "$3"; curl -s -m 30 -X "$1" "$2" -H "Authorization: Bearer $ATOK" \
   -H 'Content-Type: application/json; charset=utf-8' --data-binary @"$BODY"; }
 
+# Product used for every basket
 STAMP=$(date +%s)
 SLUG=snake-plant
 PRICE=$(Q "SELECT price FROM plant WHERE slug='$SLUG';")
@@ -48,6 +53,7 @@ echo "  $SLUG is ₹$PRICE"
 
 purge_test_accounts "cpn%@example.com"
 
+# Make two customers and an admin
 reg() {
   curl -s -m 20 -X POST $API/auth/register -H 'Content-Type: application/json' \
     -d "{\"fullName\":\"$2\",\"email\":\"$1\",\"password\":\"Testing@123\"}" | jq_ token
@@ -64,6 +70,7 @@ fi
 ATOK=$(curl -s -m 20 -X POST $API/admin/auth/login -H 'Content-Type: application/json' \
   -d "{\"email\":\"$ADMIN_EMAIL\",\"password\":\"$ADMIN_PASSWORD\"}" | jq_ token)
 
+# Clear coupons left by earlier runs
 Q "DELETE FROM coupon WHERE code LIKE 'TEST%';" >/dev/null
 
 CART4="[{\"slug\":\"$SLUG\",\"quantity\":4}]"
@@ -254,6 +261,7 @@ print(r['timesUsed'], r['givenAway'])")
 check "TEST20 used once"        "1" "$(echo "$ROW" | cut -d' ' -f1)"
 checkm "…and what it cost"       "$EXPECTED" "$(echo "$ROW" | cut -d' ' -f2)"
 
+# Remove test coupons and accounts
 assert_clean "cpn%@example.com"
 Q "DELETE FROM coupon WHERE code LIKE 'TEST%';" >/dev/null
 rm -f "$BODY"

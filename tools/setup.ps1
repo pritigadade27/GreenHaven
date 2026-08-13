@@ -12,6 +12,7 @@ Write-Host ""
 
 $missing = @()
 
+# Check Java, Node and MySQL
 $java = $null
 try { $java = (cmd /c 'java -version 2>&1') -join ' ' } catch { }
 if ($java -match '"?(\d+)(\.|")') {
@@ -38,6 +39,7 @@ foreach ($c in $candidates) {
 }
 if ($mysql) { Ok "MySQL client - $mysql" } else { Bad 'MySQL not found'; $missing += 'mysql' }
 
+# Stop with download links if any missing
 if ($missing.Count -gt 0) {
     Write-Host ""
     Bad 'Install the missing pieces first, then run this again:'
@@ -66,6 +68,7 @@ function Ask-Mysql($sql) {
     return (cmd /c "`"$mysql`" -h 127.0.0.1 -u root -N -e `"$sql`" 2>nul")
 }
 
+# Load database only if not already there
 $already = Ask-Mysql 'SELECT COUNT(*) FROM green_haven.plant'
 
 if ($already -match '^\d+$' -and [int]$already -ge 154) {
@@ -79,6 +82,7 @@ if ($already -match '^\d+$' -and [int]$already -ge 154) {
     else { Bad "Expected 154 products, got '$count'"; Read-Host '  Press Enter'; exit 1 }
 }
 
+# Create the limited app user
 $appPw = 'GreenHaven@' + (Get-Random -Minimum 100000 -Maximum 999999)
 $grant = @"
 CREATE USER IF NOT EXISTS 'priti'@'localhost' IDENTIFIED BY '$appPw';
@@ -100,6 +104,7 @@ Remove-Item Env:\MYSQL_PWD -ErrorAction SilentlyContinue
 Write-Host ""
 Say 'Configuration' Cyan
 
+# Write .env with fresh secrets
 $envFile = Join-Path $root 'backend\.env'
 if (Test-Path $envFile) {
     Ok 'backend\.env already exists - keeping your settings'
@@ -127,6 +132,7 @@ ADMIN_NAME=Green Haven Admin
 
 Write-Host ""
 Say 'Frontend packages (this takes a minute)' Cyan
+# Install frontend packages
 Push-Location (Join-Path $root 'frontend')
 cmd /c 'npm install --no-fund --no-audit'
 $npmOk = ($LASTEXITCODE -eq 0)
@@ -137,4 +143,5 @@ Write-Host ""
 Write-Host "  Setup complete." -ForegroundColor Green
 Write-Host "  Starting the site now - double-click START.bat next time." -ForegroundColor Green
 Write-Host ""
+# Hand over to the start script
 & (Join-Path $PSScriptRoot 'start.ps1')

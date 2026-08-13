@@ -1,16 +1,4 @@
-<
-  Green Haven — start / stop / inspect the local MySQL server.
-
-      powershell -File backend\tools\mysql.ps1 start
-      powershell -File backend\tools\mysql.ps1 stop
-      powershell -File backend\tools\mysql.ps1 status
-      powershell -File backend\tools\mysql.ps1 shell
-      powershell -File backend\tools\mysql.ps1 reload
-
-  MySQL was installed from the Oracle zip into C:\Users\vnp12\mysql, which
-  needs no administrator rights — but that also means it is NOT a Windows
-  service, so it does not start automatically after a reboot. Run `start`
-  once per session before using the API.
+# Start, stop and reload the local MySQL
 param(
     [Parameter(Position = 0)]
     [ValidateSet('start', 'stop', 'status', 'shell', 'reload')]
@@ -19,6 +7,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
+# Paths and credentials
 $Home_    = 'C:\Users\vnp12\mysql'
 $Bin      = Join-Path $Home_ 'mysql-8.4.9-winx64\bin'
 $Ini      = Join-Path $Home_ 'my.ini'
@@ -36,6 +25,7 @@ $Res      = Join-Path $PSScriptRoot '..\db'
 
 $env:MYSQL_PWD = $Password
 
+# Check the server responds
 function Test-Up {
     & $Mysql -h 127.0.0.1 -u $User -e 'SELECT 1' | Out-Null
     return ($LASTEXITCODE -eq 0)
@@ -77,6 +67,7 @@ UNION ALL SELECT 'plant_badge', COUNT(*) FROM plant_badge;
 
     'shell' { & $Mysql -h 127.0.0.1 -u $User $Db }
 
+    # Rebuild schema and reseed catalogue
     'reload' {
         if (-not (Test-Up)) { throw 'MySQL is not running. Run: mysql.ps1 start' }
         Write-Host 'Rebuilding schema ...' -ForegroundColor Cyan

@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Settings and test credentials
 API=${API:-http://localhost:8080/api}
 MYSQL=${MYSQL:-/c/Users/vnp12/mysql/mysql-8.4.9-winx64/bin/mysql.exe}
 HERE="$(cd "$(dirname "$0")" && pwd)"
@@ -9,8 +10,10 @@ ADMIN_PASSWORD=${ADMIN_PASSWORD:?set ADMIN_PASSWORD in test-env.sh}
 export MYSQL_PWD
 ENV_FILE="$(dirname "$0")/../.env"
 
+# Run one MySQL query
 Q() { "$MYSQL" --default-character-set=utf8mb4 -u priti green_haven -N -B -e "$1"; }
 
+# Pass, fail and JSON helpers
 . "$(cd "$(dirname "$0")" && pwd)/cleanup.sh"
 pass=0; fail=0
 check() {
@@ -20,12 +23,14 @@ check() {
 code() { curl -s -o /dev/null -m 20 -w '%{http_code}' "$@"; }
 jq_() { python -c "import json,sys; d=json.load(sys.stdin); v=d.get('$1'); print('' if v is None else v)"; }
 
+# Only runs in simulated mode
 MODE=$(grep '^RAZORPAY_MODE=' "$ENV_FILE" | cut -d= -f2- | tr -d '\r')
 if [ "$MODE" != "simulated" ]; then
   echo "  RAZORPAY_MODE is '$MODE', not 'simulated' — nothing to test here."
   exit 0
 fi
 
+# Test basket, buyer and order
 CART='{"addressLine":"12 Test Lane, Kothrud","phone":"9876543210","city":"Pune","state":"Maharashtra","pincode":"411038","items":[{"slug":"aloe-vera","quantity":2}]}'
 buyer() {
   curl -s -m 20 -X POST $API/auth/register -H 'Content-Type: application/json' \
@@ -109,6 +114,7 @@ check "another customer cannot simulate mine" 400 \
 check "unknown order id" 404 "$(code -X POST "$API/orders/order_NOPE/simulate" -H "Authorization: Bearer $TOK")"
 
 echo "== THE PAYMENT REACHES THE ADMIN BOOKS =="
+# Sign in as admin
 PW=$(grep '^ADMIN_PASSWORD=' "$ENV_FILE" | cut -d= -f2- | tr -d '\r')
 ADMIN_EMAIL=$(grep '^ADMIN_EMAIL=' "$ENV_FILE" | cut -d= -f2- | tr -d '\r')
 ADMIN=$(curl -s -m 20 -X POST $API/admin/auth/login -H 'Content-Type: application/json' \
@@ -131,6 +137,7 @@ Q "DELETE p FROM payment p JOIN orders o ON o.id = p.order_id
    UPDATE plant SET stock = $STOCK WHERE slug='aloe-vera';" >/dev/null
 echo "  test orders removed, stock restored to $STOCK"
 
+# Remove test accounts
 purge_test_accounts "paytest%@example.com"
 assert_clean "paytest%@example.com"
 

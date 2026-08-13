@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Config and credentials
 API=${API:-http://localhost:8080/api}
 MYSQL=${MYSQL:-/c/Users/vnp12/mysql/mysql-8.4.9-winx64/bin/mysql.exe}
 HERE="$(cd "$(dirname "$0")" && pwd)"
@@ -9,8 +10,10 @@ ADMIN_PASSWORD=${ADMIN_PASSWORD:?set ADMIN_PASSWORD in test-env.sh}
 export MYSQL_PWD
 ENV_FILE="$(dirname "$0")/../.env"
 
+# MySQL query helper
 Q() { "$MYSQL" --default-character-set=utf8mb4 -u priti green_haven -N -B -e "$1"; }
 
+# Test helpers and cleanup
 . "$(cd "$(dirname "$0")" && pwd)/cleanup.sh"
 pass=0; fail=0
 check() {
@@ -26,6 +29,7 @@ for k in '$1'.split('.'):
     d = d[int(k)] if k.isdigit() else d.get(k)
 print('' if d is None else d)"; }
 
+# JSON request helpers
 BODY=$(mktemp)
 json() { python -c "
 import io, json, sys
@@ -35,6 +39,7 @@ post() { json "$3"; curl -s -m 20 -X "$1" "$2" -H "Authorization: Bearer $TOK" \
 postc() { json "$3"; code -X "$1" "$2" -H "Authorization: Bearer $TOK" \
   -H 'Content-Type: application/json; charset=utf-8' --data-binary @"$BODY"; }
 
+# Fixtures and test accounts
 SLUG=snake-plant
 STAMP=$(date +%s)
 purge_test_accounts "rev%@example.com"
@@ -162,6 +167,7 @@ check "anonymous sees none as theirs" "0" \
   "$(curl -s -m 20 $API/plants/$SLUG/reviews | python -c "import json,sys;print(sum(1 for r in json.load(sys.stdin)['reviews'] if r['mine']))")"
 
 echo "== ADMIN MODERATION =="
+# Sign in as admin
 PW=$(grep '^ADMIN_PASSWORD=' "$ENV_FILE" | cut -d= -f2- | tr -d '\r')
 ADMIN_EMAIL=$(grep '^ADMIN_EMAIL=' "$ENV_FILE" | cut -d= -f2- | tr -d '\r')
 ADMIN=$(curl -s -m 20 -X POST $API/admin/auth/login -H 'Content-Type: application/json' \

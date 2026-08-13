@@ -1,3 +1,4 @@
+-- Adds herbs and new arrivals
 SET NAMES utf8mb4;
 
 INSERT IGNORE INTO category (slug, name, blurb, sort_order)

@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Config and credentials
 API=${API:-http://localhost:8080/api}
 MYSQL=${MYSQL:-/c/Users/vnp12/mysql/mysql-8.4.9-winx64/bin/mysql.exe}
 HERE="$(cd "$(dirname "$0")" && pwd)"
@@ -8,8 +9,10 @@ ADMIN_EMAIL=${ADMIN_EMAIL:?set ADMIN_EMAIL in test-env.sh}
 ADMIN_PASSWORD=${ADMIN_PASSWORD:?set ADMIN_PASSWORD in test-env.sh}
 export MYSQL_PWD
 
+# MySQL query helper
 Q() { "$MYSQL" --default-character-set=utf8mb4 -u priti green_haven -N -B -e "$1"; }
 
+# Test helpers and cleanup
 . "$(cd "$(dirname "$0")" && pwd)/cleanup.sh"
 pass=0; fail=0
 check() {
@@ -31,6 +34,7 @@ io.open(sys.argv[1], 'w', encoding='utf-8').write(json.dumps(json.loads(sys.argv
 post()  { json "$3"; curl -s -m 30 -X "$1" "$2" -H "Authorization: Bearer $TOK" \
   -H 'Content-Type: application/json; charset=utf-8' --data-binary @"$BODY"; }
 
+# Find text inside a PDF
 has() { python -c '
 import re, sys, zlib
 d = open(sys.argv[1], "rb").read()
@@ -42,6 +46,7 @@ text = out.decode("latin-1", "replace")
 needle = sys.argv[2].replace("(", chr(92) + "(").replace(")", chr(92) + ")")
 print("yes" if needle in text else "no")' "$1" "$2"; }
 
+# Register two test customers
 STAMP=$(date +%s)
 SLUG=snake-plant
 EM="inv$STAMP@example.com"
@@ -58,6 +63,7 @@ if [ -z "$TOK" ] || [ -z "$TOK2" ]; then
   exit 1
 fi
 
+# Shared cart and temp folder
 SHIP="{\"addressLine\":\"4 Ferguson Road\",\"phone\":\"9876543210\",\"city\":\"Pune\",\"state\":\"Maharashtra\",\"pincode\":\"411004\",\"items\":[{\"slug\":\"$SLUG\",\"quantity\":1}]}"
 WORK=$(mktemp -d); WIN=$(cygpath -m "$WORK")
 

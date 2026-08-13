@@ -1,3 +1,4 @@
+-- Adds payments, reviews, admin fields
 SET NAMES utf8mb4;
 
 ALTER TABLE orders
@@ -57,6 +58,7 @@ CREATE TABLE IF NOT EXISTS payment (
   KEY idx_payment_rzp_order (razorpay_order_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Backfills payments from old orders
 INSERT INTO payment (order_id, razorpay_order_id, razorpay_payment_id, amount,
                      status, verification_status, verified_at, created_at)
 SELECT o.id, o.razorpay_order_id, o.razorpay_payment_id, o.total,

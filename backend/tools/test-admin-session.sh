@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Config and credentials
 API=http://localhost:8080/api
 MYSQL="/c/Users/vnp12/mysql/mysql-8.4.9-winx64/bin/mysql.exe"
 HERE="$(cd "$(dirname "$0")" && pwd)"
@@ -7,8 +8,10 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 ADMIN_EMAIL=${ADMIN_EMAIL:?set ADMIN_EMAIL in test-env.sh}
 ADMIN_PASSWORD=${ADMIN_PASSWORD:?set ADMIN_PASSWORD in test-env.sh}
 export MYSQL_PWD
+# MySQL query helper
 Q() { "$MYSQL" --default-character-set=utf8mb4 -u priti green_haven -N -B -e "$1"; }
 
+# Test result helpers
 pass=0; fail=0
 check() {
   if [ "$2" = "$3" ]; then printf "  PASS  %-52s %s\n" "$1" "$3"; pass=$((pass+1))
@@ -16,6 +19,7 @@ check() {
 }
 code() { curl -s -o /dev/null -m 20 -w '%{http_code}' "$@"; }
 
+# Admin login helper
 PW=$(grep '^ADMIN_PASSWORD=' "/c/Users/vnp12/Desktop/green haven/backend/.env" | cut -d= -f2- | tr -d '\r')
 ADMIN_EMAIL=$(grep '^ADMIN_EMAIL=' "/c/Users/vnp12/Desktop/green haven/backend/.env" | cut -d= -f2- | tr -d '\r')
 login() {

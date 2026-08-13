@@ -1,3 +1,4 @@
+-- Adds verified purchase reviews
 SET NAMES utf8mb4;
 
 SET @sql := IF(

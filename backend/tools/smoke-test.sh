@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Settings and test credentials
 API=${API:-http://localhost:8080/api}
 MYSQL=${MYSQL:-/c/Users/vnp12/mysql/mysql-8.4.9-winx64/bin/mysql.exe}
 HERE="$(cd "$(dirname "$0")" && pwd)"
@@ -9,8 +10,10 @@ ADMIN_PASSWORD=${ADMIN_PASSWORD:?set ADMIN_PASSWORD in test-env.sh}
 export MYSQL_PWD
 ENV_FILE="$(dirname "$0")/../.env"
 
+# Run one MySQL query
 Q() { "$MYSQL" --default-character-set=utf8mb4 -u priti green_haven -N -B -e "$1"; }
 
+# Pass and fail helpers
 . "$(cd "$(dirname "$0")" && pwd)/cleanup.sh"
 pass=0; fail=0
 check() {
@@ -54,6 +57,7 @@ echo "== CHECKOUT VALIDATION =="
 check "checkout needs a session" 403 "$(code -X POST $API/orders -H 'Content-Type: application/json' -d '{"addressLine":"a","phone":"9876543210","city":"Pune","state":"MH","pincode":"411045","items":[{"slug":"tulsi","quantity":1}]}')"
 check "phone required" 400 "$(code -X POST $API/orders -H "Authorization: Bearer $CUST" -H 'Content-Type: application/json' -d '{"addressLine":"12 Baner Road","city":"Pune","state":"MH","pincode":"411045","items":[{"slug":"tulsi","quantity":1}]}')"
 check "absurd quantity refused" 400 "$(code -X POST $API/orders -H "Authorization: Bearer $CUST" -H 'Content-Type: application/json' -d '{"addressLine":"12 Baner Road","phone":"9876543210","city":"Pune","state":"MH","pincode":"411045","items":[{"slug":"tulsi","quantity":2000000000}]}')"
+# Behaviour depends on gateway mode
 MODE=$(grep '^RAZORPAY_MODE=' "$ENV_FILE" | cut -d= -f2- | tr -d '\r')
 CART='{"addressLine":"12 Baner Road","phone":"9876543210","city":"Pune","state":"MH","pincode":"411045","items":[{"slug":"tulsi","quantity":1}]}'
 if [ "$MODE" = "simulated" ]; then
@@ -64,6 +68,7 @@ fi
 check "order history" 200 "$(code $API/orders -H "Authorization: Bearer $CUST")"
 
 echo "== ADMIN =="
+# Sign in as admin
 PW=$(grep '^ADMIN_PASSWORD=' "$ENV_FILE" | cut -d= -f2- | tr -d '\r')
 ADMIN_EMAIL=$(grep '^ADMIN_EMAIL=' "$ENV_FILE" | cut -d= -f2- | tr -d '\r')
 ADMIN=$(curl -s -m 20 -X POST $API/admin/auth/login -H 'Content-Type: application/json' \
@@ -85,6 +90,7 @@ Q "DELETE FROM contact_message WHERE email='smoke@example.in';
    DELETE FROM newsletter_subscriber WHERE email='smoke@example.in';" >/dev/null
 echo "  test rows removed"
 
+# Remove the test account
 purge_test_accounts "moved%@example.com"
 assert_clean "moved%@example.com"
 

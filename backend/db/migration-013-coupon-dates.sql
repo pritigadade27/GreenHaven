@@ -1,3 +1,4 @@
+-- Makes coupon dates optional
 SET NAMES utf8mb4;
 
 ALTER TABLE coupon
